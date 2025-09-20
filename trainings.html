@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     :root {
-      --bg: #f8fafc; --card: #fff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
+      --bg: #f5f7fb; --card: #fff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
       --green: #059669; --green-soft: #f0fdf4; --green-border: #a7f3d0;
       --red: #dc2626; --red-soft: #fef2f2; --red-border: #fecaca;
       --orange: #ea580c; --orange-soft: #fff7ed; --orange-border: #fed7aa;
@@ -18,20 +18,27 @@
       --gym-color: #5b21b6; --gym-soft: #f5f3ff; --gym-border: #ddd6fe;
       --run-color: #047857; --run-soft: #ecfdf5; --run-border: #a7f3d0;
       --read-color: #0369a1; --read-soft: #f0f9ff; --read-border: #bae6fd;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --cat-move: #7c3aed; --cat-move-soft: #ede9fe;
+      --cat-mind: #1d4ed8; --cat-mind-soft: #dbeafe;
+      --cat-restore: #0f766e; --cat-restore-soft: #ccfbf1;
+      --cat-home: #f97316; --cat-home-soft: #ffedd5;
+      --cat-social: #db2777; --cat-social-soft: #ffe4e6;
+      --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(15 23 42 / 0.08), 0 1px 2px -1px rgb(15 23 42 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.1), 0 2px 4px -2px rgb(15 23 42 / 0.08);
+      --shadow-lg: 0 12px 30px -10px rgb(15 23 42 / 0.3);
       --transition-fast: all .2s ease-in-out;
     }
     *, *::before, *::after { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    body { margin: 0; background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 35%); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 48px 24px 64px; }
     .grid { display: grid; gap: 16px; }
     .g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     @media(max-width: 768px) { .g-3 { grid-template-columns: 1fr; } }
+    @media(max-width: 960px) { .g-2 { grid-template-columns: 1fr; } }
     
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); }
+    .card { background: var(--card); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); position: relative; overflow: hidden; }
     .card:hover { box-shadow: var(--shadow-md); }
     .title { margin: 0 0 8px 0; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; }
     .muted { color: var(--muted); }
@@ -42,10 +49,13 @@
     .btn.danger { background: var(--red-soft); border-color: var(--red-border); color: var(--red); }
     .btn.danger:hover { background: var(--red); color: #fff; }
     
-    .progress-bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+    .progress-bar { height: 8px; background: rgba(148, 163, 184, 0.35); border-radius: 999px; overflow: hidden; margin-top: 4px; }
     .progress-bar > div { height: 100%; transition: width .4s cubic-bezier(0.22, 1, 0.36, 1); }
     .tiny { font-size: 12px; color: var(--muted); }
     .row { display: flex; justify-content: space-between; align-items: center; }
+    .stack { display: flex; flex-direction: column; gap: 6px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--blue-soft); color: var(--blue); }
+    .accent-text { font-weight: 600; color: var(--blue); }
 
     /* Header */
     .page-header { margin-bottom: 32px; }
@@ -53,17 +63,37 @@
     .kpi-item { text-align: center; }
     .kpi-separator { width: 1px; height: 40px; background-color: var(--line); }
     .kpi-value { font-size: 26px; font-weight: 800; line-height: 1.1; }
-    .goal-card { padding: 20px; box-shadow: none; transition: var(--transition-fast); }
-    .goal-card:hover { transform: scale(1.02); box-shadow: var(--shadow-md); }
-    .goal-card .title { font-size: 14px; margin-bottom: 4px; }
-    .goal-card .kpi-value { font-size: 20px; font-weight: 700; }
+    .goal-card { padding: 20px; box-shadow: none; transition: var(--transition-fast); border: 1px solid transparent; }
+    .goal-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .goal-card .title { font-size: 15px; margin-bottom: 4px; }
+    .goal-card .kpi-value { font-size: 22px; font-weight: 700; }
     .goal-card .btn { width: 100%; margin-top: 16px; padding: 8px 12px; font-size: 13px; }
+    .goal-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 500; color: var(--muted); }
+    .goal-meta span { display: inline-flex; align-items: center; gap: 4px; }
 
     /* Tabs */
     .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
     .tab { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid transparent; color: var(--muted); transition: var(--transition-fast); display: flex; align-items: center; gap: 6px;}
     .tab:hover { background: var(--bg); color: var(--ink); }
     .tab.active { background: #fff; color: var(--ink); border-color: var(--line); box-shadow: var(--shadow-sm); }
+
+    .info-grid { margin-bottom: 24px; }
+    .focus-card { background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0)); border: 1px solid rgba(37, 99, 235, 0.16); }
+    .focus-card::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at top right, rgba(37,99,235,0.18), transparent 60%); }
+    .focus-card .title { font-size: 16px; }
+    .focus-body { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .focus-headline { font-size: 18px; font-weight: 700; }
+    .focus-empty { color: var(--muted); font-style: italic; }
+    .insights-card { min-height: 100%; }
+    .insights-list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+    .insight-item { padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.24); background: rgba(248, 250, 252, 0.7); display: flex; flex-direction: column; gap: 6px; }
+    .insight-item strong { font-size: 14px; }
+    .insight-detail { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); flex-wrap: wrap; gap: 8px; }
+    .insight-detail span { display: inline-flex; align-items: center; gap: 4px; }
+    .notes-card textarea { width: 100%; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.35); padding: 12px; font-family: 'Inter', system-ui; font-size: 13px; resize: vertical; min-height: 120px; transition: border .2s ease; }
+    .notes-card textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+    .notes-card .title { margin-bottom: 8px; }
+    .notes-helper { margin-top: 8px; font-size: 12px; color: var(--muted); }
 
     /* Planner */
     .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 16px; }
@@ -90,6 +120,32 @@
     .quick-add-menu { position: absolute; top: 40px; right: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); z-index: 10; display: none; flex-direction: column; overflow: hidden; }
     .quick-add-menu button { background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; width: 100%; font-size: 13px; }
     .quick-add-menu button:hover { background-color: var(--bg); }
+
+    .extra-activities { margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(148, 163, 184, 0.4); display: flex; flex-direction: column; gap: 8px; }
+    .extra-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
+    .extra-header button { border: none; background: transparent; color: var(--blue); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; padding: 4px 6px; border-radius: 8px; transition: var(--transition-fast); }
+    .extra-header button:hover { background: rgba(37, 99, 235, 0.08); }
+    .extra-list { display: flex; flex-direction: column; gap: 8px; }
+    .extra-activity { display: flex; gap: 8px; border: 1px solid rgba(148, 163, 184, 0.4); border-left-width: 4px; border-radius: 12px; padding: 10px 12px; align-items: flex-start; background: #fff; transition: var(--transition-fast); }
+    .extra-activity.completed { opacity: 0.75; background: var(--green-soft); border-color: var(--green-border); }
+    .extra-activity .extra-content { flex: 1; display: flex; gap: 10px; }
+    .extra-activity .extra-checkbox { margin-top: 2px; }
+    .extra-activity label { display: flex; gap: 10px; align-items: flex-start; flex: 1; cursor: pointer; }
+    .extra-activity input[type="checkbox"] { margin-top: 4px; accent-color: var(--blue); }
+    .extra-activity strong { font-size: 13px; }
+    .extra-meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px; color: var(--muted); }
+    .extra-notes { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+    .extra-actions { display: flex; gap: 6px; }
+    .icon-btn { border: none; background: rgba(148, 163, 184, 0.12); color: var(--muted); padding: 6px; border-radius: 8px; cursor: pointer; transition: var(--transition-fast); display: inline-flex; align-items: center; justify-content: center; }
+    .icon-btn:hover { color: var(--ink); background: rgba(15, 23, 42, 0.08); }
+    .extra-empty { font-size: 12px; color: var(--muted); font-style: italic; }
+
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .tag.move { background: var(--cat-move-soft); color: var(--cat-move); }
+    .tag.mind { background: var(--cat-mind-soft); color: var(--cat-mind); }
+    .tag.restore { background: var(--cat-restore-soft); color: var(--cat-restore); }
+    .tag.home { background: var(--cat-home-soft); color: var(--cat-home); }
+    .tag.social { background: var(--cat-social-soft); color: var(--cat-social); }
     
     .empty-planner { text-align: center; padding: 40px; color: var(--muted); border: 2px dashed var(--line); border-radius: 12px; margin-top: 16px; }
 
@@ -104,6 +160,13 @@
     .option-label { display: flex; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: var(--transition-fast); }
     .option-label:hover { background-color: var(--bg); border-color: var(--blue-border); }
     .option-label input { margin-right: 12px; }
+    .modal-form { text-align: left; display: grid; gap: 12px; margin-top: 16px; }
+    .modal-form label { font-size: 13px; font-weight: 600; color: var(--ink); display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+    .modal-form input,
+    .modal-form select,
+    .modal-form textarea { width: 100%; border: 1px solid rgba(148, 163, 184, 0.6); border-radius: 10px; padding: 10px 12px; font-family: 'Inter', system-ui; font-size: 14px; }
+    .modal-form textarea { min-height: 80px; resize: vertical; }
+    .modal-form small { font-weight: 500; color: var(--muted); }
 
     /* Planning Mode */
     .planning-mode .day-column { cursor: pointer; border: 2px dashed var(--blue-border); }
@@ -132,8 +195,8 @@
       <div style="display: flex; align-items: center; gap: 16px;">
         <a href="./index.html" class="btn soft"><i data-lucide="arrow-left" class="icon"></i> Powrót</a>
         <div>
-          <h1 style="font-size: 28px; font-weight: 800; margin:0;">Plany i Progres</h1>
-          <p class="muted" style="margin:0;">Planuj i śledź swoje tygodniowe cele rozwojowe.</p>
+          <h1 style="font-size: 30px; font-weight: 800; margin:0;">Plany i Progres</h1>
+          <p class="muted" style="margin:0;">Zorganizuj tydzień, domykaj cele i śledź ważne rytuały.</p>
         </div>
       </div>
       <div class="card header-kpis">
@@ -148,6 +211,26 @@
         </div>
       </div>
     </header>
+
+    <div class="grid g-2 info-grid">
+        <div class="card focus-card">
+            <div class="row" style="align-items: flex-start;">
+                <h3 class="title" style="margin-bottom:0;"><i data-lucide="sparkles" class="icon"></i>Motyw przewodni tygodnia</h3>
+                <button class="btn soft" id="focus-edit-btn"><i data-lucide="pen" class="icon"></i>Ustal</button>
+            </div>
+            <div class="focus-body">
+                <p id="focus-headline" class="focus-headline focus-empty">Dodaj jedno krótkie hasło, które będzie Twoim kompasem.</p>
+                <p id="focus-motivation" class="muted" style="margin:0; display:none;"></p>
+            </div>
+        </div>
+        <div class="card insights-card">
+            <div class="row" style="align-items:flex-start;">
+                <h3 class="title" style="margin-bottom:0;"><i data-lucide="target" class="icon"></i>Następne kroki</h3>
+                <span class="tiny muted" id="insights-summary"></span>
+            </div>
+            <div class="insights-list" id="goal-insights"></div>
+        </div>
+    </div>
 
     <div class="card">
         <div class="row">
@@ -164,12 +247,46 @@
             <div class="progress-bar"><div id="overall-progress-bar" style="width:0%; background: var(--blue);"></div></div>
         </div>
         <div class="grid g-3" style="margin-top: 20px;">
-            <div class="card goal-card" style="background: var(--gym-soft);"><h4 class="title">💪 Trening siłowy</h4><div id="goal-gym-progress" class="kpi-value">0/3 sesje</div><div class="progress-bar"><div id="goal-gym-bar" style="width:0%; background: var(--gym-color);"></div></div><button class="btn soft" data-activity-type="gym" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
-            <div class="card goal-card" style="background: var(--run-soft);"><h4 class="title">🏃 Bieg</h4><div id="goal-running-progress" class="kpi-value">0/5 km</div><div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div><button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
-            <div class="card goal-card" style="background: var(--read-soft);"><h4 class="title">📚 Czytanie</h4><div id="goal-reading-progress" class="kpi-value">0/100 stron</div><div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div><button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
+            <div class="card goal-card" style="background: var(--gym-soft);">
+                <h4 class="title">💪 Trening siłowy</h4>
+                <div id="goal-gym-progress" class="kpi-value">0/3 sesje</div>
+                <div class="progress-bar"><div id="goal-gym-bar" style="width:0%; background: var(--gym-color);"></div></div>
+                <div class="goal-meta">
+                    <span id="goal-gym-planned">Zaplanowano: 0</span>
+                    <span id="goal-gym-remaining">Pozostało: 3</span>
+                </div>
+                <button class="btn soft" data-activity-type="gym" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button>
+            </div>
+            <div class="card goal-card" style="background: var(--run-soft);">
+                <h4 class="title">🏃 Bieg</h4>
+                <div id="goal-running-progress" class="kpi-value">0/5 km</div>
+                <div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div>
+                <div class="goal-meta">
+                    <span id="goal-running-planned">Zaplanowano: 0 km</span>
+                    <span id="goal-running-remaining">Pozostało: 5 km</span>
+                </div>
+                <button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button>
+            </div>
+            <div class="card goal-card" style="background: var(--read-soft);">
+                <h4 class="title">📚 Czytanie</h4>
+                <div id="goal-reading-progress" class="kpi-value">0/100 stron</div>
+                <div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div>
+                <div class="goal-meta">
+                    <span id="goal-reading-planned">Zaplanowano: 0 stron</span>
+                    <span id="goal-reading-remaining">Pozostało: 100 stron</span>
+                </div>
+                <button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button>
+            </div>
         </div>
     </div>
-    
+
+    <div class="card notes-card">
+        <h3 class="title" style="margin-bottom: 4px;"><i data-lucide="notebook-pen" class="icon"></i>Notatki i obserwacje</h3>
+        <p class="muted tiny" style="margin-bottom: 12px;">Zapisz spostrzeżenia z tygodnia, dzięki którym łatwiej utrzymasz rytm.</p>
+        <textarea id="weekly-notes" placeholder="Co w tym tygodniu działa? Jakie mikro-zmiany wprowadzisz?"></textarea>
+        <div class="notes-helper">Wskazówka: notatki zapisują się automatycznie po chwili.</div>
+    </div>
+
     <div class="tabs">
         <div class="tab active" data-tab="planner"><i data-lucide="calendar-days" class="icon"></i>Planer</div>
         <div class="tab" data-tab="stats"><i data-lucide="trending-up" class="icon"></i>Statystyki</div>
@@ -185,7 +302,7 @@
         <div class="planner-grid"></div>
         <div id="empty-planner-placeholder" class="empty-planner" style="display: none;">
             <h4 style="margin: 0 0 4px 0;">Tydzień jest pusty</h4>
-            <p style="margin: 0;">Zaplanuj swoje aktywności używając przycisków powyżej lub skopiuj plan z poprzedniego tygodnia.</p>
+            <p style="margin: 0;">Zaplanuj cele główne i dodaj aktywności wspierające (np. core, mobilność, regeneracja), aby tydzień był kompletny.</p>
         </div>
     </div>
 
@@ -221,10 +338,21 @@
 // --- KONFIGURACJA ---
 const STORAGE_KEY = 'lifeos_trainings_v1';
 const GOAL_DEFINITIONS = {
-    gym: { target: 3, unit: 'sesje', label: 'Trening siłowy' },
-    running: { target: 5, unit: 'km', label: 'Bieg' },
-    reading: { target: 100, unit: 'stron', label: 'Czytanie' }
+    gym: { target: 3, unit: 'sesje', label: 'Trening siłowy', icon: 'dumbbell', accent: 'var(--gym-color)' },
+    running: { target: 5, unit: 'km', label: 'Bieg', icon: 'timer', accent: 'var(--run-color)' },
+    reading: { target: 100, unit: 'stron', label: 'Czytanie', icon: 'book-open', accent: 'var(--read-color)' }
 };
+const CUSTOM_ACTIVITY_CATEGORIES = [
+    { value: 'move', label: 'Aktywność / trening', accent: 'var(--cat-move)', soft: 'var(--cat-move-soft)' },
+    { value: 'mind', label: 'Nauka i rozwój', accent: 'var(--cat-mind)', soft: 'var(--cat-mind-soft)' },
+    { value: 'restore', label: 'Regeneracja / wellness', accent: 'var(--cat-restore)', soft: 'var(--cat-restore-soft)' },
+    { value: 'home', label: 'Dom i organizacja', accent: 'var(--cat-home)', soft: 'var(--cat-home-soft)' },
+    { value: 'social', label: 'Relacje i zabawa', accent: 'var(--cat-social)', soft: 'var(--cat-social-soft)' }
+];
+const CATEGORY_LOOKUP = CUSTOM_ACTIVITY_CATEGORIES.reduce((acc, item) => {
+    acc[item.value] = item;
+    return acc;
+}, {});
 const DAY_NAMES = ['Niedz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
 
 let state = {};
@@ -232,10 +360,74 @@ let currentDate = new Date();
 let planningState = { isPlanning: false, activityType: null };
 let dragState = { activityId: null, sourceDay: null };
 let saveTimeout;
+let notesDebounce;
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"]+/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[s]);
+}
+
+function createEmptyWeekStructure() {
+    return { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 0: [] };
+}
+
+function createDefaultWeekData() {
+    return {
+        progress: { gym: 0, running: 0, reading: 0 },
+        plan: createEmptyWeekStructure(),
+        extraActivities: createEmptyWeekStructure(),
+        isComplete: false,
+        summaryShown: false,
+        weeklyFocus: { headline: '', motivation: '' },
+        weeklyNotes: ''
+    };
+}
+
+function getCategoryMeta(category) {
+    return CATEGORY_LOOKUP[category] || { label: 'Inne', accent: 'var(--muted)', soft: '#e2e8f0' };
+}
+
+function ensureWeekDefaults(weekData) {
+    weekData.progress = weekData.progress || { gym: 0, running: 0, reading: 0 };
+    weekData.plan = weekData.plan || createEmptyWeekStructure();
+    weekData.extraActivities = weekData.extraActivities || createEmptyWeekStructure();
+    Object.keys(createEmptyWeekStructure()).forEach(day => {
+        if (!Array.isArray(weekData.plan[day])) weekData.plan[day] = [];
+        if (!Array.isArray(weekData.extraActivities[day])) weekData.extraActivities[day] = [];
+    });
+    weekData.weeklyFocus = weekData.weeklyFocus || { headline: '', motivation: '' };
+    weekData.weeklyNotes = weekData.weeklyNotes || '';
+    if (typeof weekData.isComplete !== 'boolean') weekData.isComplete = false;
+    if (typeof weekData.summaryShown !== 'boolean') weekData.summaryShown = false;
+}
+
+function getPlannedTotals(plan, options = {}) {
+    const { includeLoggedWhenCompleted = false } = options;
+    const totals = { gym: 0, running: 0, reading: 0 };
+    Object.keys(plan || {}).forEach(day => {
+        (plan[day] || []).forEach(activity => {
+            if (activity.type === 'gym') totals.gym += 1;
+            else if (totals[activity.type] !== undefined) {
+                const plannedValue = activity.plannedValue || 0;
+                const loggedValue = activity.completed ? (Number(activity.loggedValue) || plannedValue) : plannedValue;
+                totals[activity.type] += includeLoggedWhenCompleted ? loggedValue : plannedValue;
+            }
+        });
+    });
+    return totals;
+}
+
+function formatWithUnit(type, value) {
+    const goal = GOAL_DEFINITIONS[type];
+    if (type === 'gym') {
+        return `${value} ${goal.unit}`;
+    }
+    return `${(value || 0).toLocaleString('pl-PL')} ${goal.unit}`;
+}
 
 // --- STAN APLIKACJI ---
 function loadState() { state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
-function saveState() { 
+function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     const saveStatus = document.getElementById('save-status');
     clearTimeout(saveTimeout);
@@ -263,13 +455,9 @@ function toYYYYMMDD(date) { return date.toISOString().slice(0, 10); }
 function initializeWeekData(year, week) {
     if (!state[year]) state[year] = {};
     if (!state[year][week]) {
-        state[year][week] = {
-            progress: { gym: 0, running: 0, reading: 0 },
-            plan: { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 0:[] },
-            isComplete: false,
-            summaryShown: false
-        };
+        state[year][week] = createDefaultWeekData();
     }
+    ensureWeekDefaults(state[year][week]);
 }
 
 function addActivity(type, dayIndex, plannedValue) {
@@ -285,6 +473,66 @@ function addActivity(type, dayIndex, plannedValue) {
     };
     if(!weekData.plan[dayIndex]) weekData.plan[dayIndex] = [];
     weekData.plan[dayIndex].push(newActivity);
+    saveState();
+    render();
+}
+
+function addExtraActivity(dayIndex, payload) {
+    const name = (payload.name || '').trim();
+    if (!name) return;
+    const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
+    const weekData = state[year][week];
+    if(!weekData.extraActivities[dayIndex]) weekData.extraActivities[dayIndex] = [];
+    const parsedDuration = Number(payload.duration);
+    const durationValue = !isNaN(parsedDuration) && parsedDuration > 0 ? Math.round(parsedDuration) : null;
+    const activity = {
+        id: `extra_${Date.now()}_${Math.random()}`,
+        name,
+        category: payload.category || 'move',
+        duration: durationValue,
+        notes: (payload.notes || '').trim(),
+        completed: false,
+        day: dayIndex
+    };
+    weekData.extraActivities[dayIndex].push(activity);
+    saveState();
+    render();
+}
+
+function updateExtraActivity(dayIndex, activityId, updates) {
+    const [year, week] = getWeekNumber(currentDate);
+    const weekData = state[year][week];
+    const list = weekData.extraActivities?.[dayIndex];
+    if (!list) return;
+    const activity = list.find(item => item.id === activityId);
+    if (!activity) return;
+    if (updates.name !== undefined) activity.name = (updates.name || '').trim();
+    if (updates.category !== undefined) activity.category = updates.category || 'move';
+    if (updates.duration !== undefined) {
+        const parsedDuration = Number(updates.duration);
+        activity.duration = !isNaN(parsedDuration) && parsedDuration > 0 ? Math.round(parsedDuration) : null;
+    }
+    if (updates.notes !== undefined) activity.notes = (updates.notes || '').trim();
+    saveState();
+    render();
+}
+
+function toggleExtraActivityCompletion(dayIndex, activityId, completed) {
+    const [year, week] = getWeekNumber(currentDate);
+    const weekData = state[year][week];
+    const activity = weekData.extraActivities?.[dayIndex]?.find(item => item.id === activityId);
+    if (!activity) return;
+    activity.completed = completed;
+    saveState();
+    render();
+}
+
+function deleteExtraActivity(dayIndex, activityId) {
+    const [year, week] = getWeekNumber(currentDate);
+    const weekData = state[year][week];
+    if (!weekData.extraActivities?.[dayIndex]) return;
+    weekData.extraActivities[dayIndex] = weekData.extraActivities[dayIndex].filter(item => item.id !== activityId);
     saveState();
     render();
 }
@@ -353,6 +601,7 @@ function copyPreviousWeek(copyProgress = false) {
 
     // Deep copy of the plan
     const newPlan = JSON.parse(JSON.stringify(prevWeekData.plan));
+    const newExtras = JSON.parse(JSON.stringify(prevWeekData.extraActivities || createEmptyWeekStructure()));
 
     Object.values(newPlan).flat().forEach(activity => {
         activity.id = `act_${Date.now()}_${Math.random()}`; // New unique ID
@@ -362,9 +611,19 @@ function copyPreviousWeek(copyProgress = false) {
         }
     });
 
+    Object.values(newExtras).flat().forEach(activity => {
+        activity.id = `extra_${Date.now()}_${Math.random()}`;
+        if (!copyProgress) activity.completed = false;
+    });
+
     initializeWeekData(currentYear, currentWeek);
     state[currentYear][currentWeek].plan = newPlan;
-    
+    state[currentYear][currentWeek].extraActivities = newExtras;
+    state[currentYear][currentWeek].weeklyFocus = copyProgress && prevWeekData.weeklyFocus
+        ? { ...prevWeekData.weeklyFocus }
+        : { headline: '', motivation: '' };
+    state[currentYear][currentWeek].weeklyNotes = '';
+
     recalculateWeekProgress(currentYear, currentWeek);
     checkWeekCompletion(currentYear, currentWeek);
     saveState();
@@ -387,15 +646,20 @@ function render() {
     todayBtn.style.display = (year === currentYear && week === currentWeek) ? 'none' : 'inline-flex';
 
     renderCopyPlanButton();
-    renderGoals(weekData.progress);
-    renderPlanner(weekData.plan, startOfWeek);
+    renderGoals(weekData);
+    renderPlanner(weekData.plan, weekData.extraActivities, startOfWeek);
     renderHeaderKPIs(year);
-    renderPlanningStatus(weekData.plan);
+    renderPlanningStatus(weekData.plan, weekData.extraActivities);
     renderOverallProgress(weekData.progress);
+    renderFocusCard(weekData.weeklyFocus);
+    renderGoalInsights(weekData);
+    renderWeeklyNotes(weekData.weeklyNotes);
     lucide.createIcons();
 }
 
-function renderGoals(progress) {
+function renderGoals(weekData) {
+    const progress = weekData.progress || {};
+    const plannedTotals = getPlannedTotals(weekData.plan || {});
     for (const type in GOAL_DEFINITIONS) {
         const goal = GOAL_DEFINITIONS[type];
         const currentProgress = parseFloat(progress[type] || 0);
@@ -403,16 +667,20 @@ function renderGoals(progress) {
 
         document.getElementById(`goal-${type}-progress`).textContent = `${currentProgress.toLocaleString('pl-PL')}/${goal.target} ${goal.unit}`;
         document.getElementById(`goal-${type}-bar`).style.width = `${progressPercent}%`;
+        const plannedValue = plannedTotals[type] || 0;
+        const remainingValue = Math.max(0, goal.target - currentProgress);
+        document.getElementById(`goal-${type}-planned`).textContent = `Zaplanowano: ${formatWithUnit(type, plannedValue)}`;
+        document.getElementById(`goal-${type}-remaining`).textContent = `Pozostało: ${formatWithUnit(type, remainingValue)}`;
     }
 }
 
-function renderPlanner(plan, startOfWeek) {
+function renderPlanner(plan, extraActivities, startOfWeek) {
     const plannerGrid = document.querySelector('.planner-grid');
     const emptyPlaceholder = document.getElementById('empty-planner-placeholder');
     plannerGrid.innerHTML = '';
     const today = new Date();
     today.setHours(0,0,0,0);
-    
+
     let isPlanEmpty = true;
 
     for (let i = 1; i <= 7; i++) {
@@ -428,7 +696,7 @@ function renderPlanner(plan, startOfWeek) {
         dayHeader.className = 'day-header';
         dayHeader.textContent = `${DAY_NAMES[dayIndex]} ${currentDay.getDate()}`;
         if (currentDay.getTime() === today.getTime()) dayHeader.classList.add('today');
-        
+
         const activitiesContainer = document.createElement('div');
         activitiesContainer.className = 'activities-container';
 
@@ -466,6 +734,11 @@ function renderPlanner(plan, startOfWeek) {
             });
         }
 
+        const extraListForDay = (extraActivities && extraActivities[dayIndex]) ? extraActivities[dayIndex] : [];
+        if (extraListForDay.length > 0) {
+            isPlanEmpty = false;
+        }
+
         const quickAddBtn = document.createElement('button');
         quickAddBtn.className = 'quick-add-btn';
         quickAddBtn.innerHTML = '<i data-lucide="plus" class="icon" style="width:18px; height:18px;"></i>';
@@ -484,10 +757,123 @@ function renderPlanner(plan, startOfWeek) {
             };
             quickAddMenu.appendChild(btn);
         }
+        const customBtn = document.createElement('button');
+        customBtn.textContent = 'Aktywność dodatkowa';
+        customBtn.onclick = (e) => {
+            e.stopPropagation();
+            showCustomActivityModal(dayIndex);
+            quickAddMenu.style.display = 'none';
+        };
+        quickAddMenu.appendChild(customBtn);
         dayColumn.appendChild(quickAddMenu);
 
         dayColumn.appendChild(dayHeader);
         dayColumn.appendChild(activitiesContainer);
+
+        const extraWrapper = document.createElement('div');
+        extraWrapper.className = 'extra-activities';
+        const extraHeader = document.createElement('div');
+        extraHeader.className = 'extra-header';
+        extraHeader.innerHTML = `<span>Aktywności dodatkowe</span>`;
+        const extraAddBtn = document.createElement('button');
+        extraAddBtn.setAttribute('data-extra-action', 'add');
+        extraAddBtn.setAttribute('data-day-index', dayIndex);
+        extraAddBtn.innerHTML = '<i data-lucide="plus" class="icon" style="width:16px; height:16px;"></i>Dodaj';
+        extraHeader.appendChild(extraAddBtn);
+        extraWrapper.appendChild(extraHeader);
+
+        const extraList = document.createElement('div');
+        extraList.className = 'extra-list';
+        const sortedExtras = [...extraListForDay].sort((a, b) => Number(a.completed) - Number(b.completed));
+        if (sortedExtras.length === 0) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'extra-empty';
+            placeholder.textContent = 'Dodaj aktywności wspierające główne cele (np. core, mobilność, regeneracja).';
+            extraList.appendChild(placeholder);
+        } else {
+            sortedExtras.forEach(extra => {
+                const meta = getCategoryMeta(extra.category);
+                const item = document.createElement('div');
+                item.className = `extra-activity${extra.completed ? ' completed' : ''}`;
+                item.dataset.extraId = extra.id;
+                item.dataset.dayIndex = dayIndex;
+                item.style.borderLeftColor = meta.accent || 'var(--muted)';
+                if (!extra.completed) {
+                    item.style.background = meta.soft || '#fff';
+                }
+
+                const content = document.createElement('div');
+                content.className = 'extra-content';
+
+                const checkboxWrapper = document.createElement('div');
+                checkboxWrapper.className = 'extra-checkbox';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = !!extra.completed;
+                checkbox.dataset.extraAction = 'toggle';
+                checkbox.dataset.dayIndex = dayIndex;
+                checkbox.dataset.extraId = extra.id;
+                checkboxWrapper.appendChild(checkbox);
+
+                const copy = document.createElement('div');
+                copy.className = 'stack';
+                const title = document.createElement('strong');
+                title.textContent = extra.name;
+                copy.appendChild(title);
+                const metaRow = document.createElement('div');
+                metaRow.className = 'extra-meta';
+                const tag = document.createElement('span');
+                const categoryClass = CATEGORY_LOOKUP[extra.category] ? extra.category : 'move';
+                tag.className = `tag ${categoryClass}`;
+                tag.textContent = meta.label;
+                metaRow.appendChild(tag);
+                if (extra.duration) {
+                    const durationSpan = document.createElement('span');
+                    durationSpan.textContent = `${extra.duration} min`;
+                    metaRow.appendChild(durationSpan);
+                }
+                if (extra.completed) {
+                    const completedSpan = document.createElement('span');
+                    completedSpan.textContent = 'Ukończone';
+                    metaRow.appendChild(completedSpan);
+                }
+                copy.appendChild(metaRow);
+                if (extra.notes) {
+                    const notesEl = document.createElement('div');
+                    notesEl.className = 'extra-notes';
+                    notesEl.textContent = extra.notes;
+                    copy.appendChild(notesEl);
+                }
+
+                content.appendChild(checkboxWrapper);
+                content.appendChild(copy);
+                item.appendChild(content);
+
+                const actions = document.createElement('div');
+                actions.className = 'extra-actions';
+                const editBtn = document.createElement('button');
+                editBtn.className = 'icon-btn';
+                editBtn.innerHTML = '<i data-lucide="pencil" class="icon" style="width:16px; height:16px;"></i>';
+                editBtn.setAttribute('data-extra-action', 'edit');
+                editBtn.setAttribute('data-day-index', dayIndex);
+                editBtn.setAttribute('data-extra-id', extra.id);
+                editBtn.setAttribute('aria-label', 'Edytuj aktywność');
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'icon-btn';
+                deleteBtn.innerHTML = '<i data-lucide="trash-2" class="icon" style="width:16px; height:16px;"></i>';
+                deleteBtn.setAttribute('data-extra-action', 'delete');
+                deleteBtn.setAttribute('data-day-index', dayIndex);
+                deleteBtn.setAttribute('data-extra-id', extra.id);
+                deleteBtn.setAttribute('aria-label', 'Usuń aktywność');
+                actions.appendChild(editBtn);
+                actions.appendChild(deleteBtn);
+                item.appendChild(actions);
+                extraList.appendChild(item);
+            });
+        }
+
+        extraWrapper.appendChild(extraList);
+        dayColumn.appendChild(extraWrapper);
         dayColumn.addEventListener('dragover', handleDragOver);
         dayColumn.addEventListener('dragleave', handleDragLeave);
         dayColumn.addEventListener('drop', handleDrop);
@@ -526,14 +912,15 @@ function renderHeaderKPIs(year) {
     document.getElementById('streak-value').innerHTML = `${currentStreak} <span class="tiny" style="font-weight: 500;">(max ${maxStreak})</span>`;
 }
 
-function renderPlanningStatus(plan) {
+function renderPlanningStatus(plan, extraActivities) {
     const statusEl = document.getElementById('planning-status');
-    const plannedTotals = { gym: 0, running: 0, reading: 0 };
-    Object.values(plan).flat().forEach(activity => {
-        plannedTotals[activity.type] += activity.completed ? activity.loggedValue : (activity.plannedValue || 0);
-    });
+    const plannedTotals = getPlannedTotals(plan, { includeLoggedWhenCompleted: true });
 
     const allGoalsPlanned = Object.keys(GOAL_DEFINITIONS).every(type => plannedTotals[type] >= GOAL_DEFINITIONS[type].target);
+
+    const extraLists = extraActivities ? Object.values(extraActivities) : [];
+    const extraTotal = extraLists.reduce((sum, list) => sum + (list?.length || 0), 0);
+    const extraCompleted = extraLists.reduce((sum, list) => sum + (list?.filter(item => item.completed).length || 0), 0);
 
     if (allGoalsPlanned) {
         statusEl.textContent = '✅ Cele tygodnia zaplanowane!';
@@ -541,6 +928,10 @@ function renderPlanningStatus(plan) {
     } else {
         statusEl.textContent = '⚠️ Nie wszystkie cele są w pełni zaplanowane.';
         statusEl.style.color = 'var(--orange)';
+    }
+
+    if (extraTotal > 0) {
+        statusEl.innerHTML += ` <span class="accent-text">Rytuały: ${extraCompleted}/${extraTotal}</span>`;
     }
 }
 
@@ -554,11 +945,114 @@ function renderOverallProgress(progress) {
     document.getElementById('overall-progress-label').textContent = `Postęp tygodnia: ${Math.round(avgPercent)}%`;
 }
 
+function renderFocusCard(weeklyFocus) {
+    const headlineEl = document.getElementById('focus-headline');
+    const motivationEl = document.getElementById('focus-motivation');
+    const editBtn = document.getElementById('focus-edit-btn');
+    if (editBtn) {
+        editBtn.onclick = () => showFocusModal();
+        editBtn.innerHTML = `<i data-lucide="pen" class="icon"></i><span>${weeklyFocus?.headline ? 'Aktualizuj' : 'Ustal'}</span>`;
+    }
+    if (!headlineEl || !motivationEl) return;
+
+    if (weeklyFocus?.headline) {
+        headlineEl.textContent = weeklyFocus.headline;
+        headlineEl.classList.remove('focus-empty');
+    } else {
+        headlineEl.textContent = 'Dodaj jedno krótkie hasło, które będzie Twoim kompasem.';
+        headlineEl.classList.add('focus-empty');
+    }
+
+    if (weeklyFocus?.motivation) {
+        motivationEl.textContent = weeklyFocus.motivation;
+        motivationEl.style.display = 'block';
+    } else {
+        motivationEl.textContent = '';
+        motivationEl.style.display = 'none';
+    }
+}
+
+function renderGoalInsights(weekData) {
+    const container = document.getElementById('goal-insights');
+    const summaryEl = document.getElementById('insights-summary');
+    if (!container) return;
+    container.innerHTML = '';
+    const plannedTotals = getPlannedTotals(weekData.plan || {});
+    let notPlannedCount = 0;
+
+    Object.keys(GOAL_DEFINITIONS).forEach(type => {
+        const goal = GOAL_DEFINITIONS[type];
+        const progress = weekData.progress?.[type] || 0;
+        const planned = plannedTotals[type] || 0;
+        const remaining = Math.max(0, goal.target - progress);
+        const missingPlan = Math.max(0, goal.target - planned);
+        if (missingPlan > 0 && remaining > 0) notPlannedCount++;
+
+        const item = document.createElement('div');
+        item.className = 'insight-item';
+        item.style.borderLeft = `4px solid ${goal.accent}`;
+        item.innerHTML = `
+            <strong>${goal.label}</strong>
+            <div class="insight-detail">
+                <span>Postęp: <b>${formatWithUnit(type, progress)}</b></span>
+                <span>Zaplanowano: <b>${formatWithUnit(type, planned)}</b></span>
+                <span>Pozostało: <b>${formatWithUnit(type, remaining)}</b></span>
+            </div>
+        `;
+        const tip = document.createElement('div');
+        tip.className = 'tiny';
+        if (remaining === 0) {
+            tip.style.color = 'var(--green)';
+            tip.textContent = 'Cel zrealizowany! Świętuj sukces.';
+            item.style.background = 'var(--green-soft)';
+        } else if (missingPlan > 0) {
+            tip.style.color = 'var(--orange)';
+            tip.textContent = `Zaplanowanie brakujących ${formatWithUnit(type, missingPlan)} przyspieszy realizację.`;
+            item.style.background = 'var(--orange-soft)';
+        } else {
+            tip.style.color = 'var(--blue)';
+            tip.textContent = 'Jesteś na dobrej drodze – kontynuuj momentum.';
+            item.style.background = 'var(--blue-soft)';
+        }
+        item.appendChild(tip);
+        container.appendChild(item);
+    });
+
+    if (summaryEl) {
+        const extraLists = Object.values(weekData.extraActivities || {});
+        const extraCount = extraLists.reduce((sum, list) => sum + (list?.length || 0), 0);
+        const extraCompleted = extraLists.reduce((sum, list) => sum + (list?.filter(item => item.completed).length || 0), 0);
+        summaryEl.textContent = notPlannedCount > 0
+            ? `${notPlannedCount} cel(e) wymagają planu.`
+            : 'Wszystkie cele mają zaplanowane działania!';
+        summaryEl.style.color = notPlannedCount > 0 ? 'var(--orange)' : 'var(--green)';
+        if (extraCount > 0) {
+            summaryEl.textContent += ` • Aktywności dodatkowe: ${extraCompleted}/${extraCount}`;
+        }
+    }
+}
+
+function renderWeeklyNotes(notes) {
+    const textarea = document.getElementById('weekly-notes');
+    if (!textarea) return;
+    textarea.value = notes || '';
+    textarea.oninput = () => {
+        const value = textarea.value;
+        clearTimeout(notesDebounce);
+        notesDebounce = setTimeout(() => {
+            const [year, week] = getWeekNumber(currentDate);
+            initializeWeekData(year, week);
+            state[year][week].weeklyNotes = value.trim();
+            saveState();
+        }, 400);
+    };
+}
+
 function renderCopyPlanButton() {
     let prevWeekDate = new Date(currentDate);
     prevWeekDate.setDate(prevWeekDate.getDate() - 7);
     const [prevYear, prevWeek] = getWeekNumber(prevWeekDate);
-    
+
     const prevWeekData = state[prevYear]?.[prevWeek];
     const hasPreviousPlan = prevWeekData && Object.values(prevWeekData.plan).some(day => day.length > 0);
     
@@ -575,7 +1069,7 @@ function showModal(config) {
     const optionsContainer = document.getElementById('modal-options-container');
     inputContainer.innerHTML = '';
     optionsContainer.innerHTML = '';
-    
+
     if (config.input) {
         const input = document.createElement('input');
         input.type = config.input.type;
@@ -584,7 +1078,11 @@ function showModal(config) {
         input.value = config.input.value || '';
         inputContainer.appendChild(input);
     }
-    
+
+    if (config.customContent) {
+        inputContainer.innerHTML = config.customContent;
+    }
+
     if (config.options) {
         const optionsDiv = document.createElement('div');
         optionsDiv.className = 'modal-options';
@@ -609,14 +1107,16 @@ function showModal(config) {
             } else {
                 const value = inputContainer.querySelector('input')?.value;
                 const selectedOption = optionsContainer.querySelector('input:checked')?.value;
-                btnConfig.action(value, selectedOption);
-                modal.classList.remove('visible');
+                const context = { inputContainer, optionsContainer, modal };
+                const result = typeof btnConfig.action === 'function' ? btnConfig.action(value, selectedOption, context) : undefined;
+                if (result !== false) modal.classList.remove('visible');
             }
         };
         actions.appendChild(button);
     });
     modal.classList.add('visible');
     if (config.input) { document.getElementById('modal-input-field').focus(); }
+    if (typeof config.onShow === 'function') config.onShow({ inputContainer, optionsContainer, modal });
 }
 
 function showPlanModal(type, dayIndex) {
@@ -658,6 +1158,53 @@ function showEditLogModal(activity) {
             { text: 'Cofnij ukończenie', class: 'btn danger', action: () => logActivity(id, 0, false) },
             { text: 'Anuluj', class: 'btn soft', action: 'close' },
             ...(type !== 'gym' ? [{ text: 'Zapisz', class: 'btn', action: (value) => logActivity(id, parseFloat(value) || 0, true) }] : [])
+        ]
+    });
+}
+
+function showCustomActivityModal(dayIndex, activity = null) {
+    const isEditing = !!activity;
+    showModal({
+        title: isEditing ? 'Edytuj aktywność dodatkową' : 'Nowa aktywność dodatkowa',
+        text: 'Dodaj działania wzmacniające Twoje cele – treningi uzupełniające, regenerację czy nawyki.',
+        customContent: `
+            <form class="modal-form">
+                <label>Aktywność
+                    <input type="text" name="extra-name" placeholder="np. core, sauna, spacer" value="${escapeHtml(activity?.name || '')}" required>
+                </label>
+                <label>Kategoria
+                    <select name="extra-category">
+                        ${CUSTOM_ACTIVITY_CATEGORIES.map(cat => `<option value="${cat.value}" ${activity?.category === cat.value ? 'selected' : ''}>${cat.label}</option>`).join('')}
+                    </select>
+                </label>
+                <label>Czas / objętość
+                    <input type="number" min="0" step="5" name="extra-duration" placeholder="np. 20" value="${activity?.duration || ''}">
+                    <small>W minutach lub powtórzeniach – opcjonalnie.</small>
+                </label>
+                <label>Notatki
+                    <textarea name="extra-notes" placeholder="Jak się czułeś? Co warto zapamiętać?">${escapeHtml(activity?.notes || '')}</textarea>
+                </label>
+            </form>
+        `,
+        buttons: [
+            ...(isEditing ? [{ text: 'Usuń', class: 'btn danger', action: () => { deleteExtraActivity(dayIndex, activity.id); } }] : []),
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: isEditing ? 'Zapisz' : 'Dodaj', class: 'btn', action: (_, __, ctx) => {
+                const form = ctx.inputContainer.querySelector('form');
+                const name = form.querySelector('[name="extra-name"]').value.trim();
+                if (!name) {
+                    form.querySelector('[name="extra-name"]').focus();
+                    return false;
+                }
+                const category = form.querySelector('[name="extra-category"]').value;
+                const duration = form.querySelector('[name="extra-duration"]').value;
+                const notes = form.querySelector('[name="extra-notes"]').value;
+                if (isEditing) {
+                    updateExtraActivity(dayIndex, activity.id, { name, category, duration, notes });
+                } else {
+                    addExtraActivity(dayIndex, { name, category, duration, notes });
+                }
+            }}
         ]
     });
 }
@@ -708,6 +1255,38 @@ function showWeeklySummary() {
 }
 
 
+function showFocusModal() {
+    const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
+    const focus = state[year][week].weeklyFocus || { headline: '', motivation: '' };
+    showModal({
+        title: 'Motyw przewodni tygodnia',
+        text: 'Określ jedno hasło i powód, który będzie Cię prowadzić.',
+        customContent: `
+            <form class="modal-form">
+                <label>Hasło przewodnie
+                    <input type="text" name="focus-headline" placeholder="np. Konsekwentne mikro-kroki" value="${escapeHtml(focus.headline)}">
+                </label>
+                <label>Dlaczego to ważne?
+                    <textarea name="focus-motivation" placeholder="Jak to przybliża Cię do celu?">${escapeHtml(focus.motivation)}</textarea>
+                </label>
+            </form>
+        `,
+        buttons: [
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: 'Zapisz', class: 'btn', action: (_, __, ctx) => {
+                const form = ctx.inputContainer.querySelector('form');
+                const headline = form.querySelector('[name="focus-headline"]').value.trim();
+                const motivation = form.querySelector('[name="focus-motivation"]').value.trim();
+                state[year][week].weeklyFocus = { headline, motivation };
+                saveState();
+                renderFocusCard(state[year][week].weeklyFocus);
+            }}
+        ]
+    });
+}
+
+
 // --- OBSŁUGA ZDARZEŃ ---
 function handleDragStart(e) {
     dragState.activityId = e.target.closest('.activity-pill').dataset.activityId;
@@ -750,12 +1329,14 @@ function setupEventListeners() {
     document.querySelectorAll('[data-action="plan"]').forEach(btn => {
         btn.addEventListener('click', (e) => startPlanning(e.currentTarget.dataset.activityType));
     });
-    
-    document.querySelector('.planner-grid').addEventListener('click', (e) => {
+
+    const plannerGridEl = document.querySelector('.planner-grid');
+
+    plannerGridEl.addEventListener('click', (e) => {
         const dayColumn = e.target.closest('.day-column');
         if (!dayColumn) return;
         const dayIndex = parseInt(dayColumn.dataset.dayIndex, 10);
-        
+
         if (planningState.isPlanning) {
             if (!e.target.closest('.activity-pill') && !e.target.closest('.quick-add-btn')) {
                 showPlanModal(planningState.activityType, dayIndex);
@@ -770,6 +1351,24 @@ function setupEventListeners() {
             });
             menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
             e.stopPropagation();
+            return;
+        }
+
+        const extraActionEl = e.target.closest('[data-extra-action]');
+        if (extraActionEl) {
+            const action = extraActionEl.dataset.extraAction;
+            if (action === 'toggle') return;
+            const targetDay = parseInt(extraActionEl.dataset.dayIndex, 10);
+            const extraId = extraActionEl.dataset.extraId;
+            if (action === 'add') {
+                showCustomActivityModal(targetDay);
+            } else if (action === 'edit') {
+                const [year, week] = getWeekNumber(currentDate);
+                const activity = state[year]?.[week]?.extraActivities?.[targetDay]?.find(item => item.id === extraId);
+                if (activity) showCustomActivityModal(targetDay, activity);
+            } else if (action === 'delete') {
+                deleteExtraActivity(targetDay, extraId);
+            }
             return;
         }
 
@@ -793,6 +1392,14 @@ function setupEventListeners() {
                     else showLogModal(activity);
                 }
             }
+        }
+    });
+
+    plannerGridEl.addEventListener('change', (e) => {
+        const toggleEl = e.target.closest('[data-extra-action="toggle"]');
+        if (toggleEl) {
+            const day = parseInt(toggleEl.dataset.dayIndex, 10);
+            toggleExtraActivityCompletion(day, toggleEl.dataset.extraId, toggleEl.checked);
         }
     });
 
@@ -838,11 +1445,13 @@ function renderStats() {
     Object.keys(yearData).forEach(week => {
         Object.keys(yearData[week].plan).forEach(day => {
             const activities = yearData[week].plan[day];
-            if (activities.length > 0) {
+            const extras = yearData[week].extraActivities?.[day] || [];
+            const completedCount = (activities || []).filter(a => a.completed).length + extras.filter(a => a.completed).length;
+            if (activities.length > 0 || extras.length > 0) {
                 const date = new Date(getStartOfWeek(year, parseInt(week)));
                 date.setDate(date.getDate() + (parseInt(day) - 1 + 7) % 7);
                 const dateString = toYYYYMMDD(date);
-                activitiesByDay[dateString] = (activitiesByDay[dateString] || 0) + activities.filter(a => a.completed).length;
+                activitiesByDay[dateString] = (activitiesByDay[dateString] || 0) + completedCount;
             }
         });
     });
