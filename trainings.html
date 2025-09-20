@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     :root {
-      --bg: #f8fafc; --card: #fff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
+      --bg: #f5f7fb; --card: #fff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
       --green: #059669; --green-soft: #f0fdf4; --green-border: #a7f3d0;
       --red: #dc2626; --red-soft: #fef2f2; --red-border: #fecaca;
       --orange: #ea580c; --orange-soft: #fff7ed; --orange-border: #fed7aa;
@@ -18,46 +18,112 @@
       --gym-color: #5b21b6; --gym-soft: #f5f3ff; --gym-border: #ddd6fe;
       --run-color: #047857; --run-soft: #ecfdf5; --run-border: #a7f3d0;
       --read-color: #0369a1; --read-soft: #f0f9ff; --read-border: #bae6fd;
+      --health-color: #dc2626; --health-soft: #fef2f2; --health-border: #fecaca;
+      --mind-color: #1d4ed8; --mind-soft: #e0f2fe; --mind-border: #bfdbfe;
+      --balance-color: #0f766e; --balance-soft: #ecfdf5; --balance-border: #99f6e4;
+      --relationship-color: #9333ea; --relationship-soft: #f3e8ff; --relationship-border: #e9d5ff;
+      --growth-color: #ea580c; --growth-soft: #fff7ed; --growth-border: #fed7aa;
+      --focus-bg: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(79,70,229,0.12));
+      --badge-bg: rgba(37, 99, 235, 0.12);
+      --badge-color: #1d4ed8;
       --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
       --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 12px 20px -12px rgb(15 23 42 / 0.3);
+      --shadow-lg: 0 24px 40px -12px rgb(15 23 42 / 0.3);
       --transition-fast: all .2s ease-in-out;
     }
     *, *::before, *::after { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at top, rgba(37,99,235,0.16), transparent 55%), var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 48px 24px 64px; }
     .grid { display: grid; gap: 16px; }
+    .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    @media(max-width: 768px) { .g-3 { grid-template-columns: 1fr; } }
-    
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); }
+    @media(max-width: 1024px) { .g-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media(max-width: 768px) { .g-3, .g-2 { grid-template-columns: 1fr; } }
+
+    .card { background: var(--card); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); position: relative; overflow: hidden; }
     .card:hover { box-shadow: var(--shadow-md); }
-    .title { margin: 0 0 8px 0; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+    .title { margin: 0 0 8px 0; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.01em; }
     .muted { color: var(--muted); }
-    .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; border-radius: 12px; padding: 10px 16px; border: 1px solid transparent; background: var(--ink); color: #fff; cursor: pointer; text-decoration: none; font-weight: 600; transition: var(--transition-fast); }
+    .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; border-radius: 12px; padding: 10px 16px; border: 1px solid transparent; background: var(--ink); color: #fff; cursor: pointer; text-decoration: none; font-weight: 600; transition: var(--transition-fast); box-shadow: var(--shadow-sm); }
+    .btn.sm { padding: 8px 12px; font-size: 12px; }
     .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .btn.soft { background: #fff; border-color: var(--line); color: var(--ink); }
-    .btn.soft:hover { background: var(--bg); border-color: #d1d5db; }
-    .btn.danger { background: var(--red-soft); border-color: var(--red-border); color: var(--red); }
+    .btn.soft { background: #fff; border-color: rgba(148, 163, 184, 0.6); color: var(--ink); box-shadow: none; }
+    .btn.soft:hover { background: var(--bg); border-color: rgba(148, 163, 184, 0.9); }
+    .btn.secondary { background: rgba(37, 99, 235, 0.12); color: var(--blue); border-color: transparent; box-shadow: none; }
+    .btn.secondary:hover { background: rgba(37, 99, 235, 0.18); }
+    .btn.danger { background: var(--red-soft); border-color: var(--red-border); color: var(--red); box-shadow: none; }
     .btn.danger:hover { background: var(--red); color: #fff; }
-    
-    .progress-bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 4px; }
-    .progress-bar > div { height: 100%; transition: width .4s cubic-bezier(0.22, 1, 0.36, 1); }
+
+    .progress-bar { height: 8px; background: rgba(148, 163, 184, 0.35); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+    .progress-bar > div { height: 100%; transition: width .4s cubic-bezier(0.22, 1, 0.36, 1); border-radius: 999px; }
     .tiny { font-size: 12px; color: var(--muted); }
-    .row { display: flex; justify-content: space-between; align-items: center; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: var(--badge-bg); color: var(--badge-color); padding: 6px 12px; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
 
     /* Header */
-    .page-header { margin-bottom: 32px; }
-    .header-kpis { padding: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; }
-    .kpi-item { text-align: center; }
-    .kpi-separator { width: 1px; height: 40px; background-color: var(--line); }
+    .page-header { margin-bottom: 24px; display: grid; gap: 24px; }
+    .page-header .brand { display: flex; flex-direction: column; gap: 12px; }
+    .page-header h1 { font-size: 32px; margin: 0; letter-spacing: -0.02em; }
+    .page-header p { margin: 0; }
+    .page-hero { background: linear-gradient(135deg, rgba(37,99,235,0.14), rgba(99,102,241,0.18)); color: #fff; border-radius: 24px; padding: 28px; display: grid; gap: 24px; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+    .page-hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(255,255,255,0.35), transparent 60%); pointer-events: none; }
+    .page-hero-content { display: flex; flex-direction: column; gap: 16px; max-width: 520px; z-index: 1; }
+    .page-hero h1 { color: #fff; font-size: 34px; }
+    .page-hero p { color: rgba(255,255,255,0.85); font-size: 15px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; z-index: 1; }
+    .hero-actions .btn.soft { background: rgba(255,255,255,0.14); color: #fff; border-color: rgba(255,255,255,0.4); }
+    .hero-actions .btn.soft:hover { background: rgba(255,255,255,0.22); }
+
+    .header-kpis { padding: 20px; background: rgba(255,255,255,0.86); backdrop-filter: blur(6px); border-radius: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 20px; align-items: center; box-shadow: var(--shadow-sm); }
+    .kpi-item { text-align: center; display: flex; flex-direction: column; gap: 8px; }
+    .kpi-separator { display: none; }
     .kpi-value { font-size: 26px; font-weight: 800; line-height: 1.1; }
-    .goal-card { padding: 20px; box-shadow: none; transition: var(--transition-fast); }
-    .goal-card:hover { transform: scale(1.02); box-shadow: var(--shadow-md); }
+    .goal-card { padding: 20px; box-shadow: none; transition: transform .2s ease, box-shadow .2s ease; border-radius: 20px; position: relative; overflow: hidden; }
+    .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
     .goal-card .title { font-size: 14px; margin-bottom: 4px; }
     .goal-card .kpi-value { font-size: 20px; font-weight: 700; }
     .goal-card .btn { width: 100%; margin-top: 16px; padding: 8px 12px; font-size: 13px; }
+
+    .notes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+    .note-field { display: flex; flex-direction: column; gap: 8px; }
+    .note-field label { font-weight: 600; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    textarea { border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.4); padding: 16px; resize: vertical; min-height: 110px; font-family: inherit; font-size: 14px; line-height: 1.6; background: rgba(255,255,255,0.95); transition: border-color .2s ease, box-shadow .2s ease; }
+    textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+    .note-field small { color: var(--muted); font-size: 12px; }
+
+    .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; background: rgba(148,163,184,0.12); color: var(--muted); }
+
+    input[type="text"], input[type="number"], select { border-radius: 12px; border: 1px solid rgba(148,163,184,0.4); padding: 10px 12px; font-family: inherit; font-size: 14px; background: rgba(255,255,255,0.95); transition: border-color .2s ease, box-shadow .2s ease; width: 100%; }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+    .input-error { border-color: var(--red) !important; box-shadow: 0 0 0 2px rgba(220,38,38,0.18) !important; }
+    .inline-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .radio-group { display: flex; gap: 12px; flex-wrap: wrap; }
+    .radio-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.4); cursor: pointer; font-weight: 600; transition: var(--transition-fast); }
+    .radio-chip input { accent-color: var(--blue); }
+    .radio-chip:hover { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(37,99,235,0.12); }
+
+    .custom-section { display: grid; gap: 20px; margin-top: 12px; }
+    .custom-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .summary-pill { padding: 14px 16px; border-radius: 16px; background: rgba(37,99,235,0.08); color: var(--blue); font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
+    .summary-pill span { color: rgba(15, 23, 42, 0.72); font-size: 20px; font-weight: 700; }
+
+    .template-list { display: grid; gap: 12px; }
+    .template-card { border: 1px solid rgba(148,163,184,0.3); border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; background: rgba(248, 250, 252, 0.7); transition: var(--transition-fast); }
+    .template-card:hover { border-color: rgba(37,99,235,0.4); box-shadow: var(--shadow-sm); }
+    .template-card strong { font-weight: 700; font-size: 14px; }
+    .template-meta { display: flex; flex-direction: column; gap: 4px; }
+    .template-actions { display: flex; gap: 8px; }
+
+    .empty-state { border: 1px dashed rgba(148,163,184,0.4); border-radius: 16px; padding: 20px; text-align: center; color: var(--muted); font-size: 13px; background: rgba(255,255,255,0.6); }
+
+    .custom-activity-form { display: grid; gap: 16px; margin-top: 12px; text-align: left; }
+    .custom-activity-form label { font-weight: 600; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 6px; }
+    .custom-activity-form .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .custom-activity-form .helper { font-size: 12px; color: var(--muted); }
+    .custom-activity-form .checkbox-line { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
+    .custom-activity-form .checkbox-line input { width: auto; }
 
     /* Tabs */
     .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
@@ -66,30 +132,37 @@
     .tab.active { background: #fff; color: var(--ink); border-color: var(--line); box-shadow: var(--shadow-sm); }
 
     /* Planner */
-    .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 16px; }
-    .day-column { position: relative; background: var(--bg); border-radius: 12px; padding: 12px; transition: var(--transition-fast); border: 2px solid transparent; }
-    .day-header { font-weight: 600; text-align: center; font-size: 13px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+    .planner-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
+    .day-column { position: relative; background: rgba(255,255,255,0.92); border-radius: 18px; padding: 16px 14px 18px; transition: var(--transition-fast); border: 1px solid rgba(148,163,184,0.35); min-height: 180px; display: flex; flex-direction: column; gap: 12px; }
+    .day-column::after { content: ''; position: absolute; inset: 0; border-radius: inherit; opacity: 0; pointer-events: none; box-shadow: inset 0 0 0 2px rgba(37,99,235,0.35); transition: opacity .2s ease; }
+    .day-column:hover::after, .day-column.drag-over::after { opacity: 1; }
+    .day-header { font-weight: 700; text-align: center; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 8px; margin-bottom: 4px; border-bottom: 1px dashed rgba(148,163,184,0.35); color: rgba(15,23,42,0.72); }
     .day-header.today { color: var(--blue); }
-    .activities-container { min-height: 120px; display: flex; flex-direction: column; gap: 8px; }
-    .activity-pill { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: grab; border: 1px solid; transition: var(--transition-fast); text-align: left; }
-    .activity-pill.dragging { opacity: 0.5; transform: scale(1.05); box-shadow: var(--shadow-lg); }
+    .activities-container { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .activity-pill { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 14px; font-size: 13px; font-weight: 600; cursor: grab; border: 1px solid transparent; transition: var(--transition-fast); text-align: left; gap: 12px; background: rgba(248,250,252,0.9); color: var(--ink); }
+    .activity-pill .pill-label { display: flex; align-items: center; gap: 8px; }
+    .activity-pill .pill-label i { width: 16px; height: 16px; }
+    .activity-pill .pill-meta { font-size: 12px; color: rgba(15,23,42,0.68); font-weight: 500; }
+    .activity-pill.dragging { opacity: 0.5; transform: scale(1.04); box-shadow: var(--shadow-lg); }
     .activity-pill:not(.completed):hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
     .activity-pill.gym { background: var(--gym-soft); color: var(--gym-color); border-color: var(--gym-border); }
     .activity-pill.running { background: var(--run-soft); color: var(--run-color); border-color: var(--run-border); }
     .activity-pill.reading { background: var(--read-soft); color: var(--read-color); border-color: var(--read-border); }
+    .activity-pill.custom-pill { border-color: rgba(148,163,184,0.35); }
     .activity-pill.completed { background: var(--green-soft); color: var(--green); border-color: var(--green-border); cursor: pointer; }
+    .activity-pill.completed .pill-meta { color: var(--green); }
     .activity-pill.completed:hover { opacity: 1; box-shadow: var(--shadow-sm); }
-    .activity-pill > span { text-decoration: none; }
-    .activity-pill.completed > span { text-decoration: line-through; opacity: 0.7; }
-    .day-column.drag-over { background-color: var(--blue-soft); border-color: var(--blue-border); }
-    .delete-activity-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 2px; margin-left: 8px; border-radius: 4px; display: flex; align-items: center; transition: var(--transition-fast); }
+    .activity-pill.completed .pill-label span { text-decoration: line-through; opacity: 0.8; }
+    .day-column.drag-over { background-color: rgba(37,99,235,0.06); }
+    .delete-activity-btn { background: rgba(255,255,255,0.6); border: 1px solid rgba(148,163,184,0.2); color: var(--muted); cursor: pointer; padding: 4px; margin-left: auto; border-radius: 10px; display: flex; align-items: center; transition: var(--transition-fast); }
     .delete-activity-btn:hover { color: var(--red); background-color: var(--red-soft); }
 
-    .quick-add-btn { position: absolute; top: 8px; right: 8px; background: #fff; border: 1px solid var(--line); border-radius: 50%; width: 28px; height: 28px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
-    .day-column:hover .quick-add-btn { opacity: 1; }
-    .quick-add-menu { position: absolute; top: 40px; right: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); z-index: 10; display: none; flex-direction: column; overflow: hidden; }
-    .quick-add-menu button { background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; width: 100%; font-size: 13px; }
-    .quick-add-menu button:hover { background-color: var(--bg); }
+    .quick-add-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9); border: 1px solid rgba(148,163,184,0.5); border-radius: 12px; padding: 6px 10px; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 6px; opacity: 0; transition: opacity .2s ease, transform .2s ease; font-weight: 600; font-size: 12px; }
+    .quick-add-btn i { width: 16px; height: 16px; }
+    .day-column:hover .quick-add-btn { opacity: 1; transform: translateY(-2px); }
+    .quick-add-menu { position: absolute; top: 46px; right: 12px; background: #fff; border: 1px solid rgba(148,163,184,0.35); border-radius: 14px; box-shadow: var(--shadow-lg); z-index: 10; display: none; flex-direction: column; overflow: hidden; min-width: 200px; }
+    .quick-add-menu button { background: none; border: none; padding: 10px 14px; text-align: left; cursor: pointer; width: 100%; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+    .quick-add-menu button:hover { background-color: rgba(37,99,235,0.08); }
     
     .empty-planner { text-align: center; padding: 40px; color: var(--muted); border: 2px dashed var(--line); border-radius: 12px; margin-top: 16px; }
 
@@ -128,26 +201,60 @@
 </head>
 <body>
   <div class="wrap">
-    <header class="row page-header">
-      <div style="display: flex; align-items: center; gap: 16px;">
-        <a href="./index.html" class="btn soft"><i data-lucide="arrow-left" class="icon"></i> Powrót</a>
-        <div>
-          <h1 style="font-size: 28px; font-weight: 800; margin:0;">Plany i Progres</h1>
-          <p class="muted" style="margin:0;">Planuj i śledź swoje tygodniowe cele rozwojowe.</p>
+    <header class="page-header">
+      <div class="page-hero">
+        <div class="page-hero-content">
+          <span class="badge"><i data-lucide="sparkles" class="icon"></i>Twój rytuał postępu</span>
+          <h1>Plany i Progres</h1>
+          <p>Profesjonalny planer tygodniowy, który prowadzi Cię od wizji do konsekwentnej realizacji. Monitoruj najważniejsze cele i poszerzaj je o własne aktywności.</p>
+          <div class="hero-actions">
+            <a href="./index.html" class="btn soft"><i data-lucide="arrow-left" class="icon"></i>Powrót</a>
+            <button id="jump-to-planner" class="btn secondary"><i data-lucide="target" class="icon"></i>Przejdź do planera</button>
+          </div>
         </div>
-      </div>
-      <div class="card header-kpis">
-        <div class="kpi-item">
-            <div class="muted">Ukończone tyg.</div>
-            <div id="yearly-progress-value" class="kpi-value" style="color: var(--green);">0/36</div>
-        </div>
-        <div class="kpi-separator"></div>
-        <div class="kpi-item">
-            <div class="muted">Seria</div>
-            <div id="streak-value" class="kpi-value" style="color: var(--orange);">0</div>
+        <div class="header-kpis">
+          <div class="kpi-item">
+              <div class="muted">Ukończone tygodnie</div>
+              <div id="yearly-progress-value" class="kpi-value" style="color: var(--green);">0/36</div>
+              <span class="tiny">Cel roczny: 36</span>
+          </div>
+          <div class="kpi-item">
+              <div class="muted">Seria konsekwencji</div>
+              <div id="streak-value" class="kpi-value" style="color: var(--orange);">0</div>
+              <span class="tiny">Buduj momentum</span>
+          </div>
         </div>
       </div>
     </header>
+
+    <div class="card" id="weekly-focus-card">
+        <div class="row" style="align-items:flex-start; gap: 24px;">
+            <div class="brand" style="flex:1;">
+                <span class="chip"><i data-lucide="compass" class="icon"></i> Mentalne przygotowanie</span>
+                <h3 class="title" style="margin-top:8px;">Skupienie tygodnia</h3>
+                <p class="muted" style="margin:0;">Nazwij priorytet i odnotuj mini-sukcesy, by łatwiej utrzymać motywację i zobaczyć wzrost energii.</p>
+            </div>
+            <div style="text-align:right; display:flex; flex-direction:column; gap:8px;">
+                <span class="tiny muted">Automatycznie zapisujemy Twoje notatki.</span>
+                <span class="summary-pill" style="padding:10px 14px;">
+                    <span id="custom-completion-badge">0</span>
+                    zaplanowanych aktywności własnych
+                </span>
+            </div>
+        </div>
+        <div class="notes-grid">
+            <div class="note-field">
+                <label for="week-focus-input">Priorytet tygodnia</label>
+                <textarea id="week-focus-input" placeholder="Np. Skupić się na jakości snu i regeneracji..."></textarea>
+                <small>Wskazówka: opisz wynik, który będzie wyznacznikiem satysfakcji.</small>
+            </div>
+            <div class="note-field">
+                <label for="week-highlight-input">Mikro-sukcesy i obserwacje</label>
+                <textarea id="week-highlight-input" placeholder="Co chcesz zauważyć, śledzić lub świętować w tym tygodniu?"></textarea>
+                <small>Wracaj tutaj w trakcie tygodnia, aby wzmacniać dobre nawyki.</small>
+            </div>
+        </div>
+    </div>
 
     <div class="card">
         <div class="row">
@@ -169,7 +276,30 @@
             <div class="card goal-card" style="background: var(--read-soft);"><h4 class="title">📚 Czytanie</h4><div id="goal-reading-progress" class="kpi-value">0/100 stron</div><div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div><button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
         </div>
     </div>
-    
+
+    <div class="card" id="custom-activities-card">
+        <div class="row" style="align-items:flex-start;">
+            <div style="flex:1;">
+                <span class="chip"><i data-lucide="sparkles" class="icon"></i> Aktywności dodatkowe</span>
+                <h3 class="title" style="margin-top:8px;">Biblioteka własnych działań</h3>
+                <p class="muted" style="margin:0;">Dodawaj treningi dodatkowe, rytuały regeneracyjne, zadania rozwojowe czy czas offline. Wszystko w jednym miejscu wraz z celami tygodnia.</p>
+            </div>
+            <div class="template-actions">
+                <button id="add-custom-activity-btn" class="btn"><i data-lucide="plus-circle" class="icon"></i>Nowa aktywność</button>
+            </div>
+        </div>
+        <div class="custom-section">
+            <div id="custom-summary" class="custom-summary"></div>
+            <div>
+                <div class="row" style="align-items: center; gap: 12px;">
+                    <h4 class="title" style="font-size:16px; margin:0;">Ulubione szablony</h4>
+                    <p class="muted tiny" style="margin:0;">Zapisz aktywność podczas dodawania, by mieć ją pod ręką.</p>
+                </div>
+                <div id="custom-template-list" class="template-list" style="margin-top:12px;"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="tabs">
         <div class="tab active" data-tab="planner"><i data-lucide="calendar-days" class="icon"></i>Planer</div>
         <div class="tab" data-tab="stats"><i data-lucide="trending-up" class="icon"></i>Statystyki</div>
@@ -221,10 +351,19 @@
 // --- KONFIGURACJA ---
 const STORAGE_KEY = 'lifeos_trainings_v1';
 const GOAL_DEFINITIONS = {
-    gym: { target: 3, unit: 'sesje', label: 'Trening siłowy' },
-    running: { target: 5, unit: 'km', label: 'Bieg' },
-    reading: { target: 100, unit: 'stron', label: 'Czytanie' }
+    gym: { target: 3, unit: 'sesje', label: 'Trening siłowy', icon: 'dumbbell', color: 'var(--gym-color)', bg: 'var(--gym-soft)', border: 'var(--gym-border)', trackValue: false },
+    running: { target: 5, unit: 'km', label: 'Bieg', icon: 'activity', color: 'var(--run-color)', bg: 'var(--run-soft)', border: 'var(--run-border)', trackValue: true },
+    reading: { target: 100, unit: 'stron', label: 'Czytanie', icon: 'book-open-check', color: 'var(--read-color)', bg: 'var(--read-soft)', border: 'var(--read-border)', trackValue: true }
 };
+const CUSTOM_ACTIVITY_CATEGORIES = {
+    body: { label: 'Trening / Ciało', color: 'var(--health-color)', bg: 'var(--health-soft)', border: 'var(--health-border)', icon: 'armchair' },
+    mind: { label: 'Umysł / Nauka', color: 'var(--mind-color)', bg: 'var(--mind-soft)', border: 'var(--mind-border)', icon: 'brain' },
+    balance: { label: 'Regeneracja', color: 'var(--balance-color)', bg: 'var(--balance-soft)', border: 'var(--balance-border)', icon: 'leaf' },
+    relationship: { label: 'Relacje', color: 'var(--relationship-color)', bg: 'var(--relationship-soft)', border: 'var(--relationship-border)', icon: 'users' },
+    growth: { label: 'Rozwój / Projekt', color: 'var(--growth-color)', bg: 'var(--growth-soft)', border: 'var(--growth-border)', icon: 'rocket' },
+    other: { label: 'Inne', color: 'var(--ink)', bg: 'rgba(15,23,42,0.08)', border: 'rgba(15,23,42,0.12)', icon: 'sparkles' }
+};
+const CUSTOM_TRACK_TYPES = { CHECK: 'check', VALUE: 'value' };
 const DAY_NAMES = ['Niedz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
 
 let state = {};
@@ -232,9 +371,69 @@ let currentDate = new Date();
 let planningState = { isPlanning: false, activityType: null };
 let dragState = { activityId: null, sourceDay: null };
 let saveTimeout;
+let notesSaveTimer;
+
+// --- POMOCNICZE FUNKCJE ---
+function ensureGlobalState() {
+    if (!state.__meta || typeof state.__meta !== 'object') state.__meta = {};
+    if (!Array.isArray(state.__meta.templates)) state.__meta.templates = [];
+}
+
+function getTemplateCollection() {
+    ensureGlobalState();
+    return state.__meta.templates;
+}
+
+function setTemplateCollection(templates) {
+    ensureGlobalState();
+    state.__meta.templates = templates;
+}
+
+function getYearKeys() {
+    return Object.keys(state).filter(key => /^\d{4}$/.test(key));
+}
+
+function isGoalType(type) {
+    return Boolean(GOAL_DEFINITIONS[type]);
+}
+
+function getCategoryStyles(category) {
+    return CUSTOM_ACTIVITY_CATEGORIES[category] || CUSTOM_ACTIVITY_CATEGORIES.other;
+}
+
+function getActivityDefinition(activity) {
+    if (GOAL_DEFINITIONS[activity.type]) {
+        const goal = GOAL_DEFINITIONS[activity.type];
+        return { ...goal, type: activity.type, label: goal.label, categoryLabel: 'Cel tygodnia', trackType: goal.trackValue ? CUSTOM_TRACK_TYPES.VALUE : CUSTOM_TRACK_TYPES.CHECK };
+    }
+    const custom = activity.custom || {};
+    const styles = getCategoryStyles(custom.category);
+    return {
+        type: 'custom',
+        label: custom.name || 'Aktywność',
+        unit: custom.unit || '',
+        icon: custom.icon || styles.icon,
+        color: custom.color || styles.color,
+        bg: custom.bg || styles.bg,
+        border: custom.border || styles.border,
+        trackValue: custom.trackType === CUSTOM_TRACK_TYPES.VALUE,
+        trackType: custom.trackType || CUSTOM_TRACK_TYPES.CHECK,
+        categoryLabel: styles.label
+    };
+}
+
+function formatNumber(value) {
+    if (value === undefined || value === null || value === '') return '';
+    const number = Number(value);
+    if (Number.isNaN(number)) return '';
+    return number.toLocaleString('pl-PL');
+}
 
 // --- STAN APLIKACJI ---
-function loadState() { state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+function loadState() {
+    state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    ensureGlobalState();
+}
 function saveState() { 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     const saveStatus = document.getElementById('save-status');
@@ -267,12 +466,25 @@ function initializeWeekData(year, week) {
             progress: { gym: 0, running: 0, reading: 0 },
             plan: { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 0:[] },
             isComplete: false,
-            summaryShown: false
+            summaryShown: false,
+            notes: { focus: '', highlight: '' }
         };
+    }
+    if (!state[year][week].progress) {
+        state[year][week].progress = { gym: 0, running: 0, reading: 0 };
+    }
+    if (!state[year][week].plan) {
+        state[year][week].plan = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 0:[] };
+    }
+    Object.keys({ 1:1, 2:1, 3:1, 4:1, 5:1, 6:1, 0:1 }).forEach(dayKey => {
+        if (!Array.isArray(state[year][week].plan[dayKey])) state[year][week].plan[dayKey] = [];
+    });
+    if (!state[year][week].notes) {
+        state[year][week].notes = { focus: '', highlight: '' };
     }
 }
 
-function addActivity(type, dayIndex, plannedValue) {
+function addActivity(type, dayIndex, plannedValue, extra = {}) {
     const [year, week] = getWeekNumber(currentDate);
     const weekData = state[year][week];
     const newActivity = {
@@ -281,7 +493,8 @@ function addActivity(type, dayIndex, plannedValue) {
         completed: false,
         day: dayIndex,
         plannedValue: plannedValue,
-        loggedValue: 0
+        loggedValue: 0,
+        ...extra
     };
     if(!weekData.plan[dayIndex]) weekData.plan[dayIndex] = [];
     weekData.plan[dayIndex].push(newActivity);
@@ -323,9 +536,10 @@ function logActivity(activityId, value, isCompleted) {
 
 function recalculateWeekProgress(year, week) {
     const weekData = state[year][week];
-    weekData.progress = { gym: 0, running: 0, reading: 0 };
+    weekData.progress = {};
+    Object.keys(GOAL_DEFINITIONS).forEach(type => weekData.progress[type] = 0);
     Object.values(weekData.plan).flat().forEach(activity => {
-        if (activity.completed) {
+        if (activity.completed && GOAL_DEFINITIONS[activity.type]) {
             weekData.progress[activity.type] += (Number(activity.loggedValue) || 0);
         }
     });
@@ -392,6 +606,9 @@ function render() {
     renderHeaderKPIs(year);
     renderPlanningStatus(weekData.plan);
     renderOverallProgress(weekData.progress);
+    renderWeeklyNotes(weekData);
+    renderCustomSummary(weekData);
+    renderCustomTemplates();
     lucide.createIcons();
 }
 
@@ -435,18 +652,45 @@ function renderPlanner(plan, startOfWeek) {
         if (plan[dayIndex] && plan[dayIndex].length > 0) {
             isPlanEmpty = false;
             plan[dayIndex].forEach(activity => {
-                const goal = GOAL_DEFINITIONS[activity.type];
+                const definition = getActivityDefinition(activity);
                 const pill = document.createElement('div');
-                pill.className = `activity-pill ${activity.type}`;
+                const classes = ['activity-pill'];
+                if (isGoalType(activity.type)) classes.push(activity.type);
+                else classes.push('custom-pill');
+                pill.className = classes.join(' ');
                 pill.dataset.activityId = activity.id;
-                
-                let text = `<span>${goal.label}`;
-                if (activity.type !== 'gym') {
-                     if (activity.completed) text += ` (${activity.loggedValue.toLocaleString('pl-PL')}/${activity.plannedValue.toLocaleString('pl-PL')} ${goal.unit})`;
-                     else if (activity.plannedValue) text += ` (${activity.plannedValue.toLocaleString('pl-PL')} ${goal.unit})`;
+
+                if (!isGoalType(activity.type)) {
+                    pill.style.background = definition.bg;
+                    pill.style.color = definition.color;
+                    pill.style.borderColor = definition.border;
                 }
-                text += '</span>';
-                pill.innerHTML = text;
+
+                const iconMarkup = definition.icon ? `<i data-lucide="${definition.icon}" class="icon"></i>` : '';
+                const labelHTML = `<span class="pill-label">${iconMarkup}<span>${definition.label}</span></span>`;
+                let metaText = '';
+                if (definition.trackValue) {
+                    const planned = formatNumber(activity.plannedValue);
+                    const logged = formatNumber(activity.loggedValue);
+                    const unitLabel = definition.unit ? ` ${definition.unit}` : '';
+                    if (activity.completed) {
+                        if (planned) {
+                            metaText = `${logged || planned}/${planned}${unitLabel}`;
+                        } else {
+                            metaText = `${logged || '0'}${unitLabel}`;
+                        }
+                    } else if (planned) {
+                        metaText = `${planned}${unitLabel}`;
+                    } else if (definition.unit) {
+                        metaText = `Zaloguj w ${definition.unit}`;
+                    } else {
+                        metaText = 'Dodaj wartość';
+                    }
+                } else {
+                    metaText = activity.completed ? 'Ukończone' : (definition.categoryLabel || 'Do odhaczenia');
+                }
+
+                pill.innerHTML = `${labelHTML}${metaText ? `<span class="pill-meta">${metaText}</span>` : ''}`;
 
                 if (activity.completed) {
                     pill.classList.add('completed');
@@ -459,7 +703,7 @@ function renderPlanner(plan, startOfWeek) {
                     deleteBtn.innerHTML = `<i data-lucide="x" class="icon" style="width:16px; height:16px;"></i>`;
                     pill.appendChild(deleteBtn);
                 }
-                
+
                 pill.addEventListener('dragstart', handleDragStart);
                 pill.addEventListener('dragend', handleDragEnd);
                 activitiesContainer.appendChild(pill);
@@ -468,7 +712,7 @@ function renderPlanner(plan, startOfWeek) {
 
         const quickAddBtn = document.createElement('button');
         quickAddBtn.className = 'quick-add-btn';
-        quickAddBtn.innerHTML = '<i data-lucide="plus" class="icon" style="width:18px; height:18px;"></i>';
+        quickAddBtn.innerHTML = '<i data-lucide="plus" class="icon" style="width:16px; height:16px;"></i>Dodaj';
         quickAddBtn.setAttribute('aria-label', 'Szybko dodaj aktywność');
         dayColumn.appendChild(quickAddBtn);
 
@@ -476,7 +720,7 @@ function renderPlanner(plan, startOfWeek) {
         quickAddMenu.className = 'quick-add-menu';
         for(const type in GOAL_DEFINITIONS) {
             const btn = document.createElement('button');
-            btn.textContent = GOAL_DEFINITIONS[type].label;
+            btn.innerHTML = `<i data-lucide="${GOAL_DEFINITIONS[type].icon}" class="icon"></i>${GOAL_DEFINITIONS[type].label}`;
             btn.onclick = (e) => {
                 e.stopPropagation();
                 showPlanModal(type, dayIndex);
@@ -484,6 +728,14 @@ function renderPlanner(plan, startOfWeek) {
             };
             quickAddMenu.appendChild(btn);
         }
+        const customBtn = document.createElement('button');
+        customBtn.innerHTML = '<i data-lucide="sparkles" class="icon"></i>Własna aktywność';
+        customBtn.onclick = (e) => {
+            e.stopPropagation();
+            showCustomActivityModal(dayIndex);
+            quickAddMenu.style.display = 'none';
+        };
+        quickAddMenu.appendChild(customBtn);
         dayColumn.appendChild(quickAddMenu);
 
         dayColumn.appendChild(dayHeader);
@@ -497,13 +749,136 @@ function renderPlanner(plan, startOfWeek) {
     emptyPlaceholder.style.display = isPlanEmpty ? 'block' : 'none';
 }
 
+function renderCustomSummary(weekData) {
+    const summaryEl = document.getElementById('custom-summary');
+    if (!summaryEl) return;
+    summaryEl.innerHTML = '';
+
+    const activities = Object.values(weekData.plan).flat().filter(activity => !isGoalType(activity.type));
+    const plannedCount = activities.length;
+    const completedCount = activities.filter(a => a.completed).length;
+    const categories = new Set(activities.map(a => (a.custom?.category || 'other')));
+    const valueSum = activities.reduce((total, activity) => {
+        const definition = getActivityDefinition(activity);
+        if (definition.trackValue) {
+            const value = activity.completed ? activity.loggedValue : activity.plannedValue;
+            return total + (Number(value) || 0);
+        }
+        return total;
+    }, 0);
+
+    updateCustomCompletionBadge(plannedCount);
+
+    if (!plannedCount) {
+        summaryEl.innerHTML = '<div class="empty-state">Nie masz jeszcze własnych aktywności w tym tygodniu. Dodaj pierwszą, aby rozszerzyć swój plan.</div>';
+        return;
+    }
+
+    const pills = [
+        { value: plannedCount, label: 'zaplanowane', style: 'background: rgba(37,99,235,0.12); color: var(--blue);' },
+        { value: completedCount, label: 'ukończone', style: 'background: var(--green-soft); color: var(--green);' },
+        { value: categories.size, label: 'obszary', style: 'background: rgba(15,23,42,0.08); color: var(--ink);' }
+    ];
+
+    if (valueSum > 0) {
+        pills.push({ value: formatNumber(valueSum), label: 'łączna wartość', style: 'background: rgba(234,88,12,0.12); color: var(--orange);' });
+    }
+
+    pills.forEach(pillData => {
+        const pill = document.createElement('div');
+        pill.className = 'summary-pill';
+        pill.style.cssText = pillData.style;
+        const valueSpan = document.createElement('span');
+        valueSpan.textContent = pillData.value;
+        pill.appendChild(valueSpan);
+        pill.append(pillData.label);
+        summaryEl.appendChild(pill);
+    });
+}
+
+function renderCustomTemplates() {
+    const listEl = document.getElementById('custom-template-list');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+    const templates = getTemplateCollection();
+    if (!templates.length) {
+        listEl.innerHTML = '<div class="empty-state">Zapisz wybrane aktywności jako szablony, aby dodawać je w kilka sekund.</div>';
+        return;
+    }
+
+    templates.forEach(template => {
+        const styles = getCategoryStyles(template.category);
+        const card = document.createElement('div');
+        card.className = 'template-card';
+
+        const meta = document.createElement('div');
+        meta.className = 'template-meta';
+        meta.innerHTML = `<strong>${template.name}</strong><span class="tiny muted">${styles.label}</span>`;
+        if (template.trackType === CUSTOM_TRACK_TYPES.VALUE) {
+            const detail = document.createElement('span');
+            detail.className = 'tiny muted';
+            const unitLabel = template.unit || 'jednostek';
+            const plannedText = template.plannedValue ? `${formatNumber(template.plannedValue)} ${unitLabel}` : `dowolna wartość${template.unit ? ` (${template.unit})` : ''}`;
+            detail.textContent = `Cel: ${plannedText}`;
+            meta.appendChild(detail);
+        } else {
+            const detail = document.createElement('span');
+            detail.className = 'tiny muted';
+            detail.textContent = 'Cel: odhaczenie';
+            meta.appendChild(detail);
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'template-actions';
+
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn soft sm';
+        addBtn.innerHTML = '<i data-lucide="plus" class="icon"></i>Dodaj';
+        addBtn.onclick = () => showCustomActivityModal(null, template);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'btn soft sm';
+        removeBtn.innerHTML = '<i data-lucide="trash" class="icon"></i>Usuń';
+        removeBtn.onclick = () => removeCustomTemplate(template.id);
+
+        actions.appendChild(addBtn);
+        actions.appendChild(removeBtn);
+
+        card.appendChild(meta);
+        card.appendChild(actions);
+        listEl.appendChild(card);
+    });
+}
+
+function renderWeeklyNotes(weekData) {
+    const focusInput = document.getElementById('week-focus-input');
+    const highlightInput = document.getElementById('week-highlight-input');
+    if (focusInput) focusInput.value = weekData.notes?.focus || '';
+    if (highlightInput) highlightInput.value = weekData.notes?.highlight || '';
+}
+
+function updateWeekNote(key, value) {
+    const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
+    if (!state[year][week].notes) state[year][week].notes = { focus: '', highlight: '' };
+    state[year][week].notes[key] = value;
+    clearTimeout(notesSaveTimer);
+    notesSaveTimer = setTimeout(() => saveState(), 400);
+}
+
+function updateCustomCompletionBadge(count) {
+    const badge = document.getElementById('custom-completion-badge');
+    if (!badge) return;
+    badge.textContent = count;
+}
+
 function renderHeaderKPIs(year) {
     const yearData = state[year] || {};
     const [currentYear, currentWeek] = getWeekNumber(new Date());
-    
+
     const relevantWeeks = (year < currentYear) ? getWeekNumber(new Date(year, 11, 28))[1] : currentWeek;
     const completedWeeks = Object.keys(yearData).filter(weekNum => parseInt(weekNum) <= relevantWeeks && yearData[weekNum].isComplete).length;
-    
+
     const percentage = relevantWeeks > 0 ? Math.round((completedWeeks / relevantWeeks) * 100) : 0;
     document.getElementById('yearly-progress-value').innerHTML = `${completedWeeks}/${relevantWeeks} <span class="tiny" style="font-weight: 500;">(${percentage}%)</span>`;
 
@@ -514,7 +889,7 @@ function renderHeaderKPIs(year) {
     }
 
     let maxStreak = 0, tempStreak = 0;
-    Object.keys(state).sort().forEach(y => {
+    getYearKeys().sort().forEach(y => {
         const totalWeeksInYear = getWeekNumber(new Date(y, 11, 28))[1];
         for (let w = 1; w <= totalWeeksInYear; w++) {
             if (state[y]?.[w]?.isComplete) tempStreak++;
@@ -528,9 +903,12 @@ function renderHeaderKPIs(year) {
 
 function renderPlanningStatus(plan) {
     const statusEl = document.getElementById('planning-status');
-    const plannedTotals = { gym: 0, running: 0, reading: 0 };
+    const plannedTotals = {};
+    Object.keys(GOAL_DEFINITIONS).forEach(type => plannedTotals[type] = 0);
     Object.values(plan).flat().forEach(activity => {
-        plannedTotals[activity.type] += activity.completed ? activity.loggedValue : (activity.plannedValue || 0);
+        if (GOAL_DEFINITIONS[activity.type]) {
+            plannedTotals[activity.type] += activity.completed ? activity.loggedValue : (activity.plannedValue || 0);
+        }
     });
 
     const allGoalsPlanned = Object.keys(GOAL_DEFINITIONS).every(type => plannedTotals[type] >= GOAL_DEFINITIONS[type].target);
@@ -575,7 +953,7 @@ function showModal(config) {
     const optionsContainer = document.getElementById('modal-options-container');
     inputContainer.innerHTML = '';
     optionsContainer.innerHTML = '';
-    
+
     if (config.input) {
         const input = document.createElement('input');
         input.type = config.input.type;
@@ -584,7 +962,7 @@ function showModal(config) {
         input.value = config.input.value || '';
         inputContainer.appendChild(input);
     }
-    
+
     if (config.options) {
         const optionsDiv = document.createElement('div');
         optionsDiv.className = 'modal-options';
@@ -597,9 +975,21 @@ function showModal(config) {
         optionsContainer.appendChild(optionsDiv);
     }
 
+    if (config.content) {
+        if (typeof config.content === 'function') {
+            config.content(inputContainer, optionsContainer);
+        } else {
+            inputContainer.innerHTML += config.content;
+        }
+    }
+
+    if (typeof config.onRender === 'function') {
+        config.onRender({ inputContainer, optionsContainer, modal });
+    }
+
     const actions = document.getElementById('modal-actions');
     actions.innerHTML = '';
-    config.buttons.forEach(btnConfig => {
+    (config.buttons || []).forEach(btnConfig => {
         const button = document.createElement('button');
         button.textContent = btnConfig.text;
         button.className = btnConfig.class;
@@ -609,14 +999,27 @@ function showModal(config) {
             } else {
                 const value = inputContainer.querySelector('input')?.value;
                 const selectedOption = optionsContainer.querySelector('input:checked')?.value;
-                btnConfig.action(value, selectedOption);
-                modal.classList.remove('visible');
+                const context = {
+                    close: () => modal.classList.remove('visible'),
+                    inputContainer,
+                    optionsContainer,
+                    modal
+                };
+                const result = btnConfig.action ? btnConfig.action(value, selectedOption, context) : undefined;
+                if (result !== false) {
+                    modal.classList.remove('visible');
+                }
             }
         };
         actions.appendChild(button);
     });
     modal.classList.add('visible');
-    if (config.input) { document.getElementById('modal-input-field').focus(); }
+    if (config.focusSelector) {
+        const focusEl = modal.querySelector(config.focusSelector);
+        if (focusEl) focusEl.focus();
+    } else if (config.input) {
+        document.getElementById('modal-input-field').focus();
+    }
 }
 
 function showPlanModal(type, dayIndex) {
@@ -633,13 +1036,205 @@ function showPlanModal(type, dayIndex) {
     });
 }
 
-function showLogModal(activity) {
-    const { type, id } = activity;
-    const goal = GOAL_DEFINITIONS[type];
+function showCustomActivityModal(dayIndex = null, template = null) {
+    const [year, week] = getWeekNumber(currentDate);
+    const startOfWeek = getStartOfWeek(year, week);
+    const dayOrder = [1, 2, 3, 4, 5, 6, 0];
+    let defaultDayIndex = typeof dayIndex === 'number' ? dayIndex : null;
+    if (defaultDayIndex === null) {
+        const today = new Date();
+        const [todayYear, todayWeek] = getWeekNumber(today);
+        defaultDayIndex = (todayYear === year && todayWeek === week) ? today.getDay() : 1;
+    }
+    const initialName = template?.name || '';
+    const initialCategory = template?.category || 'body';
+    const initialTrackType = template?.trackType || CUSTOM_TRACK_TYPES.CHECK;
+    const initialPlannedValue = template?.plannedValue || 0;
+    const initialUnit = template?.unit || '';
+
     showModal({
-        title: `Loguj: ${goal.label}`,
-        text: `Wprowadź ile ${goal.unit} udało Ci się zrobić:`,
-        input: { type: 'number', placeholder: activity.plannedValue || '0', value: activity.plannedValue || '' },
+        title: template ? `Dodaj: ${template.name}` : 'Nowa własna aktywność',
+        text: template ? 'Dostosuj szczegóły i przypisz aktywność do wybranego dnia.' : 'Zaplanuj dodatkowe działanie, które wzmocni Twoje cele tygodnia.',
+        buttons: [
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: 'Dodaj do planu', class: 'btn', action: (_, __, ctx) => {
+                const modalEl = ctx.modal;
+                const nameInput = modalEl.querySelector('#custom-activity-name');
+                const daySelect = modalEl.querySelector('#custom-activity-day');
+                const categorySelect = modalEl.querySelector('#custom-activity-category');
+                const trackType = modalEl.querySelector('input[name="custom-track-type"]:checked')?.value || CUSTOM_TRACK_TYPES.CHECK;
+                const plannedInput = modalEl.querySelector('#custom-activity-planned');
+                const unitInput = modalEl.querySelector('#custom-activity-unit');
+                const saveTemplateCheckbox = modalEl.querySelector('#custom-activity-save-template');
+
+                const name = nameInput.value.trim();
+                if (!name) {
+                    nameInput.classList.add('input-error');
+                    nameInput.focus();
+                    return false;
+                }
+
+                const selectedDay = parseInt(daySelect.value, 10);
+                let plannedValue = trackType === CUSTOM_TRACK_TYPES.VALUE ? parseFloat(plannedInput.value) : 1;
+                if (Number.isNaN(plannedValue) || plannedValue < 0) plannedValue = 0;
+                const unit = trackType === CUSTOM_TRACK_TYPES.VALUE ? (unitInput.value.trim() || 'jednostek') : '';
+                const category = categorySelect.value;
+                const styles = getCategoryStyles(category);
+
+                const customPayload = {
+                    name,
+                    category,
+                    unit,
+                    icon: styles.icon,
+                    color: styles.color,
+                    bg: styles.bg,
+                    border: styles.border,
+                    trackType
+                };
+
+                if (saveTemplateCheckbox?.checked) {
+                    const templatePayload = {
+                        id: template?.id || `tpl_${Date.now()}_${Math.random()}`,
+                        name,
+                        category,
+                        trackType,
+                        unit,
+                        plannedValue: trackType === CUSTOM_TRACK_TYPES.VALUE ? plannedValue : 1
+                    };
+                    saveCustomTemplate(templatePayload, { deferSave: true, replace: Boolean(template?.id) });
+                }
+
+                addActivity('custom', selectedDay, trackType === CUSTOM_TRACK_TYPES.VALUE ? plannedValue : 1, { custom: customPayload });
+            }}
+        ],
+        onRender: ({ inputContainer }) => {
+            const form = document.createElement('div');
+            form.className = 'custom-activity-form';
+            form.innerHTML = `
+                <div class="form-group">
+                    <label for="custom-activity-name">Nazwa aktywności</label>
+                    <input type="text" id="custom-activity-name" placeholder="Np. Trening brzucha, medytacja, spacer" />
+                </div>
+                <div class="inline-fields">
+                    <div class="form-group">
+                        <label for="custom-activity-day">Dzień</label>
+                        <select id="custom-activity-day"></select>
+                        <span class="helper">Możesz później przeciągnąć aktywność do innego dnia.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="custom-activity-category">Obszar</label>
+                        <select id="custom-activity-category"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Jak chcesz monitorować?</label>
+                    <div class="radio-group">
+                        <label class="radio-chip"><input type="radio" name="custom-track-type" value="${CUSTOM_TRACK_TYPES.CHECK}" checked> Odhaczenie</label>
+                        <label class="radio-chip"><input type="radio" name="custom-track-type" value="${CUSTOM_TRACK_TYPES.VALUE}"> Wartość liczbowa</label>
+                    </div>
+                    <div id="custom-track-value-fields" class="inline-fields" style="display:none;">
+                        <div class="form-group">
+                            <label for="custom-activity-planned">Planowana wartość</label>
+                            <input type="number" id="custom-activity-planned" min="0" step="0.5" placeholder="Np. 30" />
+                        </div>
+                        <div class="form-group">
+                            <label for="custom-activity-unit">Jednostka</label>
+                            <input type="text" id="custom-activity-unit" placeholder="min, powtórzeń, stron..." />
+                        </div>
+                    </div>
+                </div>
+                <label class="checkbox-line"><input type="checkbox" id="custom-activity-save-template">Zapisz jako szablon na przyszłość</label>
+            `;
+            inputContainer.appendChild(form);
+
+            const daySelect = form.querySelector('#custom-activity-day');
+            dayOrder.forEach(idx => {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + (idx - 1 + 7) % 7);
+                const option = document.createElement('option');
+                option.value = idx;
+                option.textContent = `${DAY_NAMES[idx]} ${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                daySelect.appendChild(option);
+            });
+            daySelect.value = defaultDayIndex;
+
+            const categorySelect = form.querySelector('#custom-activity-category');
+            Object.entries(CUSTOM_ACTIVITY_CATEGORIES).forEach(([key, value]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = value.label;
+                categorySelect.appendChild(option);
+            });
+            categorySelect.value = initialCategory;
+
+            const trackRadios = form.querySelectorAll('input[name="custom-track-type"]');
+            const valueFields = form.querySelector('#custom-track-value-fields');
+            const plannedInput = form.querySelector('#custom-activity-planned');
+            const unitInput = form.querySelector('#custom-activity-unit');
+
+            const toggleValueFields = () => {
+                const selected = form.querySelector('input[name="custom-track-type"]:checked')?.value;
+                if (selected === CUSTOM_TRACK_TYPES.VALUE) {
+                    valueFields.style.display = 'grid';
+                } else {
+                    valueFields.style.display = 'none';
+                }
+            };
+            trackRadios.forEach(radio => radio.addEventListener('change', toggleValueFields));
+
+            const nameField = form.querySelector('#custom-activity-name');
+            nameField.value = initialName;
+            nameField.addEventListener('input', () => nameField.classList.remove('input-error'));
+            form.querySelector(`input[name="custom-track-type"][value="${initialTrackType}"]`).checked = true;
+            plannedInput.value = initialTrackType === CUSTOM_TRACK_TYPES.VALUE ? (initialPlannedValue || '') : '';
+            unitInput.value = initialTrackType === CUSTOM_TRACK_TYPES.VALUE ? initialUnit : '';
+            toggleValueFields();
+
+            if (template) {
+                form.querySelector('#custom-activity-save-template').checked = false;
+            }
+        },
+        focusSelector: '#custom-activity-name'
+    });
+}
+
+function saveCustomTemplate(template, options = {}) {
+    const { deferSave = false, replace = false } = options;
+    const templates = getTemplateCollection().slice();
+    if (replace) {
+        const index = templates.findIndex(t => t.id === template.id);
+        if (index !== -1) templates[index] = template;
+        else templates.push(template);
+    } else {
+        templates.push(template);
+    }
+    setTemplateCollection(templates);
+    if (!deferSave) {
+        saveState();
+        renderCustomTemplates();
+        lucide.createIcons();
+    }
+}
+
+function removeCustomTemplate(templateId) {
+    const templates = getTemplateCollection().filter(t => t.id !== templateId);
+    setTemplateCollection(templates);
+    saveState();
+    render();
+}
+
+function showLogModal(activity) {
+    const { id } = activity;
+    const definition = getActivityDefinition(activity);
+    if (!definition.trackValue) {
+        const valueToLog = Number(activity.plannedValue) || 1;
+        logActivity(id, valueToLog, true);
+        return;
+    }
+    showModal({
+        title: `Loguj: ${definition.label}`,
+        text: definition.unit ? `Wprowadź ile ${definition.unit} udało Ci się zrobić:` : 'Wprowadź wartość, aby odnotować postęp:',
+        input: { type: 'number', placeholder: activity.plannedValue || '0', value: activity.loggedValue || activity.plannedValue || '' },
         buttons: [
             { text: 'Anuluj', class: 'btn soft', action: 'close' },
             { text: 'Zapisz', class: 'btn', action: (value) => logActivity(id, parseFloat(value) || 0, true) }
@@ -648,16 +1243,27 @@ function showLogModal(activity) {
 }
 
 function showEditLogModal(activity) {
-    const { type, id, loggedValue } = activity;
-    const goal = GOAL_DEFINITIONS[type];
+    const { id, loggedValue } = activity;
+    const definition = getActivityDefinition(activity);
+    if (!definition.trackValue) {
+        showModal({
+            title: `Edytuj: ${definition.label}`,
+            text: 'Ta aktywność jest ukończona. Możesz cofnąć jej zaliczenie.',
+            buttons: [
+                { text: 'Cofnij ukończenie', class: 'btn danger', action: () => logActivity(id, 0, false) },
+                { text: 'Zamknij', class: 'btn soft', action: 'close' }
+            ]
+        });
+        return;
+    }
     showModal({
-        title: `Edytuj: ${goal.label}`,
-        text: type === 'gym' ? `Ta sesja jest ukończona. Możesz cofnąć jej zaliczenie.` : `Zaktualizuj, ile ${goal.unit} udało Ci się zrobić:`,
-        input: type === 'gym' ? null : { type: 'number', placeholder: '0', value: loggedValue },
+        title: `Edytuj: ${definition.label}`,
+        text: definition.unit ? `Zaktualizuj, ile ${definition.unit} udało Ci się zrobić:` : 'Zaktualizuj wartość postępu:',
+        input: { type: 'number', placeholder: '0', value: loggedValue },
         buttons: [
             { text: 'Cofnij ukończenie', class: 'btn danger', action: () => logActivity(id, 0, false) },
             { text: 'Anuluj', class: 'btn soft', action: 'close' },
-            ...(type !== 'gym' ? [{ text: 'Zapisz', class: 'btn', action: (value) => logActivity(id, parseFloat(value) || 0, true) }] : [])
+            { text: 'Zapisz', class: 'btn', action: (value) => logActivity(id, parseFloat(value) || 0, true) }
         ]
     });
 }
@@ -746,7 +1352,16 @@ function setupEventListeners() {
     document.getElementById('next-week-btn').addEventListener('click', () => { currentDate.setDate(currentDate.getDate() + 7); render(); });
     document.getElementById('today-week-btn').addEventListener('click', () => { currentDate = new Date(); render(); });
     document.getElementById('copy-plan-btn').addEventListener('click', showCopyPlanModal);
-    
+    document.getElementById('add-custom-activity-btn').addEventListener('click', () => showCustomActivityModal());
+    document.getElementById('jump-to-planner').addEventListener('click', () => {
+        document.getElementById('tab-content-planner').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    const focusInput = document.getElementById('week-focus-input');
+    const highlightInput = document.getElementById('week-highlight-input');
+    focusInput.addEventListener('input', (e) => updateWeekNote('focus', e.target.value));
+    highlightInput.addEventListener('input', (e) => updateWeekNote('highlight', e.target.value));
+
     document.querySelectorAll('[data-action="plan"]').forEach(btn => {
         btn.addEventListener('click', (e) => startPlanning(e.currentTarget.dataset.activityType));
     });
@@ -784,13 +1399,18 @@ function setupEventListeners() {
             const activityId = pill.dataset.activityId;
             const [year, week] = getWeekNumber(currentDate);
             const activity = state[year]?.[week]?.plan?.[dayIndex]?.find(a => a.id === activityId);
-            
+
             if (activity) {
                 if (activity.completed) {
                     showEditLogModal(activity);
                 } else {
-                    if (activity.type === 'gym') logActivity(activityId, 1, true); 
-                    else showLogModal(activity);
+                    const definition = getActivityDefinition(activity);
+                    if (!definition.trackValue) {
+                        const valueToLog = Number(activity.plannedValue) || 1;
+                        logActivity(activityId, valueToLog, true);
+                    } else {
+                        showLogModal(activity);
+                    }
                 }
             }
         }
