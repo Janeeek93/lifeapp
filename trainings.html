@@ -11,54 +11,54 @@
 
   <style>
     :root {
-      --bg: radial-gradient(circle at 0% -10%, rgba(99, 102, 241, 0.22), transparent 60%), #0f172a;
-      --surface: rgba(15, 23, 42, 0.92);
-      --surface-alt: rgba(30, 41, 59, 0.7);
-      --surface-strong: rgba(51, 65, 85, 0.85);
-      --ink: #e2e8f0;
-      --text: #f8fafc;
-      --muted: rgba(226, 232, 240, 0.65);
-      --border: rgba(148, 163, 184, 0.22);
-      --border-strong: rgba(148, 163, 184, 0.35);
-      --accent: #60a5fa;
-      --accent-strong: #2563eb;
-      --accent-soft: rgba(96, 165, 250, 0.16);
-      --success: #34d399;
-      --warning: #fbbf24;
-      --danger: #f87171;
-      --green: #34d399;
+      --bg: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+      --surface: rgba(255, 255, 255, 0.98);
+      --surface-alt: rgba(255, 255, 255, 0.92);
+      --surface-strong: rgba(226, 232, 240, 0.78);
+      --ink: #0f172a;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: rgba(148, 163, 184, 0.35);
+      --border-strong: rgba(100, 116, 139, 0.45);
+      --accent: #2563eb;
+      --accent-strong: #1d4ed8;
+      --accent-soft: rgba(37, 99, 235, 0.12);
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --green: #16a34a;
       --orange: #f97316;
-      --blue: #60a5fa;
+      --blue: #2563eb;
       --radius-lg: 20px;
       --radius-md: 16px;
       --radius-sm: 12px;
-      --shadow-sm: 0 10px 30px rgba(15, 23, 42, 0.35);
-      --shadow: 0 24px 50px rgba(15, 23, 42, 0.45);
+      --shadow-sm: 0 16px 30px rgba(15, 23, 42, 0.08);
+      --shadow: 0 34px 60px rgba(15, 23, 42, 0.12);
       --transition: all .24s cubic-bezier(0.4, 0, 0.2, 1);
       --run-color: #22c55e;
-      --run-soft: rgba(34, 197, 94, 0.12);
-      --run-border: rgba(34, 197, 94, 0.24);
-      --gym-color: #a855f7;
-      --gym-soft: rgba(168, 85, 247, 0.18);
-      --gym-border: rgba(168, 85, 247, 0.32);
-      --read-color: #38bdf8;
-      --read-soft: rgba(56, 189, 248, 0.18);
-      --read-border: rgba(56, 189, 248, 0.32);
+      --run-soft: rgba(34, 197, 94, 0.15);
+      --run-border: rgba(34, 197, 94, 0.28);
+      --gym-color: #8b5cf6;
+      --gym-soft: rgba(139, 92, 246, 0.16);
+      --gym-border: rgba(139, 92, 246, 0.28);
+      --read-color: #0ea5e9;
+      --read-soft: rgba(14, 165, 233, 0.18);
+      --read-border: rgba(14, 165, 233, 0.32);
       --health-color: #f97316;
-      --health-soft: rgba(249, 115, 22, 0.14);
-      --health-border: rgba(249, 115, 22, 0.3);
-      --mind-color: #60a5fa;
-      --mind-soft: rgba(96, 165, 250, 0.14);
-      --mind-border: rgba(96, 165, 250, 0.32);
-      --balance-color: #2dd4bf;
-      --balance-soft: rgba(45, 212, 191, 0.16);
-      --balance-border: rgba(45, 212, 191, 0.32);
-      --relationship-color: #c084fc;
-      --relationship-soft: rgba(192, 132, 252, 0.16);
-      --relationship-border: rgba(192, 132, 252, 0.32);
-      --growth-color: #facc15;
-      --growth-soft: rgba(250, 204, 21, 0.14);
-      --growth-border: rgba(250, 204, 21, 0.32);
+      --health-soft: rgba(249, 115, 22, 0.18);
+      --health-border: rgba(249, 115, 22, 0.32);
+      --mind-color: #2563eb;
+      --mind-soft: rgba(37, 99, 235, 0.14);
+      --mind-border: rgba(37, 99, 235, 0.28);
+      --balance-color: #0d9488;
+      --balance-soft: rgba(13, 148, 136, 0.18);
+      --balance-border: rgba(13, 148, 136, 0.32);
+      --relationship-color: #a855f7;
+      --relationship-soft: rgba(168, 85, 247, 0.16);
+      --relationship-border: rgba(168, 85, 247, 0.28);
+      --growth-color: #f59e0b;
+      --growth-soft: rgba(245, 158, 11, 0.16);
+      --growth-border: rgba(245, 158, 11, 0.3);
     }
     *, *::before, *::after { box-sizing: border-box; }
     body {
@@ -208,8 +208,9 @@
       gap: 2px;
       padding: 10px 12px;
       border-radius: var(--radius-md);
-      background: rgba(15, 23, 42, 0.45);
-      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
       min-width: 160px;
       animation: fadeUp 0.5s ease both;
     }
@@ -233,8 +234,8 @@
     .note-field label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
     textarea {
       border-radius: var(--radius-md);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      background: #fff;
       color: var(--text);
       padding: 12px;
       min-height: 90px;
@@ -242,24 +243,32 @@
       font-family: inherit;
       font-size: 13px;
       transition: var(--transition);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
     }
-    textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18); }
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+    }
     input[type="text"], input[type="number"], select {
       border-radius: 12px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      background: #fff;
       color: var(--text);
       padding: 9px 12px;
       font-family: inherit;
       font-size: 13px;
       transition: var(--transition);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
     }
     input[type="text"]:focus, input[type="number"]:focus, select:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
     }
     .inline-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .form-group { display: grid; gap: 6px; }
+    .form-group label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
     .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
     .radio-chip {
       display: inline-flex;
@@ -267,14 +276,15 @@
       gap: 6px;
       padding: 6px 12px;
       border-radius: 10px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      border: 1px solid var(--border);
       cursor: pointer;
       font-weight: 600;
       font-size: 12px;
       transition: var(--transition);
-      background: rgba(15, 23, 42, 0.55);
+      background: var(--surface-alt);
+      color: var(--text);
     }
-    .radio-chip:hover { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2); }
+    .radio-chip:hover { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16); }
     .checkbox-line { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
     .goals-card { display: grid; gap: 12px; }
     .goal-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
@@ -329,14 +339,14 @@
       font-size: 12.5px;
       color: var(--muted);
       border: 1px solid transparent;
-      background: rgba(15, 23, 42, 0.45);
+      background: var(--surface-alt);
       transition: var(--transition);
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
-    .tab:hover { color: var(--text); border-color: rgba(148, 163, 184, 0.24); }
-    .tab.active { background: var(--accent); color: #0f172a; box-shadow: 0 12px 24px rgba(96, 165, 250, 0.28); }
+    .tab:hover { color: var(--text); border-color: var(--border); box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08); }
+    .tab.active { background: var(--accent); color: #fff; box-shadow: 0 16px 26px rgba(37, 99, 235, 0.24); }
     .tab-panels { padding: 18px 20px 22px; display: grid; gap: 18px; }
     .tab-panel { display: none; animation: fadeUp 0.4s ease both; }
     .tab-panel.active { display: block; }
@@ -349,9 +359,10 @@
       align-items: start;
     }
     .day-column {
-      background: rgba(15, 23, 42, 0.6);
+      background: var(--surface-alt);
       border-radius: var(--radius-md);
-      border: 1px solid rgba(148, 163, 184, 0.2);
+      border: 1px solid var(--border);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
       padding: 12px;
       display: flex;
       flex-direction: column;
@@ -385,19 +396,19 @@
       padding: 7px 9px;
       font-size: 12px;
       font-weight: 600;
-      background: rgba(148, 163, 184, 0.12);
+      background: #fff;
       color: var(--text);
-      border: 1px solid transparent;
+      border: 1px solid rgba(148, 163, 184, 0.3);
       cursor: grab;
       transition: var(--transition);
       animation: floatUp 0.45s ease both;
     }
-    .activity-pill:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(15, 23, 42, 0.35); }
+    .activity-pill:hover { transform: translateY(-2px); box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12); }
     .activity-pill.dragging { opacity: 0.45; transform: scale(1.02); box-shadow: var(--shadow); }
     .activity-pill .pill-content { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
     .activity-pill .pill-label { display: flex; align-items: center; gap: 6px; min-width: 0; }
     .activity-pill .pill-label span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .activity-pill .pill-meta { margin-left: auto; font-size: 10.5px; color: rgba(226, 232, 240, 0.78); }
+    .activity-pill .pill-meta { margin-left: auto; font-size: 10.5px; color: var(--muted); }
     .activity-pill.completed { background: rgba(52, 211, 153, 0.16); color: var(--success); border-color: rgba(52, 211, 153, 0.4); cursor: pointer; }
     .activity-pill.completed .pill-meta { color: var(--success); }
     .activity-pill.completed .pill-label span { text-decoration: line-through; opacity: 0.85; }
@@ -406,8 +417,8 @@
       position: absolute;
       top: 8px;
       right: 8px;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: #fff;
+      border: 1px solid var(--border);
       border-radius: 10px;
       padding: 5px 9px;
       color: var(--muted);
@@ -419,14 +430,15 @@
       opacity: 0;
       pointer-events: none;
       transition: var(--transition);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
     }
     .day-column:hover .quick-add-btn { opacity: 1; pointer-events: auto; transform: translateY(-2px); }
     .quick-add-menu {
       position: absolute;
       top: 36px;
       right: 8px;
-      background: rgba(15, 23, 42, 0.92);
-      border: 1px solid rgba(148, 163, 184, 0.32);
+      background: #fff;
+      border: 1px solid var(--border);
       border-radius: 12px;
       box-shadow: var(--shadow);
       display: none;
@@ -447,10 +459,10 @@
       color: var(--text);
       cursor: pointer;
     }
-    .quick-add-menu button:hover { background: rgba(96, 165, 250, 0.16); }
+    .quick-add-menu button:hover { background: var(--accent-soft); }
     .delete-activity-btn {
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: #fff;
+      border: 1px solid var(--border);
       color: var(--muted);
       padding: 4px;
       border-radius: 10px;
@@ -458,15 +470,15 @@
       transition: var(--transition);
       margin-left: 6px;
     }
-    .delete-activity-btn:hover { color: var(--danger); background: rgba(248, 113, 113, 0.14); }
+    .delete-activity-btn:hover { color: var(--danger); background: rgba(248, 113, 113, 0.14); border-color: rgba(248, 113, 113, 0.4); }
     .empty-planner {
       margin-top: 10px;
-      border: 1px dashed rgba(148, 163, 184, 0.4);
+      border: 1px dashed var(--border);
       border-radius: var(--radius-md);
       padding: 18px;
       text-align: center;
       color: var(--muted);
-      background: rgba(15, 23, 42, 0.55);
+      background: rgba(226, 232, 240, 0.35);
     }
     .custom-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
     .summary-pill {
@@ -483,49 +495,51 @@
     .template-wrapper { display: grid; gap: 10px; }
     .template-list { display: grid; gap: 10px; }
     .template-card {
-      border: 1px solid rgba(148, 163, 184, 0.24);
+      border: 1px solid var(--border);
       border-radius: var(--radius-md);
       padding: 12px 14px;
-      background: rgba(15, 23, 42, 0.55);
+      background: #fff;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
       transition: var(--transition);
     }
-    .template-card:hover { border-color: rgba(96, 165, 250, 0.3); box-shadow: 0 16px 30px rgba(15, 23, 42, 0.45); }
+    .template-card:hover { border-color: var(--accent); box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12); }
     .template-meta { display: flex; flex-direction: column; gap: 2px; }
     .template-meta strong { font-size: 13px; }
     .template-actions { display: flex; gap: 8px; }
     .empty-state {
-      border: 1px dashed rgba(148, 163, 184, 0.4);
+      border: 1px dashed var(--border);
       border-radius: var(--radius-md);
       padding: 16px;
       text-align: center;
       color: var(--muted);
-      background: rgba(15, 23, 42, 0.45);
+      background: rgba(226, 232, 240, 0.35);
     }
     .empty-state.small { padding: 12px; font-size: 12px; }
     .stats-overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
     .stats-card {
       border-radius: var(--radius-md);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
       padding: 14px;
       display: grid;
       gap: 4px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
     }
     .stats-card span.stats-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
     .stats-card strong { font-size: 20px; font-weight: 700; }
     .stats-card .stats-sub { font-size: 11.5px; color: var(--muted); }
     .stats-panels { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
     .stats-panel {
-      border: 1px solid rgba(148, 163, 184, 0.18);
+      border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      background: rgba(15, 23, 42, 0.55);
+      background: var(--surface-alt);
       padding: 14px;
       display: grid;
       gap: 12px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
     }
     .panel-header { display: grid; gap: 2px; }
     .panel-header h4 { font-size: 13.5px; letter-spacing: 0.01em; }
@@ -535,7 +549,7 @@
     .goal-progress-track { height: 6px; border-radius: 999px; background: rgba(148, 163, 184, 0.22); overflow: hidden; }
     .goal-progress-track span { display: block; height: 100%; border-radius: inherit; transition: width .4s cubic-bezier(0.4, 0, 0.2, 1); }
     .category-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
-    .category-pill { border-radius: 999px; padding: 7px 12px; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; background: rgba(15, 23, 42, 0.6); color: var(--text); }
+    .category-pill { border-radius: 999px; padding: 7px 12px; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; background: rgba(37, 99, 235, 0.12); color: var(--text); border: 1px solid rgba(37, 99, 235, 0.2); }
     .category-pill span { font-size: 10.5px; color: var(--muted); }
     .recent-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
     .recent-list li {
@@ -545,8 +559,9 @@
       align-items: center;
       padding: 10px 12px;
       border-radius: var(--radius-sm);
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
     }
     .recent-list li strong { font-size: 12.5px; }
     .recent-value { font-size: 12px; font-weight: 700; color: var(--accent); }
@@ -563,8 +578,9 @@
       gap: 12px;
       padding: 8px 10px;
       border-radius: 10px;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
     }
     .trend-info { display: grid; gap: 2px; }
     .trend-info strong { font-size: 12.5px; }
@@ -578,13 +594,13 @@
     .weekday-track span { display: block; height: 100%; border-radius: inherit; background: rgba(96, 165, 250, 0.7); }
     .weekday-track::after { content: attr(data-label); position: absolute; right: 6px; top: -16px; font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
     .leaderboard { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
-    .leaderboard li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.22); }
+    .leaderboard li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; background: var(--surface-alt); border: 1px solid var(--border); box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08); }
     .leaderboard strong { font-size: 12.5px; }
     .leaderboard span { font-size: 11px; color: var(--muted); }
     .heatmap-panel { background: transparent; border: none; padding: 0; gap: 10px; }
-    .heatmap-container { overflow-x: auto; padding: 16px; border-radius: var(--radius-md); background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(148, 163, 184, 0.24); }
+    .heatmap-container { overflow-x: auto; padding: 16px; border-radius: var(--radius-md); background: var(--surface-alt); border: 1px solid var(--border); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6); }
     .heatmap { display: grid; grid-template-rows: repeat(7, 1fr); grid-auto-flow: column; gap: 3px; }
-    .heatmap-cell { width: 14px; height: 14px; background: rgba(148, 163, 184, 0.18); border-radius: 3px; position: relative; }
+    .heatmap-cell { width: 14px; height: 14px; background: rgba(226, 232, 240, 0.8); border-radius: 3px; position: relative; }
     .heatmap-cell[data-level="1"] { background: #9be9a8; }
     .heatmap-cell[data-level="2"] { background: #40c463; }
     .heatmap-cell[data-level="3"] { background: #30a14e; }
@@ -595,11 +611,11 @@
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(30px);
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--accent);
       color: #fff;
       padding: 10px 20px;
       border-radius: 999px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 18px 32px rgba(37, 99, 235, 0.26);
       opacity: 0;
       pointer-events: none;
       transition: opacity .3s ease, transform .3s ease;
@@ -621,7 +637,7 @@
     }
     .modal-overlay.visible { opacity: 1; pointer-events: auto; }
     .modal-card {
-      background: rgba(15, 23, 42, 0.95);
+      background: #fff;
       border-radius: var(--radius-lg);
       padding: 26px;
       box-shadow: var(--shadow);
@@ -630,7 +646,8 @@
       gap: 14px;
       transform: translateY(12px);
       transition: transform .25s ease;
-      border: 1px solid rgba(148, 163, 184, 0.28);
+      border: 1px solid var(--border);
+      color: var(--text);
     }
     .modal-overlay.visible .modal-card { transform: translateY(0); }
     .modal-actions { display: flex; justify-content: center; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
@@ -639,19 +656,14 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      border: 1px solid rgba(148, 163, 184, 0.28);
+      border: 1px solid var(--border);
       border-radius: var(--radius-md);
       padding: 10px 12px;
       cursor: pointer;
       transition: var(--transition);
-      background: rgba(15, 23, 42, 0.6);
+      background: var(--surface-alt);
     }
-    .option-label:hover { border-color: var(--accent); background: rgba(96, 165, 250, 0.16); }
-    .planning-mode .planner-grid { filter: saturate(1.15); }
-    .planning-mode .day-column { border-style: dashed; border-color: rgba(96, 165, 250, 0.55); background: rgba(96, 165, 250, 0.14); }
-    .planning-mode .day-column::after { opacity: 0 !important; }
-    .planning-mode .day-column:hover { background: rgba(96, 165, 250, 0.22); }
-    .planning-mode .day-column:hover .quick-add-btn { opacity: 0; pointer-events: none; }
+    .option-label:hover { border-color: var(--accent); background: var(--accent-soft); }
     .input-error { border-color: var(--danger) !important; box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.3) !important; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes floatUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -844,11 +856,8 @@
                   <h3>Planer tygodniowy</h3>
                   <p id="planning-status" class="tiny muted status-chip"></p>
                 </div>
-                <div class="planner-actions">
-                  <button id="cancel-planning-btn" class="btn soft sm" style="display:none;"><i data-lucide="x-circle" class="icon"></i>Zakończ planowanie</button>
-                </div>
               </div>
-              <p id="planning-instructions" class="tiny muted" style="display:none;"></p>
+              <p class="tiny muted">Wybierz „Zaplanuj” przy celu albo użyj plusa w wybranym dniu, aby dodać aktywność.</p>
               <div class="planner-grid"></div>
               <div id="empty-planner-placeholder" class="empty-planner" style="display:none;">
                 <h4>Twój tydzień jest pusty</h4>
@@ -984,7 +993,6 @@ const DAY_NAMES = ['Niedz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
 
 let state = {};
 let currentDate = new Date();
-let planningState = { isPlanning: false, activityType: null };
 let dragState = { activityId: null, sourceDay: null };
 let saveTimeout;
 let notesSaveTimer;
@@ -1719,17 +1727,114 @@ function showModal(config) {
     }
 }
 
-function showPlanModal(type, dayIndex) {
+function showPlanModal(type, dayIndex = null) {
     const goal = GOAL_DEFINITIONS[type];
-    if (type === 'gym') { addActivity(type, dayIndex, 1); return; }
+    if (!goal) return;
+
+    const [year, week] = getWeekNumber(currentDate);
+    const startOfWeek = getStartOfWeek(year, week);
+    const dayOrder = [1, 2, 3, 4, 5, 6, 0];
+    let defaultDayIndex = typeof dayIndex === 'number' ? dayIndex : null;
+    if (defaultDayIndex === null) {
+        const today = new Date();
+        const [todayYear, todayWeek] = getWeekNumber(today);
+        defaultDayIndex = (todayYear === year && todayWeek === week) ? today.getDay() : 1;
+    }
+
+    if (!goal.trackValue && typeof dayIndex === 'number') {
+        addActivity(type, dayIndex, 1);
+        return;
+    }
+
     showModal({
         title: `Zaplanuj: ${goal.label}`,
-        text: `Ile ${goal.unit} planujesz na ten dzień?`,
-        input: { type: 'number', placeholder: '0' },
+        text: goal.trackValue ? 'Wybierz dzień i określ planowaną wartość.' : 'Wybierz dzień, aby dodać sesję do planu.',
         buttons: [
             { text: 'Anuluj', class: 'btn soft', action: 'close' },
-            { text: 'Dodaj plan', class: 'btn', action: (value) => addActivity(type, dayIndex, parseFloat(value) || 0) }
-        ]
+            { text: 'Dodaj plan', class: 'btn', action: (_, __, ctx) => {
+                const modalEl = ctx.modal;
+                const daySelect = modalEl.querySelector('#plan-day-select');
+                const valueInput = modalEl.querySelector('#plan-value-input');
+                const selectedDay = daySelect ? parseInt(daySelect.value, 10) : defaultDayIndex;
+
+                if (Number.isNaN(selectedDay)) {
+                    daySelect?.classList.add('input-error');
+                    daySelect?.focus();
+                    return false;
+                }
+
+                if (goal.trackValue) {
+                    let plannedValue = parseFloat(valueInput.value);
+                    if (Number.isNaN(plannedValue) || plannedValue <= 0) {
+                        valueInput.classList.add('input-error');
+                        valueInput.focus();
+                        return false;
+                    }
+                    addActivity(type, selectedDay, plannedValue);
+                } else {
+                    addActivity(type, selectedDay, 1);
+                }
+            }}
+        ],
+        onRender: ({ inputContainer }) => {
+            const form = document.createElement('div');
+            form.className = 'plan-modal-form';
+
+            if (typeof dayIndex !== 'number') {
+                const dayGroup = document.createElement('div');
+                dayGroup.className = 'form-group';
+                const label = document.createElement('label');
+                label.setAttribute('for', 'plan-day-select');
+                label.textContent = 'Dzień tygodnia';
+                const select = document.createElement('select');
+                select.id = 'plan-day-select';
+                dayOrder.forEach(idx => {
+                    const date = new Date(startOfWeek);
+                    date.setDate(startOfWeek.getDate() + (idx - 1 + 7) % 7);
+                    const option = document.createElement('option');
+                    option.value = idx;
+                    option.textContent = `${DAY_NAMES[idx]} ${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                    select.appendChild(option);
+                });
+                select.value = defaultDayIndex;
+                select.addEventListener('change', () => select.classList.remove('input-error'));
+                dayGroup.appendChild(label);
+                dayGroup.appendChild(select);
+                form.appendChild(dayGroup);
+            } else {
+                const info = document.createElement('p');
+                info.className = 'tiny muted';
+                info.textContent = `Plan dla dnia: ${DAY_NAMES[defaultDayIndex]}`;
+                form.appendChild(info);
+            }
+
+            if (goal.trackValue) {
+                const valueGroup = document.createElement('div');
+                valueGroup.className = 'form-group';
+                const valueLabel = document.createElement('label');
+                valueLabel.setAttribute('for', 'plan-value-input');
+                valueLabel.textContent = `Planowana wartość (${goal.unit})`;
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = 'plan-value-input';
+                input.min = '0';
+                input.step = '0.5';
+                input.placeholder = goal.unit;
+                input.value = goal.target || '';
+                input.addEventListener('input', () => input.classList.remove('input-error'));
+                valueGroup.appendChild(valueLabel);
+                valueGroup.appendChild(input);
+                form.appendChild(valueGroup);
+            } else {
+                const note = document.createElement('p');
+                note.className = 'tiny muted';
+                note.textContent = 'Zadanie zostanie oznaczone jako do odhaczenia w wybranym dniu.';
+                form.appendChild(note);
+            }
+
+            inputContainer.appendChild(form);
+        },
+        focusSelector: goal.trackValue ? '#plan-value-input' : (typeof dayIndex === 'number' ? null : '#plan-day-select')
     });
 }
 
@@ -2071,20 +2176,13 @@ function setupEventListeners() {
     highlightInput.addEventListener('input', (e) => updateWeekNote('highlight', e.target.value));
 
     document.querySelectorAll('[data-action="plan"]').forEach(btn => {
-        btn.addEventListener('click', (e) => startPlanning(e.currentTarget.dataset.activityType));
+        btn.addEventListener('click', (e) => showPlanModal(e.currentTarget.dataset.activityType));
     });
-    
+
     document.querySelector('.planner-grid').addEventListener('click', (e) => {
         const dayColumn = e.target.closest('.day-column');
         if (!dayColumn) return;
         const dayIndex = parseInt(dayColumn.dataset.dayIndex, 10);
-        
-        if (planningState.isPlanning) {
-            if (!e.target.closest('.activity-pill') && !e.target.closest('.quick-add-btn')) {
-                showPlanModal(planningState.activityType, dayIndex);
-            }
-            return;
-        }
 
         if (e.target.closest('.quick-add-btn')) {
             const menu = dayColumn.querySelector('.quick-add-menu');
@@ -2137,7 +2235,6 @@ function setupEventListeners() {
     const initialTab = document.querySelector('.tab.active')?.dataset.tab || 'planner';
     activateTab(initialTab);
 
-    document.getElementById('cancel-planning-btn').addEventListener('click', stopPlanning);
 }
 
 
@@ -2184,77 +2281,82 @@ function renderStats() {
         goalAggregate[type] = { actual: 0, raw: 0, target: 0, weeks: 0 };
     });
 
-    const yearKeys = getYearKeys().sort();
-    yearKeys.forEach(yearKey => {
-        const weeks = state[yearKey] || {};
-        Object.keys(weeks).forEach(weekKey => {
-            const weekData = weeks[weekKey];
-            const yearValue = parseInt(yearKey, 10);
-            const weekValue = parseInt(weekKey, 10);
-            const startOfWeek = getStartOfWeek(yearValue, weekValue);
-            const hasGoalPlan = Object.values(weekData.plan || {}).some(arr => arr.some(activity => isGoalType(activity.type)));
-            if (hasGoalPlan) {
-                trackedWeeks.add(`${yearValue}-${weekValue}`);
-                Object.keys(GOAL_DEFINITIONS).forEach(type => {
-                    const progressValue = Number(weekData.progress?.[type] || 0);
-                    goalAggregate[type].actual += Math.min(progressValue, GOAL_DEFINITIONS[type].target);
-                    goalAggregate[type].raw += progressValue;
-                    goalAggregate[type].target += GOAL_DEFINITIONS[type].target;
-                    goalAggregate[type].weeks += 1;
-                });
-            }
+    const targetYear = getWeekNumber(currentDate)[0];
+    const weeks = state[targetYear] || {};
+    Object.keys(weeks).forEach(weekKey => {
+        const weekData = weeks[weekKey];
+        const yearValue = targetYear;
+        const weekValue = parseInt(weekKey, 10);
+        const startOfWeek = getStartOfWeek(yearValue, weekValue);
+        const hasGoalPlan = Object.values(weekData.plan || {}).some(arr => arr.some(activity => isGoalType(activity.type)));
+        if (hasGoalPlan) {
+            trackedWeeks.add(weekValue);
+            Object.keys(GOAL_DEFINITIONS).forEach(type => {
+                const progressValue = Number(weekData.progress?.[type] || 0);
+                goalAggregate[type].actual += Math.min(progressValue, GOAL_DEFINITIONS[type].target);
+                goalAggregate[type].raw += progressValue;
+                goalAggregate[type].target += GOAL_DEFINITIONS[type].target;
+                goalAggregate[type].weeks += 1;
+            });
+        }
 
-            let plannedForWeek = 0;
-            let completedForWeek = 0;
+        let plannedForWeek = 0;
+        let completedForWeek = 0;
 
-            Object.entries(weekData.plan || {}).forEach(([dayKey, dayActivities]) => {
-                const dayIndex = parseInt(dayKey, 10);
-                const activityDate = new Date(startOfWeek);
-                activityDate.setDate(startOfWeek.getDate() + (dayIndex - 1 + 7) % 7);
-                dayActivities.forEach(activity => {
-                    plannedForWeek += 1;
-                    if (activity.completed) completedForWeek += 1;
-                    const entry = { ...activity, year: yearValue, week: weekValue, dayIndex, date: activityDate };
-                    allActivities.push(entry);
-                    if (activity.completed) completedActivities.push(entry);
+        Object.entries(weekData.plan || {}).forEach(([dayKey, dayActivities]) => {
+            const dayIndex = parseInt(dayKey, 10);
+            const activityDate = new Date(startOfWeek);
+            activityDate.setDate(startOfWeek.getDate() + (dayIndex - 1 + 7) % 7);
+            dayActivities.forEach(activity => {
+                plannedForWeek += 1;
+                if (activity.completed) completedForWeek += 1;
+                const entry = { ...activity, year: yearValue, week: weekValue, dayIndex, date: activityDate };
+                allActivities.push(entry);
+                if (activity.completed) completedActivities.push(entry);
 
-                    const monthKey = `${activityDate.getFullYear()}-${String(activityDate.getMonth() + 1).padStart(2, '0')}`;
-                    if (!monthlySummary[monthKey]) monthlySummary[monthKey] = { total: 0, completed: 0 };
-                    monthlySummary[monthKey].total += 1;
-                    if (activity.completed) monthlySummary[monthKey].completed += 1;
+                const monthKey = `${activityDate.getFullYear()}-${String(activityDate.getMonth() + 1).padStart(2, '0')}`;
+                if (!monthlySummary[monthKey]) monthlySummary[monthKey] = { total: 0, completed: 0 };
+                monthlySummary[monthKey].total += 1;
+                if (activity.completed) monthlySummary[monthKey].completed += 1;
 
-                    const dayStats = dayAggregate[dayIndex] || (dayAggregate[dayIndex] = { completed: 0, total: 0 });
-                    dayStats.total += 1;
-                    if (activity.completed) dayStats.completed += 1;
+                const dayStats = dayAggregate[dayIndex] || (dayAggregate[dayIndex] = { completed: 0, total: 0 });
+                dayStats.total += 1;
+                if (activity.completed) dayStats.completed += 1;
 
-                    const definition = getActivityDefinition(activity);
-                    const freqKey = `${definition.label}|${definition.categoryLabel || 'Cel tygodnia'}`;
-                    if (!activityFrequency[freqKey]) {
-                        activityFrequency[freqKey] = {
-                            label: definition.label,
-                            category: definition.categoryLabel || 'Cel tygodnia',
-                            color: definition.color || 'var(--accent)',
-                            total: 0,
+                const definition = getActivityDefinition(activity);
+                const freqKey = `${definition.label}|${definition.categoryLabel || 'Cel tygodnia'}`;
+                if (!activityFrequency[freqKey]) {
+                    activityFrequency[freqKey] = {
+                        label: definition.label,
+                        category: definition.categoryLabel || 'Cel tygodnia',
+                        color: definition.color || 'var(--accent)',
+                        total: 0,
+                        completed: 0
+                    };
+                }
+                activityFrequency[freqKey].total += 1;
+                if (activity.completed) activityFrequency[freqKey].completed += 1;
+
+                if (!isGoalType(activity.type)) {
+                    const categoryKey = activity.custom?.category || 'other';
+                    if (!categorySummary[categoryKey]) {
+                        const styles = getCategoryStyles(categoryKey);
+                        categorySummary[categoryKey] = {
+                            label: styles.label,
+                            color: styles.color,
+                            bg: styles.bg,
+                            border: styles.border,
+                            count: 0,
                             completed: 0
                         };
                     }
-                    activityFrequency[freqKey].total += 1;
-                    if (activity.completed) activityFrequency[freqKey].completed += 1;
-
-                    if (!isGoalType(activity.type)) {
-                        const categoryKey = activity.custom?.category || 'other';
-                        if (!categorySummary[categoryKey]) {
-                            const styles = getCategoryStyles(categoryKey);
-                            categorySummary[categoryKey] = { label: styles.label, color: styles.color, count: 0, completed: 0 };
-                        }
-                        categorySummary[categoryKey].count += 1;
-                        if (activity.completed) categorySummary[categoryKey].completed += 1;
-                    }
-                });
+                    categorySummary[categoryKey].count += 1;
+                    if (activity.completed) categorySummary[categoryKey].completed += 1;
+                }
             });
-
-            weekRecords.push({ year: yearValue, week: weekValue, start: startOfWeek, data: weekData, planned: plannedForWeek, completed: completedForWeek });
         });
+
+        weekRecords.push({ year: yearValue, week: weekValue, start: startOfWeek, data: weekData, planned: plannedForWeek, completed: completedForWeek });
     });
 
     allActivities.sort((a, b) => a.date - b.date);
@@ -2307,7 +2409,7 @@ function renderStats() {
         statsGoalPerformanceEl.textContent = `${averagePercent}%`;
     }
     if (statsGoalSummaryEl) {
-        statsGoalSummaryEl.textContent = trackedWeeks.size ? `${trackedWeeks.size} tyg. w historii` : 'Brak tygodni';
+        statsGoalSummaryEl.textContent = trackedWeeks.size ? `${trackedWeeks.size} tyg. w ${targetYear}` : 'Brak tygodni';
     }
 
     if (categoryContainer) {
@@ -2324,9 +2426,9 @@ function renderStats() {
                 const completion = data.count ? Math.round((data.completed / data.count) * 100) : 0;
                 const pill = document.createElement('span');
                 pill.className = 'category-pill';
-                pill.style.border = `1px solid ${data.color}`;
+                pill.style.border = `1px solid ${data.border || data.color}`;
                 pill.style.color = data.color;
-                pill.style.background = 'rgba(15, 23, 42, 0.55)';
+                pill.style.background = data.bg || 'var(--accent-soft)';
                 pill.innerHTML = `${data.label}<span>${data.completed}/${data.count} (${completion}%)</span>`;
                 categoryContainer.appendChild(pill);
             });
@@ -2564,26 +2666,6 @@ function renderStats() {
 
     lucide.createIcons();
 }
-
-
-// --- TRYB PLANOWANIA ---
-function startPlanning(type) {
-    planningState = { isPlanning: true, activityType: type };
-    document.getElementById('tab-content-planner').classList.add('planning-mode');
-    document.getElementById('planning-instructions').style.display = 'block';
-    document.getElementById('planning-instructions').textContent = `Kliknij w wybrany dzień, aby dodać: ${GOAL_DEFINITIONS[type].label}`;
-    document.getElementById('cancel-planning-btn').style.display = 'inline-flex';
-    document.querySelectorAll('[data-action="plan"]').forEach(b => b.style.display = 'none');
-}
-
-function stopPlanning() {
-    planningState = { isPlanning: false, activityType: null };
-    document.getElementById('tab-content-planner').classList.remove('planning-mode');
-    document.getElementById('planning-instructions').style.display = 'none';
-    document.getElementById('cancel-planning-btn').style.display = 'none';
-    document.querySelectorAll('[data-action="plan"]').forEach(b => b.style.display = 'inline-flex');
-}
-
 </script>
 </body>
 </html>
