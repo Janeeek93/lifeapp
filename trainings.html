@@ -140,9 +140,10 @@
     .day-header.today { color: var(--blue); }
     .activities-container { flex: 1; display: flex; flex-direction: column; gap: 8px; }
     .activity-pill { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 14px; font-size: 13px; font-weight: 600; cursor: grab; border: 1px solid transparent; transition: var(--transition-fast); text-align: left; gap: 12px; background: rgba(248,250,252,0.9); color: var(--ink); }
+    .activity-pill .pill-content { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
     .activity-pill .pill-label { display: flex; align-items: center; gap: 8px; }
     .activity-pill .pill-label i { width: 16px; height: 16px; }
-    .activity-pill .pill-meta { font-size: 12px; color: rgba(15,23,42,0.68); font-weight: 500; }
+    .activity-pill .pill-meta { font-size: 12px; color: rgba(15,23,42,0.68); font-weight: 500; margin-left: auto; }
     .activity-pill.dragging { opacity: 0.5; transform: scale(1.04); box-shadow: var(--shadow-lg); }
     .activity-pill:not(.completed):hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
     .activity-pill.gym { background: var(--gym-soft); color: var(--gym-color); border-color: var(--gym-border); }
@@ -504,16 +505,73 @@ function addActivity(type, dayIndex, plannedValue, extra = {}) {
 
 function deleteActivity(activityId) {
     const [year, week] = getWeekNumber(currentDate);
-    const weekData = state[year][week];
+    const weekData = state[year]?.[week];
+    if (!weekData) return;
+
+    let removed = false;
     for (const day in weekData.plan) {
         const initialLength = weekData.plan[day].length;
         weekData.plan[day] = weekData.plan[day].filter(a => a.id !== activityId);
-        if (weekData.plan[day].length < initialLength) break;
+        if (weekData.plan[day].length < initialLength) {
+            removed = true;
+            break;
+        }
     }
+
+    if (!removed) return;
+
     recalculateWeekProgress(year, week);
     checkWeekCompletion(year, week);
     saveState();
     render();
+}
+
+function confirmDeleteActivity(activityId) {
+    const [year, week] = getWeekNumber(currentDate);
+    const weekData = state[year]?.[week];
+    if (!weekData) return;
+
+    let activity = null;
+    let dayKey = null;
+    for (const day in weekData.plan) {
+        const found = weekData.plan[day].find(a => a.id === activityId);
+        if (found) {
+            activity = found;
+            dayKey = parseInt(day, 10);
+            break;
+        }
+    }
+
+    if (!activity) return;
+
+    const definition = getActivityDefinition(activity);
+    const startOfWeek = getStartOfWeek(year, week);
+    const activityDate = new Date(startOfWeek);
+    const numericDay = (typeof dayKey === 'number' && !Number.isNaN(dayKey)) ? dayKey : 1;
+    const normalizedDay = (numericDay - 1 + 7) % 7;
+    activityDate.setDate(startOfWeek.getDate() + normalizedDay);
+    const dateLabel = activityDate.toLocaleDateString('pl-PL');
+    const dayLabel = DAY_NAMES[numericDay] || DAY_NAMES[1];
+
+    showModal({
+        title: 'Usuń aktywność',
+        text: 'Czy na pewno chcesz usunąć tę aktywność? Wszystkie zapisane postępy zostaną utracone.',
+        content: (inputContainer) => {
+            const details = document.createElement('div');
+            details.className = 'tiny muted';
+            details.style.marginTop = '16px';
+            details.style.textAlign = 'left';
+            details.style.background = 'rgba(148,163,184,0.12)';
+            details.style.padding = '12px 14px';
+            details.style.borderRadius = '12px';
+            details.textContent = `${definition.label} • ${dayLabel} (${dateLabel})`;
+            inputContainer.appendChild(details);
+        },
+        buttons: [
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: 'Usuń', class: 'btn danger', action: () => deleteActivity(activityId) }
+        ]
+    });
 }
 
 function logActivity(activityId, value, isCompleted) {
@@ -692,16 +750,31 @@ function renderPlanner(plan, startOfWeek) {
 
                 pill.innerHTML = `${labelHTML}${metaText ? `<span class="pill-meta">${metaText}</span>` : ''}`;
 
+                const labelEl = pill.querySelector('.pill-label');
+                const metaEl = pill.querySelector('.pill-meta');
+                const contentWrap = document.createElement('div');
+                contentWrap.className = 'pill-content';
+                if (labelEl) contentWrap.appendChild(labelEl);
+                if (metaEl) contentWrap.appendChild(metaEl);
+                pill.innerHTML = '';
+                pill.appendChild(contentWrap);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.type = 'button';
+                deleteBtn.className = 'delete-activity-btn';
+                deleteBtn.dataset.activityId = activity.id;
+                deleteBtn.setAttribute('aria-label', 'Usuń aktywność');
+                deleteBtn.innerHTML = `<i data-lucide="x" class="icon" style="width:16px; height:16px;"></i>`;
+                deleteBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    confirmDeleteActivity(activity.id);
+                });
+                pill.appendChild(deleteBtn);
+
                 if (activity.completed) {
                     pill.classList.add('completed');
                 } else {
                     pill.draggable = true;
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'delete-activity-btn';
-                    deleteBtn.dataset.activityId = activity.id;
-                    deleteBtn.setAttribute('aria-label', 'Usuń aktywność');
-                    deleteBtn.innerHTML = `<i data-lucide="x" class="icon" style="width:16px; height:16px;"></i>`;
-                    pill.appendChild(deleteBtn);
                 }
 
                 pill.addEventListener('dragstart', handleDragStart);
@@ -1390,7 +1463,7 @@ function setupEventListeners() {
 
         const deleteBtn = e.target.closest('.delete-activity-btn');
         if (deleteBtn) {
-            deleteActivity(deleteBtn.dataset.activityId);
+            confirmDeleteActivity(deleteBtn.dataset.activityId);
             return;
         }
         
