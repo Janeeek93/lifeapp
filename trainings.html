@@ -1110,7 +1110,9 @@ function initializeWeekData(year, week) {
 
 function addActivity(type, dayIndex, plannedValue, extra = {}) {
     const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
     const weekData = state[year][week];
+    if (!weekData) return;
     const newActivity = {
         id: `act_${Date.now()}_${Math.random()}`,
         type: type,
@@ -1199,7 +1201,9 @@ function confirmDeleteActivity(activityId) {
 
 function logActivity(activityId, value, isCompleted) {
     const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
     const weekData = state[year][week];
+    if (!weekData) return;
     let activityFound = null;
     for (const day in weekData.plan) {
         const activity = weekData.plan[day].find(a => a.id === activityId);
@@ -1216,7 +1220,8 @@ function logActivity(activityId, value, isCompleted) {
 }
 
 function recalculateWeekProgress(year, week) {
-    const weekData = state[year][week];
+    const weekData = state[year]?.[week];
+    if (!weekData) return;
     weekData.progress = {};
     Object.keys(GOAL_DEFINITIONS).forEach(type => weekData.progress[type] = 0);
     Object.values(weekData.plan).flat().forEach(activity => {
@@ -1227,7 +1232,8 @@ function recalculateWeekProgress(year, week) {
 }
 
 function checkWeekCompletion(year, week) {
-    const weekData = state[year][week];
+    const weekData = state[year]?.[week];
+    if (!weekData) return;
     const allGoalsMet = Object.keys(GOAL_DEFINITIONS).every(type => 
         (weekData.progress[type] || 0) >= GOAL_DEFINITIONS[type].target
     );
@@ -1796,7 +1802,7 @@ function showPlanModal(type, dayIndex = null) {
                     option.textContent = `${DAY_NAMES[idx]} ${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
                     select.appendChild(option);
                 });
-                select.value = defaultDayIndex;
+                select.value = String(defaultDayIndex);
                 select.addEventListener('change', () => select.classList.remove('input-error'));
                 dayGroup.appendChild(label);
                 dayGroup.appendChild(select);
@@ -1958,7 +1964,7 @@ function showCustomActivityModal(dayIndex = null, template = null) {
                 option.textContent = `${DAY_NAMES[idx]} ${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
                 daySelect.appendChild(option);
             });
-            daySelect.value = defaultDayIndex;
+            daySelect.value = String(defaultDayIndex);
 
             const categorySelect = form.querySelector('#custom-activity-category');
             Object.entries(CUSTOM_ACTIVITY_CATEGORIES).forEach(([key, value]) => {
@@ -2136,13 +2142,17 @@ function handleDrop(e) {
     if (targetDayIndex === sourceDayIndex) return;
 
     const [year, week] = getWeekNumber(currentDate);
-    const weekData = state[year][week];
-    const activityIndex = weekData.plan[sourceDayIndex].findIndex(a => a.id === dragState.activityId);
+    initializeWeekData(year, week);
+    const weekData = state[year]?.[week];
+    if (!weekData) return;
+    const sourceDayPlan = weekData.plan?.[sourceDayIndex];
+    if (!Array.isArray(sourceDayPlan)) return;
+    const activityIndex = sourceDayPlan.findIndex(a => a.id === dragState.activityId);
     if (activityIndex === -1) return;
 
-    const [activity] = weekData.plan[sourceDayIndex].splice(activityIndex, 1);
+    const [activity] = sourceDayPlan.splice(activityIndex, 1);
     activity.day = targetDayIndex;
-    
+
     if(!weekData.plan[targetDayIndex]) weekData.plan[targetDayIndex] = [];
     weekData.plan[targetDayIndex].push(activity);
     saveState();
@@ -2288,22 +2298,39 @@ function renderStats() {
         const yearValue = targetYear;
         const weekValue = parseInt(weekKey, 10);
         const startOfWeek = getStartOfWeek(yearValue, weekValue);
-        const hasGoalPlan = Object.values(weekData.plan || {}).some(arr => arr.some(activity => isGoalType(activity.type)));
-        if (hasGoalPlan) {
+        const weekPlan = weekData?.plan || {};
+        const weekProgress = weekData?.progress || {};
+        const hasAnyPlanned = Object.values(weekPlan).some(dayActivities => Array.isArray(dayActivities) && dayActivities.length > 0);
+        const hasLoggedProgress = Object.values(weekProgress).some(value => Number(value) > 0);
+        if (hasAnyPlanned || hasLoggedProgress) {
             trackedWeeks.add(weekValue);
-            Object.keys(GOAL_DEFINITIONS).forEach(type => {
-                const progressValue = Number(weekData.progress?.[type] || 0);
-                goalAggregate[type].actual += Math.min(progressValue, GOAL_DEFINITIONS[type].target);
-                goalAggregate[type].raw += progressValue;
-                goalAggregate[type].target += GOAL_DEFINITIONS[type].target;
-                goalAggregate[type].weeks += 1;
-            });
         }
+
+        const goalsSeenThisWeek = {};
+        Object.values(weekPlan).forEach(dayActivities => {
+            (dayActivities || []).forEach(activity => {
+                if (isGoalType(activity.type)) goalsSeenThisWeek[activity.type] = true;
+            });
+        });
+        Object.keys(weekProgress).forEach(type => {
+            if (GOAL_DEFINITIONS[type] && Number(weekProgress[type]) > 0) {
+                goalsSeenThisWeek[type] = true;
+            }
+        });
+
+        Object.keys(GOAL_DEFINITIONS).forEach(type => {
+            if (!goalsSeenThisWeek[type]) return;
+            const progressValue = Number(weekProgress?.[type] || 0);
+            goalAggregate[type].actual += Math.min(progressValue, GOAL_DEFINITIONS[type].target);
+            goalAggregate[type].raw += progressValue;
+            goalAggregate[type].target += GOAL_DEFINITIONS[type].target;
+            goalAggregate[type].weeks += 1;
+        });
 
         let plannedForWeek = 0;
         let completedForWeek = 0;
 
-        Object.entries(weekData.plan || {}).forEach(([dayKey, dayActivities]) => {
+        Object.entries(weekPlan).forEach(([dayKey, dayActivities]) => {
             const dayIndex = parseInt(dayKey, 10);
             const activityDate = new Date(startOfWeek);
             activityDate.setDate(startOfWeek.getDate() + (dayIndex - 1 + 7) % 7);
@@ -2409,7 +2436,13 @@ function renderStats() {
         statsGoalPerformanceEl.textContent = `${averagePercent}%`;
     }
     if (statsGoalSummaryEl) {
-        statsGoalSummaryEl.textContent = trackedWeeks.size ? `${trackedWeeks.size} tyg. w ${targetYear}` : 'Brak tygodni';
+        const today = new Date();
+        const [, currentWeekNumber] = getWeekNumber(today);
+        const totalWeeksInYear = getWeekNumber(new Date(targetYear, 11, 28))[1];
+        const referenceWeeks = targetYear === today.getFullYear() ? currentWeekNumber : totalWeeksInYear;
+        statsGoalSummaryEl.textContent = trackedWeeks.size
+            ? `${trackedWeeks.size}/${referenceWeeks} tyg. monitorowane w ${targetYear}`
+            : 'Brak tygodni';
     }
 
     if (categoryContainer) {
