@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LifeOS – Plany i Progres</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg: #f8fafc; --card: #fff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
+      --green: #059669; --green-soft: #f0fdf4; --green-border: #a7f3d0;
+      --red: #dc2626; --red-soft: #fef2f2; --red-border: #fecaca;
+      --orange: #ea580c; --orange-soft: #fff7ed; --orange-border: #fed7aa;
+      --blue: #2563eb; --blue-soft: #eff6ff; --blue-border: #bfdbfe;
+      --gym-color: #5b21b6; --gym-soft: #f5f3ff; --gym-border: #ddd6fe;
+      --run-color: #047857; --run-soft: #ecfdf5; --run-border: #a7f3d0;
+      --read-color: #0369a1; --read-soft: #f0f9ff; --read-border: #bae6fd;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --transition-fast: all .2s ease-in-out;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    .grid { display: grid; gap: 16px; }
+    .g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media(max-width: 768px) { .g-3 { grid-template-columns: 1fr; } }
+    
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); }
+    .card:hover { box-shadow: var(--shadow-md); }
+    .title { margin: 0 0 8px 0; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+    .muted { color: var(--muted); }
+    .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; border-radius: 12px; padding: 10px 16px; border: 1px solid transparent; background: var(--ink); color: #fff; cursor: pointer; text-decoration: none; font-weight: 600; transition: var(--transition-fast); }
+    .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .btn.soft { background: #fff; border-color: var(--line); color: var(--ink); }
+    .btn.soft:hover { background: var(--bg); border-color: #d1d5db; }
+    .btn.danger { background: var(--red-soft); border-color: var(--red-border); color: var(--red); }
+    .btn.danger:hover { background: var(--red); color: #fff; }
+    
+    .progress-bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+    .progress-bar > div { height: 100%; transition: width .4s cubic-bezier(0.22, 1, 0.36, 1); }
+    .tiny { font-size: 12px; color: var(--muted); }
+    .row { display: flex; justify-content: space-between; align-items: center; }
+
+    /* Header */
+    .page-header { margin-bottom: 32px; }
+    .header-kpis { padding: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; }
+    .kpi-item { text-align: center; }
+    .kpi-separator { width: 1px; height: 40px; background-color: var(--line); }
+    .kpi-value { font-size: 26px; font-weight: 800; line-height: 1.1; }
+    .goal-card { padding: 20px; box-shadow: none; transition: var(--transition-fast); }
+    .goal-card:hover { transform: scale(1.02); box-shadow: var(--shadow-md); }
+    .goal-card .title { font-size: 14px; margin-bottom: 4px; }
+    .goal-card .kpi-value { font-size: 20px; font-weight: 700; }
+    .goal-card .btn { width: 100%; margin-top: 16px; padding: 8px 12px; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+    .tab { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid transparent; color: var(--muted); transition: var(--transition-fast); display: flex; align-items: center; gap: 6px;}
+    .tab:hover { background: var(--bg); color: var(--ink); }
+    .tab.active { background: #fff; color: var(--ink); border-color: var(--line); box-shadow: var(--shadow-sm); }
+
+    /* Planner */
+    .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 16px; }
+    .day-column { position: relative; background: var(--bg); border-radius: 12px; padding: 12px; transition: var(--transition-fast); border: 2px solid transparent; }
+    .day-header { font-weight: 600; text-align: center; font-size: 13px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+    .day-header.today { color: var(--blue); }
+    .activities-container { min-height: 120px; display: flex; flex-direction: column; gap: 8px; }
+    .activity-pill { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: grab; border: 1px solid; transition: var(--transition-fast); text-align: left; }
+    .activity-pill.dragging { opacity: 0.5; transform: scale(1.05); box-shadow: var(--shadow-lg); }
+    .activity-pill:not(.completed):hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .activity-pill.gym { background: var(--gym-soft); color: var(--gym-color); border-color: var(--gym-border); }
+    .activity-pill.running { background: var(--run-soft); color: var(--run-color); border-color: var(--run-border); }
+    .activity-pill.reading { background: var(--read-soft); color: var(--read-color); border-color: var(--read-border); }
+    .activity-pill.completed { background: var(--green-soft); color: var(--green); border-color: var(--green-border); cursor: pointer; }
+    .activity-pill.completed:hover { opacity: 1; box-shadow: var(--shadow-sm); }
+    .activity-pill > span { text-decoration: none; }
+    .activity-pill.completed > span { text-decoration: line-through; opacity: 0.7; }
+    .day-column.drag-over { background-color: var(--blue-soft); border-color: var(--blue-border); }
+    .delete-activity-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 2px; margin-left: 8px; border-radius: 4px; display: flex; align-items: center; transition: var(--transition-fast); }
+    .delete-activity-btn:hover { color: var(--red); background-color: var(--red-soft); }
+
+    .quick-add-btn { position: absolute; top: 8px; right: 8px; background: #fff; border: 1px solid var(--line); border-radius: 50%; width: 28px; height: 28px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
+    .day-column:hover .quick-add-btn { opacity: 1; }
+    .quick-add-menu { position: absolute; top: 40px; right: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); z-index: 10; display: none; flex-direction: column; overflow: hidden; }
+    .quick-add-menu button { background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; width: 100%; font-size: 13px; }
+    .quick-add-menu button:hover { background-color: var(--bg); }
+    
+    .empty-planner { text-align: center; padding: 40px; color: var(--muted); border: 2px dashed var(--line); border-radius: 12px; margin-top: 16px; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity .2s ease-out; }
+    .modal-overlay.visible { opacity: 1; pointer-events: all; }
+    .modal-card { background: var(--card); padding: 32px; border-radius: 16px; box-shadow: var(--shadow-lg); max-width: 450px; width: 90%; text-align: center; transition: transform .2s ease-out; transform: scale(0.95); }
+    .modal-overlay.visible .modal-card { transform: scale(1); }
+    .modal-actions { margin-top: 24px; display: flex; justify-content: center; gap: 12px; }
+    .modal-card input { border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; text-align: center; font-size: 18px; padding: 12px; width: 100%; }
+    .modal-options { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .option-label { display: flex; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: var(--transition-fast); }
+    .option-label:hover { background-color: var(--bg); border-color: var(--blue-border); }
+    .option-label input { margin-right: 12px; }
+
+    /* Planning Mode */
+    .planning-mode .day-column { cursor: pointer; border: 2px dashed var(--blue-border); }
+    .planning-mode .day-column:hover { border-color: var(--blue); background: var(--blue-soft); }
+
+    /* Stats */
+    .heatmap-container { margin-top: 16px; overflow-x: auto; padding-bottom: 10px; }
+    .heatmap { display: grid; grid-template-rows: repeat(7, 1fr); grid-auto-flow: column; gap: 4px; }
+    .heatmap-cell { width: 15px; height: 15px; background: var(--line); border-radius: 3px; position: relative; }
+    .heatmap-cell[data-level="1"] { background: #9be9a8; }
+    .heatmap-cell[data-level="2"] { background: #40c463; }
+    .heatmap-cell[data-level="3"] { background: #30a14e; }
+    .heatmap-cell[data-level="4"] { background: #216e39; }
+    .heatmap-legend { display: flex; align-items: center; gap: 4px; justify-content: flex-end; margin-top: 8px; }
+
+    /* Save Status */
+    #save-status { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 12px; box-shadow: var(--shadow-lg); z-index: 2000; opacity: 0; transition: opacity .3s, transform .3s; pointer-events: none; }
+    #save-status.visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+    
+    .icon { width: 1em; height: 1em; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="row page-header">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="./index.html" class="btn soft"><i data-lucide="arrow-left" class="icon"></i> Powrót</a>
+        <div>
+          <h1 style="font-size: 28px; font-weight: 800; margin:0;">Plany i Progres</h1>
+          <p class="muted" style="margin:0;">Planuj i śledź swoje tygodniowe cele rozwojowe.</p>
+        </div>
+      </div>
+      <div class="card header-kpis">
+        <div class="kpi-item">
+            <div class="muted">Ukończone tyg.</div>
+            <div id="yearly-progress-value" class="kpi-value" style="color: var(--green);">0/36</div>
+        </div>
+        <div class="kpi-separator"></div>
+        <div class="kpi-item">
+            <div class="muted">Seria</div>
+            <div id="streak-value" class="kpi-value" style="color: var(--orange);">0</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="card">
+        <div class="row">
+            <h3 class="title"><i data-lucide="calendar-check" class="icon"></i><span id="week-title">Cele na ten tydzień</span></h3>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button id="copy-plan-btn" class="btn soft" style="display: none;"><i data-lucide="copy" class="icon"></i>Kopiuj plan</button>
+                <button id="prev-week-btn" class="btn soft"><i data-lucide="chevron-left" class="icon"></i>Poprzedni</button>
+                <button id="today-week-btn" class="btn soft" style="display: none;">Dziś</button>
+                <button id="next-week-btn" class="btn soft">Następny<i data-lucide="chevron-right" class="icon"></i></button>
+            </div>
+        </div>
+        <div style="margin-top: 16px;">
+            <div class="row" style="justify-content: space-between;"><span id="overall-progress-label" class="tiny muted">Postęp tygodnia: 0%</span></div>
+            <div class="progress-bar"><div id="overall-progress-bar" style="width:0%; background: var(--blue);"></div></div>
+        </div>
+        <div class="grid g-3" style="margin-top: 20px;">
+            <div class="card goal-card" style="background: var(--gym-soft);"><h4 class="title">💪 Trening siłowy</h4><div id="goal-gym-progress" class="kpi-value">0/3 sesje</div><div class="progress-bar"><div id="goal-gym-bar" style="width:0%; background: var(--gym-color);"></div></div><button class="btn soft" data-activity-type="gym" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
+            <div class="card goal-card" style="background: var(--run-soft);"><h4 class="title">🏃 Bieg</h4><div id="goal-running-progress" class="kpi-value">0/5 km</div><div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div><button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
+            <div class="card goal-card" style="background: var(--read-soft);"><h4 class="title">📚 Czytanie</h4><div id="goal-reading-progress" class="kpi-value">0/100 stron</div><div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div><button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
+        </div>
+    </div>
+    
+    <div class="tabs">
+        <div class="tab active" data-tab="planner"><i data-lucide="calendar-days" class="icon"></i>Planer</div>
+        <div class="tab" data-tab="stats"><i data-lucide="trending-up" class="icon"></i>Statystyki</div>
+    </div>
+
+    <div id="tab-content-planner" class="card">
+        <div class="row">
+            <h3 class="title"><i data-lucide="layout-grid" class="icon"></i>Planer tygodniowy</h3>
+            <p id="planning-status" class="muted tiny" style="font-weight: 500;"></p>
+            <button id="cancel-planning-btn" class="btn soft" style="display: none;">Zakończ planowanie</button>
+        </div>
+        <p id="planning-instructions" class="muted" style="display: none; text-align: center; margin-top: 16px; padding: 12px; background: var(--blue-soft); border-radius: 12px;"></p>
+        <div class="planner-grid"></div>
+        <div id="empty-planner-placeholder" class="empty-planner" style="display: none;">
+            <h4 style="margin: 0 0 4px 0;">Tydzień jest pusty</h4>
+            <p style="margin: 0;">Zaplanuj swoje aktywności używając przycisków powyżej lub skopiuj plan z poprzedniego tygodnia.</p>
+        </div>
+    </div>
+
+    <div id="tab-content-stats" class="card" style="display:none;">
+         <h3 class="title"><i data-lucide="flame" class="icon"></i>Kalendarz Aktywności</h3>
+         <p class="muted tiny" style="margin-top:-8px; margin-bottom: 12px;">Każdy kwadrat to jeden dzień roku. Im ciemniejszy odcień zieleni, tym więcej aktywności ukończono.</p>
+         <div class="heatmap-container"></div>
+         <div class="heatmap-legend">
+             <span class="muted tiny">Mniej</span>
+             <div class="heatmap-cell" style="background: var(--line)"></div>
+             <div class="heatmap-cell" data-level="1"></div>
+             <div class="heatmap-cell" data-level="2"></div>
+             <div class="heatmap-cell" data-level="3"></div>
+             <div class="heatmap-cell" data-level="4"></div>
+             <span class="muted tiny">Więcej</span>
+         </div>
+    </div>
+  </div>
+
+<div id="modal-overlay" class="modal-overlay">
+  <div class="modal-card">
+    <h3 id="modal-title" class="title" style="justify-content: center;"></h3>
+    <p id="modal-text" class="muted"></p>
+    <div id="modal-input-container"></div>
+    <div id="modal-options-container"></div>
+    <div id="modal-actions" class="modal-actions"></div>
+  </div>
+</div>
+
+<div id="save-status">Zapisano!</div>
+
+<script>
+// --- KONFIGURACJA ---
+const STORAGE_KEY = 'lifeos_trainings_v1';
+const GOAL_DEFINITIONS = {
+    gym: { target: 3, unit: 'sesje', label: 'Trening siłowy' },
+    running: { target: 5, unit: 'km', label: 'Bieg' },
+    reading: { target: 100, unit: 'stron', label: 'Czytanie' }
+};
+const DAY_NAMES = ['Niedz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
+
+let state = {};
+let currentDate = new Date();
+let planningState = { isPlanning: false, activityType: null };
+let dragState = { activityId: null, sourceDay: null };
+let saveTimeout;
+
+// --- STAN APLIKACJI ---
+function loadState() { state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+function saveState() { 
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const saveStatus = document.getElementById('save-status');
+    clearTimeout(saveTimeout);
+    saveStatus.classList.add('visible');
+    saveTimeout = setTimeout(() => saveStatus.classList.remove('visible'), 1500);
+}
+
+// --- POMOCNICY DATY ---
+function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    return [d.getUTCFullYear(), weekNo];
+}
+function getStartOfWeek(year, week) {
+    const d = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
+    const day = d.getUTCDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setUTCDate(diff));
+}
+function toYYYYMMDD(date) { return date.toISOString().slice(0, 10); }
+
+// --- LOGIKA BIZNESOWA ---
+function initializeWeekData(year, week) {
+    if (!state[year]) state[year] = {};
+    if (!state[year][week]) {
+        state[year][week] = {
+            progress: { gym: 0, running: 0, reading: 0 },
+            plan: { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 0:[] },
+            isComplete: false,
+            summaryShown: false
+        };
+    }
+}
+
+function addActivity(type, dayIndex, plannedValue) {
+    const [year, week] = getWeekNumber(currentDate);
+    const weekData = state[year][week];
+    const newActivity = {
+        id: `act_${Date.now()}_${Math.random()}`,
+        type: type,
+        completed: false,
+        day: dayIndex,
+        plannedValue: plannedValue,
+        loggedValue: 0
+    };
+    if(!weekData.plan[dayIndex]) weekData.plan[dayIndex] = [];
+    weekData.plan[dayIndex].push(newActivity);
+    saveState();
+    render();
+}
+
+function deleteActivity(activityId) {
+    const [year, week] = getWeekNumber(currentDate);
+    const weekData = state[year][week];
+    for (const day in weekData.plan) {
+        const initialLength = weekData.plan[day].length;
+        weekData.plan[day] = weekData.plan[day].filter(a => a.id !== activityId);
+        if (weekData.plan[day].length < initialLength) break;
+    }
+    recalculateWeekProgress(year, week);
+    checkWeekCompletion(year, week);
+    saveState();
+    render();
+}
+
+function logActivity(activityId, value, isCompleted) {
+    const [year, week] = getWeekNumber(currentDate);
+    const weekData = state[year][week];
+    let activityFound = null;
+    for (const day in weekData.plan) {
+        const activity = weekData.plan[day].find(a => a.id === activityId);
+        if (activity) { activityFound = activity; break; }
+    }
+    if (activityFound) {
+        activityFound.completed = isCompleted;
+        activityFound.loggedValue = Number(value) || 0;
+        recalculateWeekProgress(year, week);
+        checkWeekCompletion(year, week);
+        saveState();
+        render();
+    }
+}
+
+function recalculateWeekProgress(year, week) {
+    const weekData = state[year][week];
+    weekData.progress = { gym: 0, running: 0, reading: 0 };
+    Object.values(weekData.plan).flat().forEach(activity => {
+        if (activity.completed) {
+            weekData.progress[activity.type] += (Number(activity.loggedValue) || 0);
+        }
+    });
+}
+
+function checkWeekCompletion(year, week) {
+    const weekData = state[year][week];
+    const allGoalsMet = Object.keys(GOAL_DEFINITIONS).every(type => 
+        (weekData.progress[type] || 0) >= GOAL_DEFINITIONS[type].target
+    );
+    if (weekData.isComplete !== allGoalsMet) {
+        weekData.isComplete = allGoalsMet;
+    }
+}
+
+function copyPreviousWeek(copyProgress = false) {
+    const [currentYear, currentWeek] = getWeekNumber(currentDate);
+    
+    let prevWeekDate = new Date(currentDate);
+    prevWeekDate.setDate(prevWeekDate.getDate() - 7);
+    const [prevYear, prevWeek] = getWeekNumber(prevWeekDate);
+
+    const prevWeekData = state[prevYear]?.[prevWeek];
+    if (!prevWeekData) return;
+
+    // Deep copy of the plan
+    const newPlan = JSON.parse(JSON.stringify(prevWeekData.plan));
+
+    Object.values(newPlan).flat().forEach(activity => {
+        activity.id = `act_${Date.now()}_${Math.random()}`; // New unique ID
+        if (!copyProgress) {
+            activity.completed = false;
+            activity.loggedValue = 0;
+        }
+    });
+
+    initializeWeekData(currentYear, currentWeek);
+    state[currentYear][currentWeek].plan = newPlan;
+    
+    recalculateWeekProgress(currentYear, currentWeek);
+    checkWeekCompletion(currentYear, currentWeek);
+    saveState();
+    render();
+}
+
+
+// --- FUNKCJE RENDERUJĄCE ---
+function render() {
+    const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
+    
+    const weekData = state[year][week];
+    const startOfWeek = getStartOfWeek(year, week);
+    
+    document.getElementById('week-title').textContent = `Tydzień ${week} (${year})`;
+    
+    const todayBtn = document.getElementById('today-week-btn');
+    const [currentYear, currentWeek] = getWeekNumber(new Date());
+    todayBtn.style.display = (year === currentYear && week === currentWeek) ? 'none' : 'inline-flex';
+
+    renderCopyPlanButton();
+    renderGoals(weekData.progress);
+    renderPlanner(weekData.plan, startOfWeek);
+    renderHeaderKPIs(year);
+    renderPlanningStatus(weekData.plan);
+    renderOverallProgress(weekData.progress);
+    lucide.createIcons();
+}
+
+function renderGoals(progress) {
+    for (const type in GOAL_DEFINITIONS) {
+        const goal = GOAL_DEFINITIONS[type];
+        const currentProgress = parseFloat(progress[type] || 0);
+        const progressPercent = Math.min(100, (currentProgress / goal.target) * 100);
+
+        document.getElementById(`goal-${type}-progress`).textContent = `${currentProgress.toLocaleString('pl-PL')}/${goal.target} ${goal.unit}`;
+        document.getElementById(`goal-${type}-bar`).style.width = `${progressPercent}%`;
+    }
+}
+
+function renderPlanner(plan, startOfWeek) {
+    const plannerGrid = document.querySelector('.planner-grid');
+    const emptyPlaceholder = document.getElementById('empty-planner-placeholder');
+    plannerGrid.innerHTML = '';
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    let isPlanEmpty = true;
+
+    for (let i = 1; i <= 7; i++) {
+        const dayIndex = i % 7;
+        const currentDay = new Date(startOfWeek);
+        currentDay.setDate(startOfWeek.getDate() + (dayIndex - 1 + 7) % 7);
+
+        const dayColumn = document.createElement('div');
+        dayColumn.className = 'day-column';
+        dayColumn.dataset.dayIndex = dayIndex;
+
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'day-header';
+        dayHeader.textContent = `${DAY_NAMES[dayIndex]} ${currentDay.getDate()}`;
+        if (currentDay.getTime() === today.getTime()) dayHeader.classList.add('today');
+        
+        const activitiesContainer = document.createElement('div');
+        activitiesContainer.className = 'activities-container';
+
+        if (plan[dayIndex] && plan[dayIndex].length > 0) {
+            isPlanEmpty = false;
+            plan[dayIndex].forEach(activity => {
+                const goal = GOAL_DEFINITIONS[activity.type];
+                const pill = document.createElement('div');
+                pill.className = `activity-pill ${activity.type}`;
+                pill.dataset.activityId = activity.id;
+                
+                let text = `<span>${goal.label}`;
+                if (activity.type !== 'gym') {
+                     if (activity.completed) text += ` (${activity.loggedValue.toLocaleString('pl-PL')}/${activity.plannedValue.toLocaleString('pl-PL')} ${goal.unit})`;
+                     else if (activity.plannedValue) text += ` (${activity.plannedValue.toLocaleString('pl-PL')} ${goal.unit})`;
+                }
+                text += '</span>';
+                pill.innerHTML = text;
+
+                if (activity.completed) {
+                    pill.classList.add('completed');
+                } else {
+                    pill.draggable = true;
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-activity-btn';
+                    deleteBtn.dataset.activityId = activity.id;
+                    deleteBtn.setAttribute('aria-label', 'Usuń aktywność');
+                    deleteBtn.innerHTML = `<i data-lucide="x" class="icon" style="width:16px; height:16px;"></i>`;
+                    pill.appendChild(deleteBtn);
+                }
+                
+                pill.addEventListener('dragstart', handleDragStart);
+                pill.addEventListener('dragend', handleDragEnd);
+                activitiesContainer.appendChild(pill);
+            });
+        }
+
+        const quickAddBtn = document.createElement('button');
+        quickAddBtn.className = 'quick-add-btn';
+        quickAddBtn.innerHTML = '<i data-lucide="plus" class="icon" style="width:18px; height:18px;"></i>';
+        quickAddBtn.setAttribute('aria-label', 'Szybko dodaj aktywność');
+        dayColumn.appendChild(quickAddBtn);
+
+        const quickAddMenu = document.createElement('div');
+        quickAddMenu.className = 'quick-add-menu';
+        for(const type in GOAL_DEFINITIONS) {
+            const btn = document.createElement('button');
+            btn.textContent = GOAL_DEFINITIONS[type].label;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                showPlanModal(type, dayIndex);
+                quickAddMenu.style.display = 'none';
+            };
+            quickAddMenu.appendChild(btn);
+        }
+        dayColumn.appendChild(quickAddMenu);
+
+        dayColumn.appendChild(dayHeader);
+        dayColumn.appendChild(activitiesContainer);
+        dayColumn.addEventListener('dragover', handleDragOver);
+        dayColumn.addEventListener('dragleave', handleDragLeave);
+        dayColumn.addEventListener('drop', handleDrop);
+        plannerGrid.appendChild(dayColumn);
+    }
+    
+    emptyPlaceholder.style.display = isPlanEmpty ? 'block' : 'none';
+}
+
+function renderHeaderKPIs(year) {
+    const yearData = state[year] || {};
+    const [currentYear, currentWeek] = getWeekNumber(new Date());
+    
+    const relevantWeeks = (year < currentYear) ? getWeekNumber(new Date(year, 11, 28))[1] : currentWeek;
+    const completedWeeks = Object.keys(yearData).filter(weekNum => parseInt(weekNum) <= relevantWeeks && yearData[weekNum].isComplete).length;
+    
+    const percentage = relevantWeeks > 0 ? Math.round((completedWeeks / relevantWeeks) * 100) : 0;
+    document.getElementById('yearly-progress-value').innerHTML = `${completedWeeks}/${relevantWeeks} <span class="tiny" style="font-weight: 500;">(${percentage}%)</span>`;
+
+    let currentStreak = 0;
+    for (let w = currentWeek; w >= 1; w--) {
+        if (state[currentYear]?.[w]?.isComplete) currentStreak++;
+        else break;
+    }
+
+    let maxStreak = 0, tempStreak = 0;
+    Object.keys(state).sort().forEach(y => {
+        const totalWeeksInYear = getWeekNumber(new Date(y, 11, 28))[1];
+        for (let w = 1; w <= totalWeeksInYear; w++) {
+            if (state[y]?.[w]?.isComplete) tempStreak++;
+            else { maxStreak = Math.max(maxStreak, tempStreak); tempStreak = 0; }
+        }
+    });
+    maxStreak = Math.max(maxStreak, tempStreak);
+
+    document.getElementById('streak-value').innerHTML = `${currentStreak} <span class="tiny" style="font-weight: 500;">(max ${maxStreak})</span>`;
+}
+
+function renderPlanningStatus(plan) {
+    const statusEl = document.getElementById('planning-status');
+    const plannedTotals = { gym: 0, running: 0, reading: 0 };
+    Object.values(plan).flat().forEach(activity => {
+        plannedTotals[activity.type] += activity.completed ? activity.loggedValue : (activity.plannedValue || 0);
+    });
+
+    const allGoalsPlanned = Object.keys(GOAL_DEFINITIONS).every(type => plannedTotals[type] >= GOAL_DEFINITIONS[type].target);
+
+    if (allGoalsPlanned) {
+        statusEl.textContent = '✅ Cele tygodnia zaplanowane!';
+        statusEl.style.color = 'var(--green)';
+    } else {
+        statusEl.textContent = '⚠️ Nie wszystkie cele są w pełni zaplanowane.';
+        statusEl.style.color = 'var(--orange)';
+    }
+}
+
+function renderOverallProgress(progress) {
+    let totalPercent = 0;
+    for (const type in GOAL_DEFINITIONS) {
+        totalPercent += Math.min(100, ((progress[type] || 0) / GOAL_DEFINITIONS[type].target) * 100);
+    }
+    const avgPercent = totalPercent / Object.keys(GOAL_DEFINITIONS).length;
+    document.getElementById('overall-progress-bar').style.width = `${avgPercent}%`;
+    document.getElementById('overall-progress-label').textContent = `Postęp tygodnia: ${Math.round(avgPercent)}%`;
+}
+
+function renderCopyPlanButton() {
+    let prevWeekDate = new Date(currentDate);
+    prevWeekDate.setDate(prevWeekDate.getDate() - 7);
+    const [prevYear, prevWeek] = getWeekNumber(prevWeekDate);
+    
+    const prevWeekData = state[prevYear]?.[prevWeek];
+    const hasPreviousPlan = prevWeekData && Object.values(prevWeekData.plan).some(day => day.length > 0);
+    
+    document.getElementById('copy-plan-btn').style.display = hasPreviousPlan ? 'inline-flex' : 'none';
+}
+
+
+// --- MODALE ---
+function showModal(config) {
+    const modal = document.getElementById('modal-overlay');
+    document.getElementById('modal-title').textContent = config.title;
+    document.getElementById('modal-text').innerHTML = config.text || '';
+    const inputContainer = document.getElementById('modal-input-container');
+    const optionsContainer = document.getElementById('modal-options-container');
+    inputContainer.innerHTML = '';
+    optionsContainer.innerHTML = '';
+    
+    if (config.input) {
+        const input = document.createElement('input');
+        input.type = config.input.type;
+        input.placeholder = config.input.placeholder || '';
+        input.id = 'modal-input-field';
+        input.value = config.input.value || '';
+        inputContainer.appendChild(input);
+    }
+    
+    if (config.options) {
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'modal-options';
+        config.options.forEach(opt => {
+            const label = document.createElement('label');
+            label.className = 'option-label';
+            label.innerHTML = `<input type="radio" name="modal-option" value="${opt.value}" ${opt.checked ? 'checked' : ''}> ${opt.label}`;
+            optionsDiv.appendChild(label);
+        });
+        optionsContainer.appendChild(optionsDiv);
+    }
+
+    const actions = document.getElementById('modal-actions');
+    actions.innerHTML = '';
+    config.buttons.forEach(btnConfig => {
+        const button = document.createElement('button');
+        button.textContent = btnConfig.text;
+        button.className = btnConfig.class;
+        button.onclick = () => {
+            if (btnConfig.action === 'close') {
+                modal.classList.remove('visible');
+            } else {
+                const value = inputContainer.querySelector('input')?.value;
+                const selectedOption = optionsContainer.querySelector('input:checked')?.value;
+                btnConfig.action(value, selectedOption);
+                modal.classList.remove('visible');
+            }
+        };
+        actions.appendChild(button);
+    });
+    modal.classList.add('visible');
+    if (config.input) { document.getElementById('modal-input-field').focus(); }
+}
+
+function showPlanModal(type, dayIndex) {
+    const goal = GOAL_DEFINITIONS[type];
+    if (type === 'gym') { addActivity(type, dayIndex, 1); return; }
+    showModal({
+        title: `Zaplanuj: ${goal.label}`,
+        text: `Ile ${goal.unit} planujesz na ten dzień?`,
+        input: { type: 'number', placeholder: '0' },
+        buttons: [
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: 'Dodaj plan', class: 'btn', action: (value) => addActivity(type, dayIndex, parseFloat(value) || 0) }
+        ]
+    });
+}
+
+function showLogModal(activity) {
+    const { type, id } = activity;
+    const goal = GOAL_DEFINITIONS[type];
+    showModal({
+        title: `Loguj: ${goal.label}`,
+        text: `Wprowadź ile ${goal.unit} udało Ci się zrobić:`,
+        input: { type: 'number', placeholder: activity.plannedValue || '0', value: activity.plannedValue || '' },
+        buttons: [
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: 'Zapisz', class: 'btn', action: (value) => logActivity(id, parseFloat(value) || 0, true) }
+        ]
+    });
+}
+
+function showEditLogModal(activity) {
+    const { type, id, loggedValue } = activity;
+    const goal = GOAL_DEFINITIONS[type];
+    showModal({
+        title: `Edytuj: ${goal.label}`,
+        text: type === 'gym' ? `Ta sesja jest ukończona. Możesz cofnąć jej zaliczenie.` : `Zaktualizuj, ile ${goal.unit} udało Ci się zrobić:`,
+        input: type === 'gym' ? null : { type: 'number', placeholder: '0', value: loggedValue },
+        buttons: [
+            { text: 'Cofnij ukończenie', class: 'btn danger', action: () => logActivity(id, 0, false) },
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            ...(type !== 'gym' ? [{ text: 'Zapisz', class: 'btn', action: (value) => logActivity(id, parseFloat(value) || 0, true) }] : [])
+        ]
+    });
+}
+
+function showCopyPlanModal() {
+    showModal({
+        title: 'Kopiuj plan z poprzedniego tygodnia',
+        text: 'Wybierz, co chcesz skopiować do bieżącego tygodnia:',
+        options: [
+            { value: 'planOnly', label: 'Tylko plan (bez ukończonych zadań)', checked: true },
+            { value: 'planAndProgress', label: 'Plan wraz z postępem' }
+        ],
+        buttons: [
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: 'Kopiuj', class: 'btn', action: (_, selectedOption) => {
+                copyPreviousWeek(selectedOption === 'planAndProgress');
+            }}
+        ]
+    });
+}
+
+function showWeeklySummary() {
+    const today = new Date();
+    if (today.getDay() !== 1) return; // Uruchom tylko w poniedziałki
+
+    const lastWeekDate = new Date();
+    lastWeekDate.setDate(today.getDate() - 1);
+    const [year, week] = getWeekNumber(lastWeekDate);
+    const weekData = state[year]?.[week];
+
+    if (weekData && !weekData.summaryShown) {
+        let summaryText = `W zeszłym tygodniu udało Ci się:<br><br>`;
+        Object.keys(GOAL_DEFINITIONS).forEach(type => {
+            const progress = weekData.progress[type] || 0;
+            const target = GOAL_DEFINITIONS[type].target;
+            summaryText += `<b>${GOAL_DEFINITIONS[type].label}:</b> ${progress.toLocaleString('pl-PL')}/${target.toLocaleString('pl-PL')} ${GOAL_DEFINITIONS[type].unit}<br>`;
+        });
+        summaryText += `<br>${weekData.isComplete ? 'Świetna robota! Osiągnąłeś wszystkie cele.' : 'Dobra robota! Tak trzymaj.'}`;
+
+        showModal({
+            title: `Podsumowanie tygodnia ${week}`,
+            text: summaryText,
+            buttons: [{ text: 'OK', class: 'btn', action: 'close' }]
+        });
+        weekData.summaryShown = true;
+        saveState();
+    }
+}
+
+
+// --- OBSŁUGA ZDARZEŃ ---
+function handleDragStart(e) {
+    dragState.activityId = e.target.closest('.activity-pill').dataset.activityId;
+    dragState.sourceDay = e.target.closest('.day-column').dataset.dayIndex;
+    setTimeout(() => e.target.closest('.activity-pill').classList.add('dragging'), 0);
+}
+function handleDragEnd(e) {
+    const pill = document.querySelector('.activity-pill.dragging');
+    if(pill) pill.classList.remove('dragging');
+}
+function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function handleDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    const targetDayIndex = parseInt(e.currentTarget.dataset.dayIndex);
+    const sourceDayIndex = parseInt(dragState.sourceDay);
+    if (targetDayIndex === sourceDayIndex) return;
+
+    const [year, week] = getWeekNumber(currentDate);
+    const weekData = state[year][week];
+    const activityIndex = weekData.plan[sourceDayIndex].findIndex(a => a.id === dragState.activityId);
+    if (activityIndex === -1) return;
+
+    const [activity] = weekData.plan[sourceDayIndex].splice(activityIndex, 1);
+    activity.day = targetDayIndex;
+    
+    if(!weekData.plan[targetDayIndex]) weekData.plan[targetDayIndex] = [];
+    weekData.plan[targetDayIndex].push(activity);
+    saveState();
+    render();
+}
+
+function setupEventListeners() {
+    document.getElementById('prev-week-btn').addEventListener('click', () => { currentDate.setDate(currentDate.getDate() - 7); render(); });
+    document.getElementById('next-week-btn').addEventListener('click', () => { currentDate.setDate(currentDate.getDate() + 7); render(); });
+    document.getElementById('today-week-btn').addEventListener('click', () => { currentDate = new Date(); render(); });
+    document.getElementById('copy-plan-btn').addEventListener('click', showCopyPlanModal);
+    
+    document.querySelectorAll('[data-action="plan"]').forEach(btn => {
+        btn.addEventListener('click', (e) => startPlanning(e.currentTarget.dataset.activityType));
+    });
+    
+    document.querySelector('.planner-grid').addEventListener('click', (e) => {
+        const dayColumn = e.target.closest('.day-column');
+        if (!dayColumn) return;
+        const dayIndex = parseInt(dayColumn.dataset.dayIndex, 10);
+        
+        if (planningState.isPlanning) {
+            if (!e.target.closest('.activity-pill') && !e.target.closest('.quick-add-btn')) {
+                showPlanModal(planningState.activityType, dayIndex);
+            }
+            return;
+        }
+
+        if (e.target.closest('.quick-add-btn')) {
+            const menu = dayColumn.querySelector('.quick-add-menu');
+            document.querySelectorAll('.quick-add-menu').forEach(m => {
+                if(m !== menu) m.style.display = 'none';
+            });
+            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+            e.stopPropagation();
+            return;
+        }
+
+        const deleteBtn = e.target.closest('.delete-activity-btn');
+        if (deleteBtn) {
+            deleteActivity(deleteBtn.dataset.activityId);
+            return;
+        }
+        
+        const pill = e.target.closest('.activity-pill');
+        if (pill) {
+            const activityId = pill.dataset.activityId;
+            const [year, week] = getWeekNumber(currentDate);
+            const activity = state[year]?.[week]?.plan?.[dayIndex]?.find(a => a.id === activityId);
+            
+            if (activity) {
+                if (activity.completed) {
+                    showEditLogModal(activity);
+                } else {
+                    if (activity.type === 'gym') logActivity(activityId, 1, true); 
+                    else showLogModal(activity);
+                }
+            }
+        }
+    });
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.day-column')) {
+            document.querySelectorAll('.quick-add-menu').forEach(menu => menu.style.display = 'none');
+        }
+    });
+
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const tabEl = e.currentTarget;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tabEl.classList.add('active');
+            const tabName = tabEl.dataset.tab;
+            document.getElementById('tab-content-planner').style.display = tabName === 'planner' ? 'block' : 'none';
+            document.getElementById('tab-content-stats').style.display = tabName === 'stats' ? 'block' : 'none';
+            if (tabName === 'stats') renderStats();
+        });
+    });
+
+    document.getElementById('cancel-planning-btn').addEventListener('click', stopPlanning);
+}
+
+
+// --- INICJALIZACJA ---
+document.addEventListener('DOMContentLoaded', () => {
+    loadState();
+    render();
+    setupEventListeners();
+    showWeeklySummary();
+});
+
+// --- STATYSTYKI (HEATMAP) ---
+function renderStats() {
+    // Implementacja heatmapy - bez zmian w logice, ale może wymagać dostosowania renderowania
+    const year = getWeekNumber(currentDate)[0];
+    const yearData = state[year] || {};
+    const heatmapContainer = document.querySelector('.heatmap-container');
+    heatmapContainer.innerHTML = '';
+
+    const activitiesByDay = {};
+    Object.keys(yearData).forEach(week => {
+        Object.keys(yearData[week].plan).forEach(day => {
+            const activities = yearData[week].plan[day];
+            if (activities.length > 0) {
+                const date = new Date(getStartOfWeek(year, parseInt(week)));
+                date.setDate(date.getDate() + (parseInt(day) - 1 + 7) % 7);
+                const dateString = toYYYYMMDD(date);
+                activitiesByDay[dateString] = (activitiesByDay[dateString] || 0) + activities.filter(a => a.completed).length;
+            }
+        });
+    });
+
+    const firstDayOfYear = new Date(year, 0, 1);
+    let currentDay = new Date(firstDayOfYear);
+    // Przesuń do najbliższego poniedziałku przed 1 stycznia
+    currentDay.setDate(currentDay.getDate() - (currentDay.getDay() - 1 + 7) % 7);
+    
+    const heatmap = document.createElement('div');
+    heatmap.className = 'heatmap';
+
+    for(let i=0; i < 53 * 7; i++) { // Renderuj pełne 53 kolumny dla spójności
+        const dateString = toYYYYMMDD(currentDay);
+        const cell = document.createElement('div');
+        cell.className = 'heatmap-cell';
+        
+        if (currentDay.getFullYear() === year) {
+            const count = activitiesByDay[dateString] || 0;
+            let level = 0;
+            if(count > 0) level = 1;
+            if(count > 1) level = 2;
+            if(count > 2) level = 3;
+            if(count > 3) level = 4;
+            cell.dataset.level = level;
+            cell.title = `${dateString}: ${count} ukończone aktywności`;
+        } else {
+             cell.style.background = 'transparent'; // Dni spoza roku są puste
+        }
+        heatmap.appendChild(cell);
+        currentDay.setDate(currentDay.getDate() + 1);
+    }
+    heatmapContainer.appendChild(heatmap);
+}
+
+// --- TRYB PLANOWANIA ---
+function startPlanning(type) {
+    planningState = { isPlanning: true, activityType: type };
+    document.getElementById('tab-content-planner').classList.add('planning-mode');
+    document.getElementById('planning-instructions').style.display = 'block';
+    document.getElementById('planning-instructions').textContent = `Kliknij w wybrany dzień, aby dodać: ${GOAL_DEFINITIONS[type].label}`;
+    document.getElementById('cancel-planning-btn').style.display = 'inline-flex';
+    document.querySelectorAll('[data-action="plan"]').forEach(b => b.style.display = 'none');
+}
+
+function stopPlanning() {
+    planningState = { isPlanning: false, activityType: null };
+    document.getElementById('tab-content-planner').classList.remove('planning-mode');
+    document.getElementById('planning-instructions').style.display = 'none';
+    document.getElementById('cancel-planning-btn').style.display = 'none';
+    document.querySelectorAll('[data-action="plan"]').forEach(b => b.style.display = 'inline-flex');
+}
+
+</script>
+</body>
+</html>
+
