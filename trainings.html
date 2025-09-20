@@ -8,331 +8,946 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
   <style>
     :root {
-      --bg: #f5f7fb; --card: #fff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
-      --green: #059669; --green-soft: #f0fdf4; --green-border: #a7f3d0;
-      --red: #dc2626; --red-soft: #fef2f2; --red-border: #fecaca;
-      --orange: #ea580c; --orange-soft: #fff7ed; --orange-border: #fed7aa;
-      --blue: #2563eb; --blue-soft: #eff6ff; --blue-border: #bfdbfe;
-      --gym-color: #5b21b6; --gym-soft: #f5f3ff; --gym-border: #ddd6fe;
-      --run-color: #047857; --run-soft: #ecfdf5; --run-border: #a7f3d0;
-      --read-color: #0369a1; --read-soft: #f0f9ff; --read-border: #bae6fd;
-      --health-color: #dc2626; --health-soft: #fef2f2; --health-border: #fecaca;
-      --mind-color: #1d4ed8; --mind-soft: #e0f2fe; --mind-border: #bfdbfe;
-      --balance-color: #0f766e; --balance-soft: #ecfdf5; --balance-border: #99f6e4;
-      --relationship-color: #9333ea; --relationship-soft: #f3e8ff; --relationship-border: #e9d5ff;
-      --growth-color: #ea580c; --growth-soft: #fff7ed; --growth-border: #fed7aa;
-      --focus-bg: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(79,70,229,0.12));
-      --badge-bg: rgba(37, 99, 235, 0.12);
-      --badge-color: #1d4ed8;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-      --shadow-md: 0 12px 20px -12px rgb(15 23 42 / 0.3);
-      --shadow-lg: 0 24px 40px -12px rgb(15 23 42 / 0.3);
-      --transition-fast: all .2s ease-in-out;
+      --bg: radial-gradient(circle at 0% -10%, rgba(99, 102, 241, 0.22), transparent 60%), #0f172a;
+      --surface: rgba(15, 23, 42, 0.92);
+      --surface-alt: rgba(30, 41, 59, 0.7);
+      --surface-strong: rgba(51, 65, 85, 0.85);
+      --ink: #e2e8f0;
+      --text: #f8fafc;
+      --muted: rgba(226, 232, 240, 0.65);
+      --border: rgba(148, 163, 184, 0.22);
+      --border-strong: rgba(148, 163, 184, 0.35);
+      --accent: #60a5fa;
+      --accent-strong: #2563eb;
+      --accent-soft: rgba(96, 165, 250, 0.16);
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --green: #34d399;
+      --orange: #f97316;
+      --blue: #60a5fa;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --shadow-sm: 0 10px 30px rgba(15, 23, 42, 0.35);
+      --shadow: 0 24px 50px rgba(15, 23, 42, 0.45);
+      --transition: all .24s cubic-bezier(0.4, 0, 0.2, 1);
+      --run-color: #22c55e;
+      --run-soft: rgba(34, 197, 94, 0.12);
+      --run-border: rgba(34, 197, 94, 0.24);
+      --gym-color: #a855f7;
+      --gym-soft: rgba(168, 85, 247, 0.18);
+      --gym-border: rgba(168, 85, 247, 0.32);
+      --read-color: #38bdf8;
+      --read-soft: rgba(56, 189, 248, 0.18);
+      --read-border: rgba(56, 189, 248, 0.32);
+      --health-color: #f97316;
+      --health-soft: rgba(249, 115, 22, 0.14);
+      --health-border: rgba(249, 115, 22, 0.3);
+      --mind-color: #60a5fa;
+      --mind-soft: rgba(96, 165, 250, 0.14);
+      --mind-border: rgba(96, 165, 250, 0.32);
+      --balance-color: #2dd4bf;
+      --balance-soft: rgba(45, 212, 191, 0.16);
+      --balance-border: rgba(45, 212, 191, 0.32);
+      --relationship-color: #c084fc;
+      --relationship-soft: rgba(192, 132, 252, 0.16);
+      --relationship-border: rgba(192, 132, 252, 0.32);
+      --growth-color: #facc15;
+      --growth-soft: rgba(250, 204, 21, 0.14);
+      --growth-border: rgba(250, 204, 21, 0.32);
     }
     *, *::before, *::after { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at top, rgba(37,99,235,0.16), transparent 55%), var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 48px 24px 64px; }
-    .grid { display: grid; gap: 16px; }
-    .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    @media(max-width: 1024px) { .g-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media(max-width: 768px) { .g-3, .g-2 { grid-template-columns: 1fr; } }
-
-    .card { background: var(--card); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); position: relative; overflow: hidden; }
-    .card:hover { box-shadow: var(--shadow-md); }
-    .title { margin: 0 0 8px 0; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.01em; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      background-attachment: fixed;
+      padding-bottom: 64px;
+    }
+    a { color: inherit; }
+    .app-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 28px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 18px 20px;
+      backdrop-filter: blur(18px);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      opacity: 0.7;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .card.compact { padding: 16px 18px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+    }
+    h1, h2, h3, h4 { margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; }
+    h3 { font-size: 17px; }
+    h4 { font-size: 14px; }
+    p { margin: 0; }
     .muted { color: var(--muted); }
-    .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; border-radius: 12px; padding: 10px 16px; border: 1px solid transparent; background: var(--ink); color: #fff; cursor: pointer; text-decoration: none; font-weight: 600; transition: var(--transition-fast); box-shadow: var(--shadow-sm); }
-    .btn.sm { padding: 8px 12px; font-size: 12px; }
-    .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .btn.soft { background: #fff; border-color: rgba(148, 163, 184, 0.6); color: var(--ink); box-shadow: none; }
-    .btn.soft:hover { background: var(--bg); border-color: rgba(148, 163, 184, 0.9); }
-    .btn.secondary { background: rgba(37, 99, 235, 0.12); color: var(--blue); border-color: transparent; box-shadow: none; }
-    .btn.secondary:hover { background: rgba(37, 99, 235, 0.18); }
-    .btn.danger { background: var(--red-soft); border-color: var(--red-border); color: var(--red); box-shadow: none; }
-    .btn.danger:hover { background: var(--red); color: #fff; }
-
-    .progress-bar { height: 8px; background: rgba(148, 163, 184, 0.35); border-radius: 999px; overflow: hidden; margin-top: 4px; }
-    .progress-bar > div { height: 100%; transition: width .4s cubic-bezier(0.22, 1, 0.36, 1); border-radius: 999px; }
-    .tiny { font-size: 12px; color: var(--muted); }
-    .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-
-    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: var(--badge-bg); color: var(--badge-color); padding: 6px 12px; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
-
-    /* Header */
-    .page-header { margin-bottom: 24px; display: grid; gap: 24px; }
-    .page-header .brand { display: flex; flex-direction: column; gap: 12px; }
-    .page-header h1 { font-size: 32px; margin: 0; letter-spacing: -0.02em; }
-    .page-header p { margin: 0; }
-    .page-hero { background: linear-gradient(135deg, rgba(37,99,235,0.14), rgba(99,102,241,0.18)); color: #fff; border-radius: 24px; padding: 28px; display: grid; gap: 24px; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
-    .page-hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(255,255,255,0.35), transparent 60%); pointer-events: none; }
-    .page-hero-content { display: flex; flex-direction: column; gap: 16px; max-width: 520px; z-index: 1; }
-    .page-hero h1 { color: #fff; font-size: 34px; }
-    .page-hero p { color: rgba(255,255,255,0.85); font-size: 15px; }
-    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; z-index: 1; }
-    .hero-actions .btn.soft { background: rgba(255,255,255,0.14); color: #fff; border-color: rgba(255,255,255,0.4); }
-    .hero-actions .btn.soft:hover { background: rgba(255,255,255,0.22); }
-
-    .header-kpis { padding: 20px; background: rgba(255,255,255,0.86); backdrop-filter: blur(6px); border-radius: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 20px; align-items: center; box-shadow: var(--shadow-sm); }
-    .kpi-item { text-align: center; display: flex; flex-direction: column; gap: 8px; }
-    .kpi-separator { display: none; }
-    .kpi-value { font-size: 26px; font-weight: 800; line-height: 1.1; }
-    .goal-card { padding: 20px; box-shadow: none; transition: transform .2s ease, box-shadow .2s ease; border-radius: 20px; position: relative; overflow: hidden; }
-    .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-    .goal-card .title { font-size: 14px; margin-bottom: 4px; }
-    .goal-card .kpi-value { font-size: 20px; font-weight: 700; }
-    .goal-card .btn { width: 100%; margin-top: 16px; padding: 8px 12px; font-size: 13px; }
-
-    .notes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
-    .note-field { display: flex; flex-direction: column; gap: 8px; }
-    .note-field label { font-weight: 600; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-    textarea { border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.4); padding: 16px; resize: vertical; min-height: 110px; font-family: inherit; font-size: 14px; line-height: 1.6; background: rgba(255,255,255,0.95); transition: border-color .2s ease, box-shadow .2s ease; }
-    textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
-    .note-field small { color: var(--muted); font-size: 12px; }
-
-    .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; background: rgba(148,163,184,0.12); color: var(--muted); }
-
-    input[type="text"], input[type="number"], select { border-radius: 12px; border: 1px solid rgba(148,163,184,0.4); padding: 10px 12px; font-family: inherit; font-size: 14px; background: rgba(255,255,255,0.95); transition: border-color .2s ease, box-shadow .2s ease; width: 100%; }
-    input[type="text"]:focus, input[type="number"]:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
-    .input-error { border-color: var(--red) !important; box-shadow: 0 0 0 2px rgba(220,38,38,0.18) !important; }
-    .inline-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .radio-group { display: flex; gap: 12px; flex-wrap: wrap; }
-    .radio-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.4); cursor: pointer; font-weight: 600; transition: var(--transition-fast); }
-    .radio-chip input { accent-color: var(--blue); }
-    .radio-chip:hover { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(37,99,235,0.12); }
-
-    .custom-section { display: grid; gap: 20px; margin-top: 12px; }
-    .custom-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-    .summary-pill { padding: 14px 16px; border-radius: 16px; background: rgba(37,99,235,0.08); color: var(--blue); font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
-    .summary-pill span { color: rgba(15, 23, 42, 0.72); font-size: 20px; font-weight: 700; }
-
-    .template-list { display: grid; gap: 12px; }
-    .template-card { border: 1px solid rgba(148,163,184,0.3); border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; background: rgba(248, 250, 252, 0.7); transition: var(--transition-fast); }
-    .template-card:hover { border-color: rgba(37,99,235,0.4); box-shadow: var(--shadow-sm); }
-    .template-card strong { font-weight: 700; font-size: 14px; }
-    .template-meta { display: flex; flex-direction: column; gap: 4px; }
+    .tiny { font-size: 11px; color: var(--muted); }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      background: rgba(96, 165, 250, 0.16);
+      color: var(--blue);
+      padding: 6px 12px;
+      font-weight: 600;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .icon { width: 16px; height: 16px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: var(--accent-strong);
+      color: #fff;
+      font-weight: 600;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(37, 99, 235, 0.32); }
+    .btn.soft {
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text);
+      border-color: rgba(148, 163, 184, 0.24);
+      box-shadow: none;
+    }
+    .btn.soft:hover { background: rgba(148, 163, 184, 0.2); }
+    .btn.ghost {
+      background: transparent;
+      border-color: rgba(148, 163, 184, 0.18);
+      color: var(--muted);
+      box-shadow: none;
+    }
+    .btn.ghost:hover { color: var(--text); border-color: rgba(148, 163, 184, 0.3); }
+    .btn.secondary { background: var(--accent); color: #0f172a; box-shadow: 0 12px 22px rgba(96, 165, 250, 0.26); }
+    .btn.secondary:hover { background: var(--blue); color: #0f172a; }
+    .btn.sm { padding: 6px 12px; font-size: 11.5px; border-radius: 10px; }
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: sticky;
+      top: 28px;
+      align-self: start;
+    }
+    .main-column { display: flex; flex-direction: column; gap: 16px; }
+    .topbar {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 20px 22px;
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.16), rgba(14, 165, 233, 0.12));
+    }
+    .brand {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand-copy { display: grid; gap: 6px; }
+    .brand h1 { font-size: 22px; }
+    .brand-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .top-metrics {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .metric-chip {
+      display: grid;
+      gap: 2px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      min-width: 160px;
+      animation: fadeUp 0.5s ease both;
+    }
+    .metric-chip span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .metric-chip strong { font-size: 18px; font-weight: 700; }
+    .week-card { display: grid; gap: 14px; }
+    .week-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .week-card h2 { font-size: 17px; }
+    .week-controls { display: flex; gap: 6px; flex-wrap: wrap; }
+    .progress-track { display: grid; gap: 6px; }
+    .progress-bar { height: 6px; border-radius: 999px; background: rgba(148, 163, 184, 0.2); overflow: hidden; }
+    .progress-bar > div { height: 100%; background: var(--accent); border-radius: inherit; transition: width .4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .copy-plan { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .copy-plan .btn { box-shadow: none; }
+    .focus-card { display: grid; gap: 14px; }
+    .focus-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .focus-highlight { display: grid; text-align: right; gap: 4px; }
+    .focus-highlight strong { font-size: 22px; color: var(--accent); }
+    .notes-grid { display: grid; gap: 12px; }
+    .note-field { display: grid; gap: 6px; }
+    .note-field label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    textarea {
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text);
+      padding: 12px;
+      min-height: 90px;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 13px;
+      transition: var(--transition);
+    }
+    textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18); }
+    input[type="text"], input[type="number"], select {
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text);
+      padding: 9px 12px;
+      font-family: inherit;
+      font-size: 13px;
+      transition: var(--transition);
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+    }
+    .inline-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
+    .radio-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: var(--transition);
+      background: rgba(15, 23, 42, 0.55);
+    }
+    .radio-chip:hover { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2); }
+    .checkbox-line { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+    .goals-card { display: grid; gap: 12px; }
+    .goal-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .goal-matrix { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .goal-card {
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.02);
+      display: grid;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+    .goal-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 60%);
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .goal-card:hover::before { opacity: 1; }
+    .goal-card-header { display: flex; align-items: center; gap: 10px; }
+    .goal-icon {
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.12);
+      font-size: 16px;
+    }
+    .goal-title { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .goal-card .kpi-value { font-size: 18px; font-weight: 700; }
+    .goal-target { font-size: 11px; color: var(--muted); }
+    .goal-card .btn { width: 100%; justify-content: center; font-size: 12px; background: rgba(255,255,255,0.1); color: inherit; box-shadow: none; }
+    .goal-card .btn:hover { background: rgba(255,255,255,0.2); }
+    .tab-card { padding: 0; }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 16px 18px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 7px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12.5px;
+      color: var(--muted);
+      border: 1px solid transparent;
+      background: rgba(15, 23, 42, 0.45);
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab:hover { color: var(--text); border-color: rgba(148, 163, 184, 0.24); }
+    .tab.active { background: var(--accent); color: #0f172a; box-shadow: 0 12px 24px rgba(96, 165, 250, 0.28); }
+    .tab-panels { padding: 18px 20px 22px; display: grid; gap: 18px; }
+    .tab-panel { display: none; animation: fadeUp 0.4s ease both; }
+    .tab-panel.active { display: block; }
+    .planner-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+    .status-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(96,165,250,0.16); color: var(--accent); font-weight: 600; }
+    .planner-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      align-items: start;
+    }
+    .day-column {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 140px;
+      position: relative;
+      transition: var(--transition);
+    }
+    .day-column::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 1px solid transparent;
+      transition: var(--transition);
+      opacity: 0;
+    }
+    .day-column:hover::after, .day-column.drag-over::after {
+      border-color: rgba(96, 165, 250, 0.45);
+      box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.35);
+      opacity: 1;
+    }
+    .day-header { font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; color: var(--muted); border-bottom: 1px dashed rgba(148, 163, 184, 0.28); padding-bottom: 6px; }
+    .day-header.today { color: var(--accent); }
+    .activities-container { display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 24px; }
+    .activity-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: var(--radius-sm);
+      padding: 7px 9px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text);
+      border: 1px solid transparent;
+      cursor: grab;
+      transition: var(--transition);
+      animation: floatUp 0.45s ease both;
+    }
+    .activity-pill:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(15, 23, 42, 0.35); }
+    .activity-pill.dragging { opacity: 0.45; transform: scale(1.02); box-shadow: var(--shadow); }
+    .activity-pill .pill-content { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+    .activity-pill .pill-label { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .activity-pill .pill-label span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .activity-pill .pill-meta { margin-left: auto; font-size: 10.5px; color: rgba(226, 232, 240, 0.78); }
+    .activity-pill.completed { background: rgba(52, 211, 153, 0.16); color: var(--success); border-color: rgba(52, 211, 153, 0.4); cursor: pointer; }
+    .activity-pill.completed .pill-meta { color: var(--success); }
+    .activity-pill.completed .pill-label span { text-decoration: line-through; opacity: 0.85; }
+    .custom-pill { border-color: rgba(255, 255, 255, 0.08); }
+    .quick-add-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 10px;
+      padding: 5px 9px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 10.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+    .day-column:hover .quick-add-btn { opacity: 1; pointer-events: auto; transform: translateY(-2px); }
+    .quick-add-menu {
+      position: absolute;
+      top: 36px;
+      right: 8px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.32);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 180px;
+      z-index: 10;
+    }
+    .quick-add-menu button {
+      background: none;
+      border: none;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .quick-add-menu button:hover { background: rgba(96, 165, 250, 0.16); }
+    .delete-activity-btn {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      color: var(--muted);
+      padding: 4px;
+      border-radius: 10px;
+      display: flex;
+      transition: var(--transition);
+      margin-left: 6px;
+    }
+    .delete-activity-btn:hover { color: var(--danger); background: rgba(248, 113, 113, 0.14); }
+    .empty-planner {
+      margin-top: 10px;
+      border: 1px dashed rgba(148, 163, 184, 0.4);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.55);
+    }
+    .custom-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+    .summary-pill {
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      background: rgba(96, 165, 250, 0.12);
+      color: var(--blue);
+      font-weight: 600;
+      display: grid;
+      gap: 2px;
+      animation: fadeUp 0.45s ease both;
+    }
+    .summary-pill span { font-size: 18px; font-weight: 700; color: var(--text); }
+    .template-wrapper { display: grid; gap: 10px; }
+    .template-list { display: grid; gap: 10px; }
+    .template-card {
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      background: rgba(15, 23, 42, 0.55);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      transition: var(--transition);
+    }
+    .template-card:hover { border-color: rgba(96, 165, 250, 0.3); box-shadow: 0 16px 30px rgba(15, 23, 42, 0.45); }
+    .template-meta { display: flex; flex-direction: column; gap: 2px; }
+    .template-meta strong { font-size: 13px; }
     .template-actions { display: flex; gap: 8px; }
-
-    .empty-state { border: 1px dashed rgba(148,163,184,0.4); border-radius: 16px; padding: 20px; text-align: center; color: var(--muted); font-size: 13px; background: rgba(255,255,255,0.6); }
-
-    .custom-activity-form { display: grid; gap: 16px; margin-top: 12px; text-align: left; }
-    .custom-activity-form label { font-weight: 600; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 6px; }
-    .custom-activity-form .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .custom-activity-form .helper { font-size: 12px; color: var(--muted); }
-    .custom-activity-form .checkbox-line { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
-    .custom-activity-form .checkbox-line input { width: auto; }
-
-    /* Tabs */
-    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
-    .tab { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid transparent; color: var(--muted); transition: var(--transition-fast); display: flex; align-items: center; gap: 6px;}
-    .tab:hover { background: var(--bg); color: var(--ink); }
-    .tab.active { background: #fff; color: var(--ink); border-color: var(--line); box-shadow: var(--shadow-sm); }
-
-    /* Planner */
-    .planner-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
-    .day-column { position: relative; background: rgba(255,255,255,0.92); border-radius: 18px; padding: 16px 14px 18px; transition: var(--transition-fast); border: 1px solid rgba(148,163,184,0.35); min-height: 180px; display: flex; flex-direction: column; gap: 12px; }
-    .day-column::after { content: ''; position: absolute; inset: 0; border-radius: inherit; opacity: 0; pointer-events: none; box-shadow: inset 0 0 0 2px rgba(37,99,235,0.35); transition: opacity .2s ease; }
-    .day-column:hover::after, .day-column.drag-over::after { opacity: 1; }
-    .day-header { font-weight: 700; text-align: center; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 8px; margin-bottom: 4px; border-bottom: 1px dashed rgba(148,163,184,0.35); color: rgba(15,23,42,0.72); }
-    .day-header.today { color: var(--blue); }
-    .activities-container { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-    .activity-pill { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 14px; font-size: 13px; font-weight: 600; cursor: grab; border: 1px solid transparent; transition: var(--transition-fast); text-align: left; gap: 12px; background: rgba(248,250,252,0.9); color: var(--ink); }
-    .activity-pill .pill-content { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-    .activity-pill .pill-label { display: flex; align-items: center; gap: 8px; }
-    .activity-pill .pill-label i { width: 16px; height: 16px; }
-    .activity-pill .pill-meta { font-size: 12px; color: rgba(15,23,42,0.68); font-weight: 500; margin-left: auto; }
-    .activity-pill.dragging { opacity: 0.5; transform: scale(1.04); box-shadow: var(--shadow-lg); }
-    .activity-pill:not(.completed):hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-    .activity-pill.gym { background: var(--gym-soft); color: var(--gym-color); border-color: var(--gym-border); }
-    .activity-pill.running { background: var(--run-soft); color: var(--run-color); border-color: var(--run-border); }
-    .activity-pill.reading { background: var(--read-soft); color: var(--read-color); border-color: var(--read-border); }
-    .activity-pill.custom-pill { border-color: rgba(148,163,184,0.35); }
-    .activity-pill.completed { background: var(--green-soft); color: var(--green); border-color: var(--green-border); cursor: pointer; }
-    .activity-pill.completed .pill-meta { color: var(--green); }
-    .activity-pill.completed:hover { opacity: 1; box-shadow: var(--shadow-sm); }
-    .activity-pill.completed .pill-label span { text-decoration: line-through; opacity: 0.8; }
-    .day-column.drag-over { background-color: rgba(37,99,235,0.06); }
-    .delete-activity-btn { background: rgba(255,255,255,0.6); border: 1px solid rgba(148,163,184,0.2); color: var(--muted); cursor: pointer; padding: 4px; margin-left: auto; border-radius: 10px; display: flex; align-items: center; transition: var(--transition-fast); }
-    .delete-activity-btn:hover { color: var(--red); background-color: var(--red-soft); }
-
-    .quick-add-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9); border: 1px solid rgba(148,163,184,0.5); border-radius: 12px; padding: 6px 10px; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 6px; opacity: 0; transition: opacity .2s ease, transform .2s ease; font-weight: 600; font-size: 12px; }
-    .quick-add-btn i { width: 16px; height: 16px; }
-    .day-column:hover .quick-add-btn { opacity: 1; transform: translateY(-2px); }
-    .quick-add-menu { position: absolute; top: 46px; right: 12px; background: #fff; border: 1px solid rgba(148,163,184,0.35); border-radius: 14px; box-shadow: var(--shadow-lg); z-index: 10; display: none; flex-direction: column; overflow: hidden; min-width: 200px; }
-    .quick-add-menu button { background: none; border: none; padding: 10px 14px; text-align: left; cursor: pointer; width: 100%; font-size: 13px; display: flex; align-items: center; gap: 10px; }
-    .quick-add-menu button:hover { background-color: rgba(37,99,235,0.08); }
-    
-    .empty-planner { text-align: center; padding: 40px; color: var(--muted); border: 2px dashed var(--line); border-radius: 12px; margin-top: 16px; }
-
-    /* Modal */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity .2s ease-out; }
-    .modal-overlay.visible { opacity: 1; pointer-events: all; }
-    .modal-card { background: var(--card); padding: 32px; border-radius: 16px; box-shadow: var(--shadow-lg); max-width: 450px; width: 90%; text-align: center; transition: transform .2s ease-out; transform: scale(0.95); }
-    .modal-overlay.visible .modal-card { transform: scale(1); }
-    .modal-actions { margin-top: 24px; display: flex; justify-content: center; gap: 12px; }
-    .modal-card input { border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; text-align: center; font-size: 18px; padding: 12px; width: 100%; }
-    .modal-options { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
-    .option-label { display: flex; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: var(--transition-fast); }
-    .option-label:hover { background-color: var(--bg); border-color: var(--blue-border); }
-    .option-label input { margin-right: 12px; }
-
-    /* Planning Mode */
-    .planning-mode .day-column { cursor: pointer; border: 2px dashed var(--blue-border); }
-    .planning-mode .day-column:hover { border-color: var(--blue); background: var(--blue-soft); }
-
-    /* Stats */
-    .heatmap-container { margin-top: 16px; overflow-x: auto; padding-bottom: 10px; }
-    .heatmap { display: grid; grid-template-rows: repeat(7, 1fr); grid-auto-flow: column; gap: 4px; }
-    .heatmap-cell { width: 15px; height: 15px; background: var(--line); border-radius: 3px; position: relative; }
+    .empty-state {
+      border: 1px dashed rgba(148, 163, 184, 0.4);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.45);
+    }
+    .empty-state.small { padding: 12px; font-size: 12px; }
+    .stats-overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .stats-card {
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(15, 23, 42, 0.55);
+      padding: 14px;
+      display: grid;
+      gap: 4px;
+    }
+    .stats-card span.stats-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .stats-card strong { font-size: 20px; font-weight: 700; }
+    .stats-card .stats-sub { font-size: 11.5px; color: var(--muted); }
+    .stats-panels { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .stats-panel {
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.55);
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .panel-header { display: grid; gap: 2px; }
+    .panel-header h4 { font-size: 13.5px; letter-spacing: 0.01em; }
+    .goal-progress { display: grid; gap: 10px; }
+    .goal-progress-bar { display: grid; gap: 6px; }
+    .goal-progress-head { display: flex; justify-content: space-between; font-weight: 600; font-size: 12px; }
+    .goal-progress-track { height: 6px; border-radius: 999px; background: rgba(148, 163, 184, 0.22); overflow: hidden; }
+    .goal-progress-track span { display: block; height: 100%; border-radius: inherit; transition: width .4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .category-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+    .category-pill { border-radius: 999px; padding: 7px 12px; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; background: rgba(15, 23, 42, 0.6); color: var(--text); }
+    .category-pill span { font-size: 10.5px; color: var(--muted); }
+    .recent-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+    .recent-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+    .recent-list li strong { font-size: 12.5px; }
+    .recent-value { font-size: 12px; font-weight: 700; color: var(--accent); }
+    .monthly-bars { display: flex; align-items: flex-end; gap: 10px; height: 130px; }
+    .monthly-bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; font-size: 11.5px; color: var(--muted); }
+    .monthly-bar strong { font-size: 11.5px; color: var(--text); }
+    .monthly-bar-fill { width: 100%; min-height: 4px; border-radius: 8px 8px 4px 4px; background: linear-gradient(180deg, rgba(96, 165, 250, 0.45), rgba(14, 165, 233, 0.18)); display: flex; align-items: flex-end; justify-content: center; position: relative; overflow: hidden; }
+    .monthly-bar-fill span { position: absolute; bottom: 6px; font-size: 11px; font-weight: 600; color: var(--accent); }
+    .trend-list { display: grid; gap: 8px; }
+    .trend-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .trend-info { display: grid; gap: 2px; }
+    .trend-info strong { font-size: 12.5px; }
+    .trend-focus { font-size: 11px; color: var(--muted); }
+    .trend-progress { flex: 1; display: grid; gap: 6px; }
+    .trend-bar { height: 6px; border-radius: 999px; background: rgba(148, 163, 184, 0.2); overflow: hidden; }
+    .trend-bar span { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+    .weekday-bars { display: grid; gap: 8px; }
+    .weekday-item { display: grid; grid-template-columns: 60px 1fr auto; gap: 8px; align-items: center; }
+    .weekday-track { height: 6px; border-radius: 999px; background: rgba(148, 163, 184, 0.2); overflow: hidden; position: relative; }
+    .weekday-track span { display: block; height: 100%; border-radius: inherit; background: rgba(96, 165, 250, 0.7); }
+    .weekday-track::after { content: attr(data-label); position: absolute; right: 6px; top: -16px; font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .leaderboard { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+    .leaderboard li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.22); }
+    .leaderboard strong { font-size: 12.5px; }
+    .leaderboard span { font-size: 11px; color: var(--muted); }
+    .heatmap-panel { background: transparent; border: none; padding: 0; gap: 10px; }
+    .heatmap-container { overflow-x: auto; padding: 16px; border-radius: var(--radius-md); background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(148, 163, 184, 0.24); }
+    .heatmap { display: grid; grid-template-rows: repeat(7, 1fr); grid-auto-flow: column; gap: 3px; }
+    .heatmap-cell { width: 14px; height: 14px; background: rgba(148, 163, 184, 0.18); border-radius: 3px; position: relative; }
     .heatmap-cell[data-level="1"] { background: #9be9a8; }
     .heatmap-cell[data-level="2"] { background: #40c463; }
     .heatmap-cell[data-level="3"] { background: #30a14e; }
     .heatmap-cell[data-level="4"] { background: #216e39; }
-    .heatmap-legend { display: flex; align-items: center; gap: 4px; justify-content: flex-end; margin-top: 8px; }
-
-    /* Save Status */
-    #save-status { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 12px; box-shadow: var(--shadow-lg); z-index: 2000; opacity: 0; transition: opacity .3s, transform .3s; pointer-events: none; }
-    #save-status.visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-    
-    .icon { width: 1em; height: 1em; }
+    .heatmap-legend { display: flex; align-items: center; gap: 6px; justify-content: flex-end; font-size: 10.5px; color: var(--muted); padding: 0 16px 16px; }
+    #save-status {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(30px);
+      background: rgba(15, 23, 42, 0.9);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease, transform .3s ease;
+      font-weight: 600;
+    }
+    #save-status.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 22, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+      backdrop-filter: blur(6px);
+    }
+    .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+    .modal-card {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: var(--radius-lg);
+      padding: 26px;
+      box-shadow: var(--shadow);
+      width: min(460px, 92vw);
+      display: grid;
+      gap: 14px;
+      transform: translateY(12px);
+      transition: transform .25s ease;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+    }
+    .modal-overlay.visible .modal-card { transform: translateY(0); }
+    .modal-actions { display: flex; justify-content: center; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+    .modal-options { display: grid; gap: 10px; }
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .option-label:hover { border-color: var(--accent); background: rgba(96, 165, 250, 0.16); }
+    .planning-mode .planner-grid { filter: saturate(1.15); }
+    .planning-mode .day-column { border-style: dashed; border-color: rgba(96, 165, 250, 0.55); background: rgba(96, 165, 250, 0.14); }
+    .planning-mode .day-column::after { opacity: 0 !important; }
+    .planning-mode .day-column:hover { background: rgba(96, 165, 250, 0.22); }
+    .planning-mode .day-column:hover .quick-add-btn { opacity: 0; pointer-events: none; }
+    .input-error { border-color: var(--danger) !important; box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.3) !important; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes floatUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 1100px) {
+      .workspace { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
+    @media (max-width: 768px) {
+      .app-shell { padding: 20px 18px 72px; }
+      .tabs { padding: 14px 16px 0; }
+      .tab-panels { padding: 16px; }
+      .planner-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .brand { flex-direction: column; align-items: flex-start; }
+      .brand-actions { width: 100%; }
+      .brand-actions .btn { flex: 1; justify-content: center; }
+      .week-controls { width: 100%; }
+      .planner-grid { grid-template-columns: 1fr; }
+      .inline-fields { grid-template-columns: 1fr; }
+    }
   </style>
+
 </head>
+
 <body>
-  <div class="wrap">
-    <header class="page-header">
-      <div class="page-hero">
-        <div class="page-hero-content">
-          <span class="badge"><i data-lucide="sparkles" class="icon"></i>Twój rytuał postępu</span>
-          <h1>Plany i Progres</h1>
-          <p>Profesjonalny planer tygodniowy, który prowadzi Cię od wizji do konsekwentnej realizacji. Monitoruj najważniejsze cele i poszerzaj je o własne aktywności.</p>
-          <div class="hero-actions">
-            <a href="./index.html" class="btn soft"><i data-lucide="arrow-left" class="icon"></i>Powrót</a>
-            <button id="jump-to-planner" class="btn secondary"><i data-lucide="target" class="icon"></i>Przejdź do planera</button>
-          </div>
+  <div class="app-shell">
+    <header class="card topbar">
+      <div class="brand">
+        <div class="brand-copy">
+          <span class="badge"><i data-lucide="sparkles" class="icon"></i>LifeOS</span>
+          <h1>Pulpit tygodnia</h1>
+          <p class="muted">Zaplanuj tydzień w kilku krokach i miej statystyki zawsze pod ręką.</p>
         </div>
-        <div class="header-kpis">
-          <div class="kpi-item">
-              <div class="muted">Ukończone tygodnie</div>
-              <div id="yearly-progress-value" class="kpi-value" style="color: var(--green);">0/36</div>
-              <span class="tiny">Cel roczny: 36</span>
-          </div>
-          <div class="kpi-item">
-              <div class="muted">Seria konsekwencji</div>
-              <div id="streak-value" class="kpi-value" style="color: var(--orange);">0</div>
-              <span class="tiny">Buduj momentum</span>
-          </div>
+        <div class="brand-actions">
+          <a href="./index.html" class="btn soft"><i data-lucide="arrow-left" class="icon"></i>Powrót</a>
+          <button id="jump-to-planner" class="btn secondary"><i data-lucide="target" class="icon"></i>Planer</button>
+        </div>
+      </div>
+      <div class="top-metrics">
+        <div class="metric-chip">
+          <span>Postęp tygodnia</span>
+          <strong id="top-week-progress">0%</strong>
+          <span class="tiny muted">Średnia realizacja celów</span>
+        </div>
+        <div class="metric-chip">
+          <span>Ukończone tygodnie</span>
+          <strong id="yearly-progress-value">0/36</strong>
+        </div>
+        <div class="metric-chip">
+          <span>Seria konsekwencji</span>
+          <strong id="streak-value">0</strong>
+        </div>
+        <div class="metric-chip">
+          <span>Aktywności własne</span>
+          <strong data-role="custom-count">0</strong>
+          <span class="tiny muted">zaplanowane w tym tygodniu</span>
         </div>
       </div>
     </header>
 
-    <div class="card" id="weekly-focus-card">
-        <div class="row" style="align-items:flex-start; gap: 24px;">
-            <div class="brand" style="flex:1;">
-                <span class="chip"><i data-lucide="compass" class="icon"></i> Mentalne przygotowanie</span>
-                <h3 class="title" style="margin-top:8px;">Skupienie tygodnia</h3>
-                <p class="muted" style="margin:0;">Nazwij priorytet i odnotuj mini-sukcesy, by łatwiej utrzymać motywację i zobaczyć wzrost energii.</p>
-            </div>
-            <div style="text-align:right; display:flex; flex-direction:column; gap:8px;">
-                <span class="tiny muted">Automatycznie zapisujemy Twoje notatki.</span>
-                <span class="summary-pill" style="padding:10px 14px;">
-                    <span id="custom-completion-badge">0</span>
-                    zaplanowanych aktywności własnych
-                </span>
-            </div>
-        </div>
-        <div class="notes-grid">
-            <div class="note-field">
-                <label for="week-focus-input">Priorytet tygodnia</label>
-                <textarea id="week-focus-input" placeholder="Np. Skupić się na jakości snu i regeneracji..."></textarea>
-                <small>Wskazówka: opisz wynik, który będzie wyznacznikiem satysfakcji.</small>
-            </div>
-            <div class="note-field">
-                <label for="week-highlight-input">Mikro-sukcesy i obserwacje</label>
-                <textarea id="week-highlight-input" placeholder="Co chcesz zauważyć, śledzić lub świętować w tym tygodniu?"></textarea>
-                <small>Wracaj tutaj w trakcie tygodnia, aby wzmacniać dobre nawyki.</small>
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="row">
-            <h3 class="title"><i data-lucide="calendar-check" class="icon"></i><span id="week-title">Cele na ten tydzień</span></h3>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button id="copy-plan-btn" class="btn soft" style="display: none;"><i data-lucide="copy" class="icon"></i>Kopiuj plan</button>
-                <button id="prev-week-btn" class="btn soft"><i data-lucide="chevron-left" class="icon"></i>Poprzedni</button>
-                <button id="today-week-btn" class="btn soft" style="display: none;">Dziś</button>
-                <button id="next-week-btn" class="btn soft">Następny<i data-lucide="chevron-right" class="icon"></i></button>
-            </div>
-        </div>
-        <div style="margin-top: 16px;">
-            <div class="row" style="justify-content: space-between;"><span id="overall-progress-label" class="tiny muted">Postęp tygodnia: 0%</span></div>
-            <div class="progress-bar"><div id="overall-progress-bar" style="width:0%; background: var(--blue);"></div></div>
-        </div>
-        <div class="grid g-3" style="margin-top: 20px;">
-            <div class="card goal-card" style="background: var(--gym-soft);"><h4 class="title">💪 Trening siłowy</h4><div id="goal-gym-progress" class="kpi-value">0/3 sesje</div><div class="progress-bar"><div id="goal-gym-bar" style="width:0%; background: var(--gym-color);"></div></div><button class="btn soft" data-activity-type="gym" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
-            <div class="card goal-card" style="background: var(--run-soft);"><h4 class="title">🏃 Bieg</h4><div id="goal-running-progress" class="kpi-value">0/5 km</div><div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div><button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
-            <div class="card goal-card" style="background: var(--read-soft);"><h4 class="title">📚 Czytanie</h4><div id="goal-reading-progress" class="kpi-value">0/100 stron</div><div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div><button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
-        </div>
-    </div>
-
-    <div class="card" id="custom-activities-card">
-        <div class="row" style="align-items:flex-start;">
-            <div style="flex:1;">
-                <span class="chip"><i data-lucide="sparkles" class="icon"></i> Aktywności dodatkowe</span>
-                <h3 class="title" style="margin-top:8px;">Biblioteka własnych działań</h3>
-                <p class="muted" style="margin:0;">Dodawaj treningi dodatkowe, rytuały regeneracyjne, zadania rozwojowe czy czas offline. Wszystko w jednym miejscu wraz z celami tygodnia.</p>
-            </div>
-            <div class="template-actions">
-                <button id="add-custom-activity-btn" class="btn"><i data-lucide="plus-circle" class="icon"></i>Nowa aktywność</button>
-            </div>
-        </div>
-        <div class="custom-section">
-            <div id="custom-summary" class="custom-summary"></div>
+    <div class="workspace">
+      <aside class="sidebar">
+        <section class="card week-card compact">
+          <div class="week-card-header">
             <div>
-                <div class="row" style="align-items: center; gap: 12px;">
-                    <h4 class="title" style="font-size:16px; margin:0;">Ulubione szablony</h4>
-                    <p class="muted tiny" style="margin:0;">Zapisz aktywność podczas dodawania, by mieć ją pod ręką.</p>
-                </div>
-                <div id="custom-template-list" class="template-list" style="margin-top:12px;"></div>
+              <span class="badge"><i data-lucide="calendar-days" class="icon"></i>Bieżący tydzień</span>
+              <h2 id="week-title">Cele na ten tydzień</h2>
+              <p class="tiny muted">Nawiguj między tygodniami i kopiuj plan jednym kliknięciem.</p>
             </div>
-        </div>
-    </div>
+            <div class="week-controls">
+              <button id="prev-week-btn" class="btn ghost sm"><i data-lucide="chevron-left" class="icon"></i>Poprzedni</button>
+              <button id="today-week-btn" class="btn ghost sm" style="display:none;">Bieżący</button>
+              <button id="next-week-btn" class="btn ghost sm">Następny<i data-lucide="chevron-right" class="icon"></i></button>
+            </div>
+          </div>
+          <div class="copy-plan">
+            <button id="copy-plan-btn" class="btn soft sm" style="display:none;"><i data-lucide="copy" class="icon"></i>Kopiuj plan</button>
+            <span class="tiny muted">Przeniesiesz dzięki temu ulubiony układ.</span>
+          </div>
+          <div class="progress-track">
+            <span id="overall-progress-label" class="tiny muted">Postęp tygodnia: 0%</span>
+            <div class="progress-bar"><div id="overall-progress-bar" style="width:0%;"></div></div>
+          </div>
+        </section>
 
-    <div class="tabs">
-        <div class="tab active" data-tab="planner"><i data-lucide="calendar-days" class="icon"></i>Planer</div>
-        <div class="tab" data-tab="stats"><i data-lucide="trending-up" class="icon"></i>Statystyki</div>
-    </div>
+        <section class="card compact focus-card" id="weekly-focus-card">
+          <div class="focus-header">
+            <div>
+              <span class="badge"><i data-lucide="compass" class="icon"></i>Skupienie tygodnia</span>
+              <h3>Ustal mentalny kierunek</h3>
+              <p class="tiny muted">Notuj najważniejsze akcenty, by szybciej wejść w rytm.</p>
+            </div>
+            <div class="focus-highlight">
+              <span class="tiny muted">Własne aktywności</span>
+              <strong data-role="custom-count">0</strong>
+              <span class="tiny muted">zaplanowane</span>
+            </div>
+          </div>
+          <div class="notes-grid">
+            <div class="note-field">
+              <label for="week-focus-input">Priorytet tygodnia</label>
+              <textarea id="week-focus-input" placeholder="Opisz najważniejszy efekt do dowiezienia..."></textarea>
+            </div>
+            <div class="note-field">
+              <label for="week-highlight-input">Obserwacje i sukcesy</label>
+              <textarea id="week-highlight-input" placeholder="Zapisuj mikro-sukcesy, spostrzeżenia, dobre praktyki..."></textarea>
+            </div>
+          </div>
+        </section>
 
-    <div id="tab-content-planner" class="card">
-        <div class="row">
-            <h3 class="title"><i data-lucide="layout-grid" class="icon"></i>Planer tygodniowy</h3>
-            <p id="planning-status" class="muted tiny" style="font-weight: 500;"></p>
-            <button id="cancel-planning-btn" class="btn soft" style="display: none;">Zakończ planowanie</button>
-        </div>
-        <p id="planning-instructions" class="muted" style="display: none; text-align: center; margin-top: 16px; padding: 12px; background: var(--blue-soft); border-radius: 12px;"></p>
-        <div class="planner-grid"></div>
-        <div id="empty-planner-placeholder" class="empty-planner" style="display: none;">
-            <h4 style="margin: 0 0 4px 0;">Tydzień jest pusty</h4>
-            <p style="margin: 0;">Zaplanuj swoje aktywności używając przycisków powyżej lub skopiuj plan z poprzedniego tygodnia.</p>
-        </div>
-    </div>
+        <section class="card compact" id="custom-activities-card">
+          <div class="goal-header">
+            <div>
+              <span class="badge"><i data-lucide="sparkles" class="icon"></i>Aktywności dodatkowe</span>
+              <h3>Biblioteka rytuałów</h3>
+              <p class="tiny muted">Dodawaj treningi, regenerację i projekty niezależne od głównych celów.</p>
+            </div>
+            <button id="add-custom-activity-btn" class="btn secondary sm"><i data-lucide="plus-circle" class="icon"></i>Nowa aktywność</button>
+          </div>
+          <div id="custom-summary" class="custom-summary"></div>
+          <div class="template-wrapper">
+            <div class="goal-header">
+              <h4>Ulubione szablony</h4>
+              <p class="tiny muted">Zapisz aktywność podczas dodawania, by mieć ją pod ręką.</p>
+            </div>
+            <div id="custom-template-list" class="template-list"></div>
+          </div>
+        </section>
+      </aside>
 
-    <div id="tab-content-stats" class="card" style="display:none;">
-         <h3 class="title"><i data-lucide="flame" class="icon"></i>Kalendarz Aktywności</h3>
-         <p class="muted tiny" style="margin-top:-8px; margin-bottom: 12px;">Każdy kwadrat to jeden dzień roku. Im ciemniejszy odcień zieleni, tym więcej aktywności ukończono.</p>
-         <div class="heatmap-container"></div>
-         <div class="heatmap-legend">
-             <span class="muted tiny">Mniej</span>
-             <div class="heatmap-cell" style="background: var(--line)"></div>
-             <div class="heatmap-cell" data-level="1"></div>
-             <div class="heatmap-cell" data-level="2"></div>
-             <div class="heatmap-cell" data-level="3"></div>
-             <div class="heatmap-cell" data-level="4"></div>
-             <span class="muted tiny">Więcej</span>
-         </div>
+      <section class="main-column">
+        <section class="card compact goals-card">
+          <div class="goal-header">
+            <div>
+              <span class="badge"><i data-lucide="layers" class="icon"></i>Cele tygodnia</span>
+              <h3>Twoje priorytety</h3>
+            </div>
+            <p class="tiny muted">Dodawaj treningi jednym kliknięciem.</p>
+          </div>
+          <div class="goal-matrix">
+            <div class="goal-card" style="border-color: var(--gym-border); background: var(--gym-soft); color: var(--text);">
+              <div class="goal-card-header">
+                <div class="goal-icon">💪</div>
+                <div>
+                  <span class="goal-title">Trening siłowy</span>
+                  <span class="goal-target">Cel: 3 sesje</span>
+                </div>
+              </div>
+              <div id="goal-gym-progress" class="kpi-value">0/3 sesje</div>
+              <div class="progress-bar"><div id="goal-gym-bar" style="width:0%; background: var(--gym-color);"></div></div>
+              <button class="btn soft" data-activity-type="gym" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button>
+            </div>
+            <div class="goal-card" style="border-color: var(--run-border); background: var(--run-soft); color: var(--text);">
+              <div class="goal-card-header">
+                <div class="goal-icon">🏃</div>
+                <div>
+                  <span class="goal-title">Bieg</span>
+                  <span class="goal-target">Cel: 5 km</span>
+                </div>
+              </div>
+              <div id="goal-running-progress" class="kpi-value">0/5 km</div>
+              <div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div>
+              <button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button>
+            </div>
+            <div class="goal-card" style="border-color: var(--read-border); background: var(--read-soft); color: var(--text);">
+              <div class="goal-card-header">
+                <div class="goal-icon">📚</div>
+                <div>
+                  <span class="goal-title">Czytanie</span>
+                  <span class="goal-target">Cel: 100 stron</span>
+                </div>
+              </div>
+              <div id="goal-reading-progress" class="kpi-value">0/100 stron</div>
+              <div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div>
+              <button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card tab-card">
+          <div class="tabs">
+            <div class="tab active" data-tab="planner"><i data-lucide="layout-grid" class="icon"></i>Planer</div>
+            <div class="tab" data-tab="stats"><i data-lucide="trending-up" class="icon"></i>Statystyki</div>
+          </div>
+          <div class="tab-panels">
+            <div id="tab-content-planner" class="tab-panel active">
+              <div class="planner-header">
+                <div>
+                  <h3>Planer tygodniowy</h3>
+                  <p id="planning-status" class="tiny muted status-chip"></p>
+                </div>
+                <div class="planner-actions">
+                  <button id="cancel-planning-btn" class="btn soft sm" style="display:none;"><i data-lucide="x-circle" class="icon"></i>Zakończ planowanie</button>
+                </div>
+              </div>
+              <p id="planning-instructions" class="tiny muted" style="display:none;"></p>
+              <div class="planner-grid"></div>
+              <div id="empty-planner-placeholder" class="empty-planner" style="display:none;">
+                <h4>Twój tydzień jest pusty</h4>
+                <p class="muted">Dodaj aktywności z kart celów lub skopiuj plan z poprzedniego tygodnia.</p>
+              </div>
+            </div>
+            <div id="tab-content-stats" class="tab-panel">
+              <div class="stats-overview">
+                <div class="stats-card">
+                  <span class="stats-label">Wszystkie aktywności</span>
+                  <strong id="stats-total-activities">0</strong>
+                  <span id="stats-completion-rate" class="stats-sub">Brak danych</span>
+                </div>
+                <div class="stats-card">
+                  <span class="stats-label">Cele tygodnia</span>
+                  <strong id="stats-goal-performance">0%</strong>
+                  <span id="stats-goal-summary" class="stats-sub">Brak tygodni</span>
+                </div>
+                <div class="stats-card">
+                  <span class="stats-label">Aktywności własne</span>
+                  <strong id="stats-custom-activities">0</strong>
+                  <span id="stats-custom-value" class="stats-sub">Łączna wartość: 0</span>
+                </div>
+              </div>
+              <div class="stats-panels">
+                <div class="stats-panel">
+                  <div class="panel-header">
+                    <h4>Postęp celów</h4>
+                    <span class="tiny muted">Średni poziom realizacji na przestrzeni tygodni</span>
+                  </div>
+                  <div id="stats-goal-breakdown" class="goal-progress"></div>
+                </div>
+                <div class="stats-panel">
+                  <div class="panel-header">
+                    <h4>Najaktywniejsze obszary</h4>
+                    <span class="tiny muted">Własne aktywności pogrupowane według kategorii</span>
+                  </div>
+                  <div id="stats-top-categories" class="category-cloud"></div>
+                </div>
+              </div>
+              <div class="stats-panels">
+                <div class="stats-panel">
+                  <div class="panel-header">
+                    <h4>Ostatnie sukcesy</h4>
+                    <span class="tiny muted">Świeżo ukończone działania</span>
+                  </div>
+                  <ul id="stats-recent-list" class="recent-list"></ul>
+                </div>
+                <div class="stats-panel">
+                  <div class="panel-header">
+                    <h4>Aktywność miesięczna</h4>
+                    <span class="tiny muted">Ukończenia w ciągu ostatnich miesięcy</span>
+                  </div>
+                  <div id="stats-monthly-bars" class="monthly-bars"></div>
+                </div>
+              </div>
+              <div class="stats-panels">
+                <div class="stats-panel">
+                  <div class="panel-header">
+                    <h4>Dynamika tygodni</h4>
+                    <span class="tiny muted">Ostatnie sześć tygodni</span>
+                  </div>
+                  <div id="stats-week-trend" class="trend-list"></div>
+                </div>
+                <div class="stats-panel">
+                  <div class="panel-header">
+                    <h4>Najmocniejsze dni</h4>
+                    <span class="tiny muted">Ukończenia według dnia tygodnia</span>
+                  </div>
+                  <div id="stats-weekday-chart" class="weekday-bars"></div>
+                </div>
+                <div class="stats-panel">
+                  <div class="panel-header">
+                    <h4>Top aktywności</h4>
+                    <span class="tiny muted">Najczęściej realizowane zadania</span>
+                  </div>
+                  <ul id="stats-top-activities" class="leaderboard"></ul>
+                </div>
+              </div>
+              <div class="stats-panel heatmap-panel">
+                <div class="panel-header">
+                  <h4>Kalendarz aktywności</h4>
+                  <span class="tiny muted">Każdy kwadrat to jeden dzień. Im jaśniejszy kolor, tym więcej ukończeń.</span>
+                </div>
+                <div class="heatmap-container"></div>
+                <div class="heatmap-legend">
+                  <span class="tiny muted">Mniej</span>
+                  <div class="heatmap-cell" style="background: rgba(148, 163, 184, 0.18);"></div>
+                  <div class="heatmap-cell" data-level="1"></div>
+                  <div class="heatmap-cell" data-level="2"></div>
+                  <div class="heatmap-cell" data-level="3"></div>
+                  <div class="heatmap-cell" data-level="4"></div>
+                  <span class="tiny muted">Więcej</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
     </div>
   </div>
 
@@ -667,6 +1282,9 @@ function render() {
     renderWeeklyNotes(weekData);
     renderCustomSummary(weekData);
     renderCustomTemplates();
+    if (document.querySelector('.tab.active')?.dataset.tab === 'stats') {
+        renderStats();
+    }
     lucide.createIcons();
 }
 
@@ -848,13 +1466,13 @@ function renderCustomSummary(weekData) {
     }
 
     const pills = [
-        { value: plannedCount, label: 'zaplanowane', style: 'background: rgba(37,99,235,0.12); color: var(--blue);' },
-        { value: completedCount, label: 'ukończone', style: 'background: var(--green-soft); color: var(--green);' },
-        { value: categories.size, label: 'obszary', style: 'background: rgba(15,23,42,0.08); color: var(--ink);' }
+        { value: plannedCount, label: 'zaplanowane', style: 'background: rgba(96,165,250,0.16); color: var(--blue);' },
+        { value: completedCount, label: 'ukończone', style: 'background: rgba(52,211,153,0.18); color: var(--green);' },
+        { value: categories.size, label: 'obszary', style: 'background: rgba(148,163,184,0.16); color: var(--ink);' }
     ];
 
     if (valueSum > 0) {
-        pills.push({ value: formatNumber(valueSum), label: 'łączna wartość', style: 'background: rgba(234,88,12,0.12); color: var(--orange);' });
+        pills.push({ value: formatNumber(valueSum), label: 'łączna wartość', style: 'background: rgba(250,204,21,0.18); color: var(--orange);' });
     }
 
     pills.forEach(pillData => {
@@ -940,9 +1558,9 @@ function updateWeekNote(key, value) {
 }
 
 function updateCustomCompletionBadge(count) {
-    const badge = document.getElementById('custom-completion-badge');
-    if (!badge) return;
-    badge.textContent = count;
+    document.querySelectorAll('[data-role="custom-count"]').forEach(el => {
+        el.textContent = count;
+    });
 }
 
 function renderHeaderKPIs(year) {
@@ -1001,9 +1619,15 @@ function renderOverallProgress(progress) {
         totalPercent += Math.min(100, ((progress[type] || 0) / GOAL_DEFINITIONS[type].target) * 100);
     }
     const avgPercent = totalPercent / Object.keys(GOAL_DEFINITIONS).length;
-    document.getElementById('overall-progress-bar').style.width = `${avgPercent}%`;
-    document.getElementById('overall-progress-label').textContent = `Postęp tygodnia: ${Math.round(avgPercent)}%`;
+    const rounded = Math.round(avgPercent);
+    const progressBar = document.getElementById('overall-progress-bar');
+    if (progressBar) progressBar.style.width = `${avgPercent}%`;
+    const progressLabel = document.getElementById('overall-progress-label');
+    if (progressLabel) progressLabel.textContent = `Postęp tygodnia: ${rounded}%`;
+    const topProgress = document.getElementById('top-week-progress');
+    if (topProgress) topProgress.textContent = `${rounded}%`;
 }
+
 
 function renderCopyPlanButton() {
     let prevWeekDate = new Date(currentDate);
@@ -1426,8 +2050,19 @@ function setupEventListeners() {
     document.getElementById('today-week-btn').addEventListener('click', () => { currentDate = new Date(); render(); });
     document.getElementById('copy-plan-btn').addEventListener('click', showCopyPlanModal);
     document.getElementById('add-custom-activity-btn').addEventListener('click', () => showCustomActivityModal());
+    const plannerPanel = document.getElementById('tab-content-planner');
+    const statsPanel = document.getElementById('tab-content-stats');
+
+    const activateTab = (tabName) => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+        if (plannerPanel) plannerPanel.classList.toggle('active', tabName === 'planner');
+        if (statsPanel) statsPanel.classList.toggle('active', tabName === 'stats');
+        if (tabName === 'stats') renderStats();
+    };
+
     document.getElementById('jump-to-planner').addEventListener('click', () => {
-        document.getElementById('tab-content-planner').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        activateTab('planner');
+        plannerPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
     const focusInput = document.getElementById('week-focus-input');
@@ -1496,16 +2131,11 @@ function setupEventListeners() {
     });
 
     document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', (e) => {
-            const tabEl = e.currentTarget;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            tabEl.classList.add('active');
-            const tabName = tabEl.dataset.tab;
-            document.getElementById('tab-content-planner').style.display = tabName === 'planner' ? 'block' : 'none';
-            document.getElementById('tab-content-stats').style.display = tabName === 'stats' ? 'block' : 'none';
-            if (tabName === 'stats') renderStats();
-        });
+        tab.addEventListener('click', (e) => activateTab(e.currentTarget.dataset.tab));
     });
+
+    const initialTab = document.querySelector('.tab.active')?.dataset.tab || 'planner';
+    activateTab(initialTab);
 
     document.getElementById('cancel-planning-btn').addEventListener('click', stopPlanning);
 }
@@ -1519,57 +2149,422 @@ document.addEventListener('DOMContentLoaded', () => {
     showWeeklySummary();
 });
 
-// --- STATYSTYKI (HEATMAP) ---
+// --- STATYSTYKI ---
 function renderStats() {
-    // Implementacja heatmapy - bez zmian w logice, ale może wymagać dostosowania renderowania
-    const year = getWeekNumber(currentDate)[0];
-    const yearData = state[year] || {};
+    const statsTotalEl = document.getElementById('stats-total-activities');
+    const statsRateEl = document.getElementById('stats-completion-rate');
+    const statsGoalPerformanceEl = document.getElementById('stats-goal-performance');
+    const statsGoalSummaryEl = document.getElementById('stats-goal-summary');
+    const statsCustomCountEl = document.getElementById('stats-custom-activities');
+    const statsCustomValueEl = document.getElementById('stats-custom-value');
+    const goalContainer = document.getElementById('stats-goal-breakdown');
+    const categoryContainer = document.getElementById('stats-top-categories');
+    const recentList = document.getElementById('stats-recent-list');
+    const monthlyContainer = document.getElementById('stats-monthly-bars');
     const heatmapContainer = document.querySelector('.heatmap-container');
-    heatmapContainer.innerHTML = '';
+    const weekTrendContainer = document.getElementById('stats-week-trend');
+    const weekdayContainer = document.getElementById('stats-weekday-chart');
+    const topActivitiesList = document.getElementById('stats-top-activities');
 
-    const activitiesByDay = {};
-    Object.keys(yearData).forEach(week => {
-        Object.keys(yearData[week].plan).forEach(day => {
-            const activities = yearData[week].plan[day];
-            if (activities.length > 0) {
-                const date = new Date(getStartOfWeek(year, parseInt(week)));
-                date.setDate(date.getDate() + (parseInt(day) - 1 + 7) % 7);
-                const dateString = toYYYYMMDD(date);
-                activitiesByDay[dateString] = (activitiesByDay[dateString] || 0) + activities.filter(a => a.completed).length;
+    if (!statsTotalEl && !statsRateEl && !goalContainer && !categoryContainer && !recentList && !monthlyContainer && !heatmapContainer && !weekTrendContainer && !weekdayContainer && !topActivitiesList) {
+        return;
+    }
+
+    const allActivities = [];
+    const completedActivities = [];
+    const categorySummary = {};
+    const monthlySummary = {};
+    const goalAggregate = {};
+    const trackedWeeks = new Set();
+    const weekRecords = [];
+    const dayAggregate = { 0: { completed: 0, total: 0 }, 1: { completed: 0, total: 0 }, 2: { completed: 0, total: 0 }, 3: { completed: 0, total: 0 }, 4: { completed: 0, total: 0 }, 5: { completed: 0, total: 0 }, 6: { completed: 0, total: 0 } };
+    const activityFrequency = {};
+
+    Object.keys(GOAL_DEFINITIONS).forEach(type => {
+        goalAggregate[type] = { actual: 0, raw: 0, target: 0, weeks: 0 };
+    });
+
+    const yearKeys = getYearKeys().sort();
+    yearKeys.forEach(yearKey => {
+        const weeks = state[yearKey] || {};
+        Object.keys(weeks).forEach(weekKey => {
+            const weekData = weeks[weekKey];
+            const yearValue = parseInt(yearKey, 10);
+            const weekValue = parseInt(weekKey, 10);
+            const startOfWeek = getStartOfWeek(yearValue, weekValue);
+            const hasGoalPlan = Object.values(weekData.plan || {}).some(arr => arr.some(activity => isGoalType(activity.type)));
+            if (hasGoalPlan) {
+                trackedWeeks.add(`${yearValue}-${weekValue}`);
+                Object.keys(GOAL_DEFINITIONS).forEach(type => {
+                    const progressValue = Number(weekData.progress?.[type] || 0);
+                    goalAggregate[type].actual += Math.min(progressValue, GOAL_DEFINITIONS[type].target);
+                    goalAggregate[type].raw += progressValue;
+                    goalAggregate[type].target += GOAL_DEFINITIONS[type].target;
+                    goalAggregate[type].weeks += 1;
+                });
             }
+
+            let plannedForWeek = 0;
+            let completedForWeek = 0;
+
+            Object.entries(weekData.plan || {}).forEach(([dayKey, dayActivities]) => {
+                const dayIndex = parseInt(dayKey, 10);
+                const activityDate = new Date(startOfWeek);
+                activityDate.setDate(startOfWeek.getDate() + (dayIndex - 1 + 7) % 7);
+                dayActivities.forEach(activity => {
+                    plannedForWeek += 1;
+                    if (activity.completed) completedForWeek += 1;
+                    const entry = { ...activity, year: yearValue, week: weekValue, dayIndex, date: activityDate };
+                    allActivities.push(entry);
+                    if (activity.completed) completedActivities.push(entry);
+
+                    const monthKey = `${activityDate.getFullYear()}-${String(activityDate.getMonth() + 1).padStart(2, '0')}`;
+                    if (!monthlySummary[monthKey]) monthlySummary[monthKey] = { total: 0, completed: 0 };
+                    monthlySummary[monthKey].total += 1;
+                    if (activity.completed) monthlySummary[monthKey].completed += 1;
+
+                    const dayStats = dayAggregate[dayIndex] || (dayAggregate[dayIndex] = { completed: 0, total: 0 });
+                    dayStats.total += 1;
+                    if (activity.completed) dayStats.completed += 1;
+
+                    const definition = getActivityDefinition(activity);
+                    const freqKey = `${definition.label}|${definition.categoryLabel || 'Cel tygodnia'}`;
+                    if (!activityFrequency[freqKey]) {
+                        activityFrequency[freqKey] = {
+                            label: definition.label,
+                            category: definition.categoryLabel || 'Cel tygodnia',
+                            color: definition.color || 'var(--accent)',
+                            total: 0,
+                            completed: 0
+                        };
+                    }
+                    activityFrequency[freqKey].total += 1;
+                    if (activity.completed) activityFrequency[freqKey].completed += 1;
+
+                    if (!isGoalType(activity.type)) {
+                        const categoryKey = activity.custom?.category || 'other';
+                        if (!categorySummary[categoryKey]) {
+                            const styles = getCategoryStyles(categoryKey);
+                            categorySummary[categoryKey] = { label: styles.label, color: styles.color, count: 0, completed: 0 };
+                        }
+                        categorySummary[categoryKey].count += 1;
+                        if (activity.completed) categorySummary[categoryKey].completed += 1;
+                    }
+                });
+            });
+
+            weekRecords.push({ year: yearValue, week: weekValue, start: startOfWeek, data: weekData, planned: plannedForWeek, completed: completedForWeek });
         });
     });
 
-    const firstDayOfYear = new Date(year, 0, 1);
-    let currentDay = new Date(firstDayOfYear);
-    // Przesuń do najbliższego poniedziałku przed 1 stycznia
-    currentDay.setDate(currentDay.getDate() - (currentDay.getDay() - 1 + 7) % 7);
-    
-    const heatmap = document.createElement('div');
-    heatmap.className = 'heatmap';
+    allActivities.sort((a, b) => a.date - b.date);
+    completedActivities.sort((a, b) => b.date - a.date);
 
-    for(let i=0; i < 53 * 7; i++) { // Renderuj pełne 53 kolumny dla spójności
-        const dateString = toYYYYMMDD(currentDay);
-        const cell = document.createElement('div');
-        cell.className = 'heatmap-cell';
-        
-        if (currentDay.getFullYear() === year) {
-            const count = activitiesByDay[dateString] || 0;
-            let level = 0;
-            if(count > 0) level = 1;
-            if(count > 1) level = 2;
-            if(count > 2) level = 3;
-            if(count > 3) level = 4;
-            cell.dataset.level = level;
-            cell.title = `${dateString}: ${count} ukończone aktywności`;
-        } else {
-             cell.style.background = 'transparent'; // Dni spoza roku są puste
+    const totalActivities = allActivities.length;
+    const totalCompleted = completedActivities.length;
+    const completionRate = totalActivities ? Math.round((totalCompleted / totalActivities) * 100) : 0;
+    if (statsTotalEl) statsTotalEl.textContent = totalActivities;
+    if (statsRateEl) statsRateEl.textContent = totalActivities ? `${totalCompleted} ukończonych (${completionRate}%)` : 'Brak danych';
+
+    const customCount = allActivities.filter(activity => !isGoalType(activity.type)).length;
+    if (statsCustomCountEl) statsCustomCountEl.textContent = customCount;
+    const customValue = allActivities.reduce((sum, activity) => {
+        if (!isGoalType(activity.type) && activity.completed) {
+            const logged = Number(activity.loggedValue);
+            if (!Number.isNaN(logged)) return sum + logged;
         }
-        heatmap.appendChild(cell);
-        currentDay.setDate(currentDay.getDate() + 1);
+        return sum;
+    }, 0);
+    if (statsCustomValueEl) statsCustomValueEl.textContent = customValue ? `Łączna wartość: ${formatNumber(customValue)}` : 'Łączna wartość: 0';
+
+    let aggregatedPercent = 0;
+    let goalCounter = 0;
+    if (goalContainer) goalContainer.innerHTML = '';
+    Object.keys(GOAL_DEFINITIONS).forEach(type => {
+        const data = goalAggregate[type];
+        if (!data || !data.target) return;
+        goalCounter++;
+        const def = GOAL_DEFINITIONS[type];
+        const percent = Math.min(100, Math.round((data.actual / data.target) * 100));
+        aggregatedPercent += percent;
+        if (goalContainer) {
+            const avg = data.weeks ? Math.round(data.raw / data.weeks) : 0;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'goal-progress-bar';
+            wrapper.innerHTML = `
+                <div class="goal-progress-head"><span>${def.label}</span><span>${percent}%</span></div>
+                <div class="goal-progress-track"><span style="width:${percent}%; background:${def.color};"></span></div>
+                <span class="tiny muted">Średnio ${formatNumber(avg)}/${formatNumber(def.target)} ${def.unit || ''} na tydzień</span>
+            `;
+            goalContainer.appendChild(wrapper);
+        }
+    });
+    if (goalContainer && !goalContainer.children.length) {
+        goalContainer.innerHTML = '<div class="empty-state small">Brak zaplanowanych celów do analizy.</div>';
     }
-    heatmapContainer.appendChild(heatmap);
+    if (statsGoalPerformanceEl) {
+        const averagePercent = goalCounter ? Math.round(aggregatedPercent / goalCounter) : 0;
+        statsGoalPerformanceEl.textContent = `${averagePercent}%`;
+    }
+    if (statsGoalSummaryEl) {
+        statsGoalSummaryEl.textContent = trackedWeeks.size ? `${trackedWeeks.size} tyg. w historii` : 'Brak tygodni';
+    }
+
+    if (categoryContainer) {
+        categoryContainer.innerHTML = '';
+        const categories = Object.entries(categorySummary).sort(([, a], [, b]) => (b.completed - a.completed) || (b.count - a.count));
+        if (!categories.length) {
+            const empty = document.createElement('div');
+            empty.className = 'empty-state small';
+            empty.style.width = '100%';
+            empty.textContent = 'Dodaj własne aktywności, aby zobaczyć ich rozkład.';
+            categoryContainer.appendChild(empty);
+        } else {
+            categories.forEach(([, data]) => {
+                const completion = data.count ? Math.round((data.completed / data.count) * 100) : 0;
+                const pill = document.createElement('span');
+                pill.className = 'category-pill';
+                pill.style.border = `1px solid ${data.color}`;
+                pill.style.color = data.color;
+                pill.style.background = 'rgba(15, 23, 42, 0.55)';
+                pill.innerHTML = `${data.label}<span>${data.completed}/${data.count} (${completion}%)</span>`;
+                categoryContainer.appendChild(pill);
+            });
+        }
+    }
+
+    if (recentList) {
+        recentList.innerHTML = '';
+        if (!completedActivities.length) {
+            const empty = document.createElement('li');
+            empty.className = 'empty-state small';
+            empty.textContent = 'Brak ukończonych aktywności.';
+            recentList.appendChild(empty);
+        } else {
+            completedActivities.slice(0, 5).forEach(activity => {
+                const definition = getActivityDefinition(activity);
+                const item = document.createElement('li');
+                const meta = document.createElement('div');
+                meta.className = 'recent-meta';
+                const title = document.createElement('strong');
+                title.textContent = definition.label;
+                const subtitle = document.createElement('span');
+                subtitle.className = 'tiny muted';
+                subtitle.textContent = `${activity.date.toLocaleDateString('pl-PL', { weekday: 'short', day: '2-digit', month: 'short' })} • ${definition.categoryLabel || 'Cel tygodnia'}`;
+                meta.appendChild(title);
+                meta.appendChild(subtitle);
+                const value = document.createElement('span');
+                value.className = 'recent-value';
+                if (definition.trackValue) {
+                    const loggedValue = Number(activity.loggedValue || activity.plannedValue || 0);
+                    const unitLabel = definition.unit ? ` ${definition.unit}` : '';
+                    value.textContent = `+${formatNumber(loggedValue)}${unitLabel}`;
+                } else {
+                    value.textContent = '✔︎';
+                }
+                item.appendChild(meta);
+                item.appendChild(value);
+                recentList.appendChild(item);
+            });
+        }
+    }
+
+    if (monthlyContainer) {
+        monthlyContainer.innerHTML = '';
+        const months = Object.keys(monthlySummary).sort();
+        const displayMonths = months.slice(-6);
+        if (!displayMonths.length) {
+            const empty = document.createElement('div');
+            empty.className = 'empty-state small';
+            empty.style.width = '100%';
+            empty.textContent = 'Brak danych miesięcznych.';
+            monthlyContainer.appendChild(empty);
+        } else {
+            displayMonths.forEach(key => {
+                const [yearValue, monthValue] = key.split('-').map(Number);
+                const label = new Date(yearValue, monthValue - 1, 1).toLocaleDateString('pl-PL', { month: 'short' });
+                const { total, completed } = monthlySummary[key];
+                const percentRaw = total ? Math.round((completed / total) * 100) : 0;
+                const percent = Math.min(100, Math.max(percentRaw, 0));
+                const bar = document.createElement('div');
+                bar.className = 'monthly-bar';
+                const fill = document.createElement('div');
+                fill.className = 'monthly-bar-fill';
+                fill.style.height = `${Math.max(percent, total ? 6 : 2)}%`;
+                fill.innerHTML = `<span>${percent}%</span>`;
+                const labelEl = document.createElement('strong');
+                labelEl.textContent = label;
+                const summaryEl = document.createElement('small');
+                summaryEl.className = 'tiny';
+                summaryEl.textContent = `${completed}/${total}`;
+                bar.appendChild(fill);
+                bar.appendChild(labelEl);
+                bar.appendChild(summaryEl);
+                monthlyContainer.appendChild(bar);
+            });
+        }
+    }
+
+    if (weekTrendContainer) {
+        weekTrendContainer.innerHTML = '';
+        const sortedWeeks = weekRecords.slice().sort((a, b) => a.start - b.start).slice(-6).reverse();
+        if (!sortedWeeks.length) {
+            weekTrendContainer.innerHTML = '<div class="empty-state small">Brak tygodni w historii.</div>';
+        } else {
+            sortedWeeks.forEach(record => {
+                const row = document.createElement('div');
+                row.className = 'trend-row';
+                const info = document.createElement('div');
+                info.className = 'trend-info';
+                const label = document.createElement('strong');
+                label.textContent = `Tydz ${record.week}`;
+                const range = document.createElement('span');
+                range.className = 'tiny muted';
+                range.textContent = record.start.toLocaleDateString('pl-PL', { day: '2-digit', month: 'short' });
+                info.appendChild(label);
+                info.appendChild(range);
+                const focusNote = record.data?.notes?.focus?.trim();
+                if (focusNote) {
+                    const focus = document.createElement('span');
+                    focus.className = 'trend-focus';
+                    focus.textContent = focusNote.length > 60 ? `${focusNote.slice(0, 57)}…` : focusNote;
+                    info.appendChild(focus);
+                }
+                const progressWrap = document.createElement('div');
+                progressWrap.className = 'trend-progress';
+                let percentSum = 0;
+                let goalCount = 0;
+                Object.keys(GOAL_DEFINITIONS).forEach(type => {
+                    const target = GOAL_DEFINITIONS[type].target;
+                    if (!target) return;
+                    goalCount++;
+                    const value = Number(record.data?.progress?.[type] || 0);
+                    percentSum += Math.min(100, Math.round((value / target) * 100));
+                });
+                const goalPercent = goalCount ? Math.round(percentSum / goalCount) : 0;
+                progressWrap.innerHTML = `
+                    <div class="trend-bar"><span style="width:${goalPercent}%"></span></div>
+                    <span class="tiny muted">${record.completed}/${record.planned} aktywności</span>
+                `;
+                row.appendChild(info);
+                row.appendChild(progressWrap);
+                weekTrendContainer.appendChild(row);
+            });
+        }
+    }
+
+    if (weekdayContainer) {
+        weekdayContainer.innerHTML = '';
+        const dayOrder = [1, 2, 3, 4, 5, 6, 0];
+        const hasData = dayOrder.some(day => (dayAggregate[day]?.total || 0) > 0);
+        if (!hasData) {
+            weekdayContainer.innerHTML = '<div class="empty-state small">Brak danych dziennych.</div>';
+        } else {
+            dayOrder.forEach(day => {
+                const stats = dayAggregate[day] || { completed: 0, total: 0 };
+                const percent = stats.total ? Math.round((stats.completed / stats.total) * 100) : 0;
+                const row = document.createElement('div');
+                row.className = 'weekday-item';
+                row.innerHTML = `
+                    <span class="tiny muted">${DAY_NAMES[day]}</span>
+                    <div class="weekday-track" data-label="${percent}%"><span style="width:${percent}%"></span></div>
+                    <span class="tiny muted">${stats.completed}/${stats.total}</span>
+                `;
+                weekdayContainer.appendChild(row);
+            });
+        }
+    }
+
+    if (topActivitiesList) {
+        topActivitiesList.innerHTML = '';
+        const topActivities = Object.values(activityFrequency).sort((a, b) => (b.completed - a.completed) || (b.total - a.total)).slice(0, 5);
+        if (!topActivities.length) {
+            const empty = document.createElement('li');
+            empty.className = 'empty-state small';
+            empty.textContent = 'Zrealizuj kilka zadań, aby zobaczyć ranking.';
+            topActivitiesList.appendChild(empty);
+        } else {
+            topActivities.forEach(item => {
+                const li = document.createElement('li');
+                const meta = document.createElement('div');
+                meta.style.display = 'grid';
+                meta.style.gap = '2px';
+                const title = document.createElement('strong');
+                title.textContent = item.label;
+                const subtitle = document.createElement('span');
+                subtitle.textContent = item.category;
+                meta.appendChild(title);
+                meta.appendChild(subtitle);
+                const value = document.createElement('span');
+                value.className = 'recent-value';
+                value.style.color = item.color;
+                value.textContent = `${item.completed}/${item.total}`;
+                li.appendChild(meta);
+                li.appendChild(value);
+                topActivitiesList.appendChild(li);
+            });
+        }
+    }
+
+    if (heatmapContainer) {
+        heatmapContainer.innerHTML = '';
+        const currentYear = getWeekNumber(currentDate)[0];
+        const yearData = state[currentYear] || {};
+        const activitiesByDay = {};
+        Object.keys(yearData).forEach(week => {
+            Object.keys(yearData[week].plan).forEach(day => {
+                const dayActivities = yearData[week].plan[day];
+                if (dayActivities.length > 0) {
+                    const date = new Date(getStartOfWeek(currentYear, parseInt(week, 10)));
+                    date.setDate(date.getDate() + (parseInt(day, 10) - 1 + 7) % 7);
+                    const dateString = toYYYYMMDD(date);
+                    activitiesByDay[dateString] = (activitiesByDay[dateString] || 0) + dayActivities.filter(a => a.completed).length;
+                }
+            });
+        });
+
+        const firstDayOfYear = new Date(currentYear, 0, 1);
+        let currentDay = new Date(firstDayOfYear);
+        currentDay.setDate(currentDay.getDate() - (currentDay.getDay() - 1 + 7) % 7);
+
+        const heatmap = document.createElement('div');
+        heatmap.className = 'heatmap';
+
+        let hasHeatmapActivity = false;
+        for (let i = 0; i < 53 * 7; i++) {
+            const dateString = toYYYYMMDD(currentDay);
+            const cell = document.createElement('div');
+            cell.className = 'heatmap-cell';
+
+            if (currentDay.getFullYear() === currentYear) {
+                const count = activitiesByDay[dateString] || 0;
+                let level = 0;
+                if (count > 0) level = 1;
+                if (count > 1) level = 2;
+                if (count > 2) level = 3;
+                if (count > 3) level = 4;
+                cell.dataset.level = level;
+                cell.title = `${dateString}: ${count} ukończone aktywności`;
+                if (count > 0) hasHeatmapActivity = true;
+            } else {
+                cell.style.background = 'transparent';
+            }
+            heatmap.appendChild(cell);
+            currentDay.setDate(currentDay.getDate() + 1);
+        }
+        if (!hasHeatmapActivity) {
+            const empty = document.createElement('div');
+            empty.className = 'empty-state small';
+            empty.textContent = 'Brak ukończonych aktywności w bieżącym roku.';
+            empty.style.marginBottom = '12px';
+            heatmapContainer.appendChild(empty);
+        }
+        heatmapContainer.appendChild(heatmap);
+    }
+
+    lucide.createIcons();
 }
+
 
 // --- TRYB PLANOWANIA ---
 function startPlanning(type) {
