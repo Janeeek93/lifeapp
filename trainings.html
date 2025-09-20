@@ -10,29 +10,54 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     :root {
-      --bg: #f8fafc; --card: #fff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
-      --green: #059669; --green-soft: #f0fdf4; --green-border: #a7f3d0;
-      --red: #dc2626; --red-soft: #fef2f2; --red-border: #fecaca;
-      --orange: #ea580c; --orange-soft: #fff7ed; --orange-border: #fed7aa;
-      --blue: #2563eb; --blue-soft: #eff6ff; --blue-border: #bfdbfe;
-      --gym-color: #5b21b6; --gym-soft: #f5f3ff; --gym-border: #ddd6fe;
-      --run-color: #047857; --run-soft: #ecfdf5; --run-border: #a7f3d0;
-      --read-color: #0369a1; --read-soft: #f0f9ff; --read-border: #bae6fd;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --bg: #f6f8fb;
+      --bg-soft: #eef2ff;
+      --card: #fff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --green: #059669;
+      --green-soft: #f0fdf4;
+      --green-border: #a7f3d0;
+      --red: #dc2626;
+      --red-soft: #fef2f2;
+      --red-border: #fecaca;
+      --orange: #ea580c;
+      --orange-soft: #fff7ed;
+      --orange-border: #fed7aa;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --blue-border: #bfdbfe;
+      --purple: #7c3aed;
+      --purple-soft: #f3e8ff;
+      --purple-border: #d8b4fe;
+      --slate-soft: #f8fafc;
+      --gym-color: #5b21b6;
+      --gym-soft: #f5f3ff;
+      --gym-border: #ddd6fe;
+      --run-color: #047857;
+      --run-soft: #ecfdf5;
+      --run-border: #a7f3d0;
+      --read-color: #0369a1;
+      --read-soft: #f0f9ff;
+      --read-border: #bae6fd;
+      --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(15 23 42 / 0.08), 0 1px 2px -1px rgb(15 23 42 / 0.06);
+      --shadow-md: 0 12px 20px -8px rgb(15 23 42 / 0.15);
+      --shadow-lg: 0 20px 35px -12px rgb(15 23 42 / 0.2);
       --transition-fast: all .2s ease-in-out;
     }
     *, *::before, *::after { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    body { margin: 0; background: linear-gradient(140deg, var(--bg-soft), var(--bg)); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 48px 24px 64px; }
     .grid { display: grid; gap: 16px; }
     .g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     @media(max-width: 768px) { .g-3 { grid-template-columns: 1fr; } }
-    
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); }
+
+    .card { background: var(--card); border: 1px solid rgba(148, 163, 184, 0.12); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); position: relative; overflow: hidden; }
+    .card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .2s ease; background: linear-gradient(140deg, rgba(37,99,235,0.05), rgba(124,58,237,0.07)); }
     .card:hover { box-shadow: var(--shadow-md); }
+    .card:hover::after { opacity: 1; }
     .title { margin: 0 0 8px 0; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; }
     .muted { color: var(--muted); }
     .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; border-radius: 12px; padding: 10px 16px; border: 1px solid transparent; background: var(--ink); color: #fff; cursor: pointer; text-decoration: none; font-weight: 600; transition: var(--transition-fast); }
@@ -41,20 +66,28 @@
     .btn.soft:hover { background: var(--bg); border-color: #d1d5db; }
     .btn.danger { background: var(--red-soft); border-color: var(--red-border); color: var(--red); }
     .btn.danger:hover { background: var(--red); color: #fff; }
-    
+    .btn.inline { padding: 6px 10px; font-size: 12px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); border-color: transparent; box-shadow: none; }
+    .btn.inline:hover { background: var(--blue); color: #fff; transform: none; }
+
+    .link-btn { background: transparent; border: none; color: var(--blue); font-weight: 600; cursor: pointer; padding: 0; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+    .link-btn:hover { color: var(--ink); }
+    .icon-btn { border: none; background: transparent; color: var(--muted); cursor: pointer; width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; transition: var(--transition-fast); }
+    .icon-btn:hover { background: var(--slate-soft); color: var(--ink); }
+
     .progress-bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 4px; }
     .progress-bar > div { height: 100%; transition: width .4s cubic-bezier(0.22, 1, 0.36, 1); }
     .tiny { font-size: 12px; color: var(--muted); }
     .row { display: flex; justify-content: space-between; align-items: center; }
+    .row.gap { gap: 12px; flex-wrap: wrap; }
 
     /* Header */
     .page-header { margin-bottom: 32px; }
-    .header-kpis { padding: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; }
+    .header-kpis { padding: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; background: linear-gradient(140deg, rgba(59,130,246,0.12), rgba(16,185,129,0.08)); border: none; }
     .kpi-item { text-align: center; }
     .kpi-separator { width: 1px; height: 40px; background-color: var(--line); }
     .kpi-value { font-size: 26px; font-weight: 800; line-height: 1.1; }
-    .goal-card { padding: 20px; box-shadow: none; transition: var(--transition-fast); }
-    .goal-card:hover { transform: scale(1.02); box-shadow: var(--shadow-md); }
+    .goal-card { padding: 20px; box-shadow: none; transition: var(--transition-fast); border-radius: 18px; }
+    .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
     .goal-card .title { font-size: 14px; margin-bottom: 4px; }
     .goal-card .kpi-value { font-size: 20px; font-weight: 700; }
     .goal-card .btn { width: 100%; margin-top: 16px; padding: 8px 12px; font-size: 13px; }
@@ -67,11 +100,11 @@
 
     /* Planner */
     .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 16px; }
-    .day-column { position: relative; background: var(--bg); border-radius: 12px; padding: 12px; transition: var(--transition-fast); border: 2px solid transparent; }
-    .day-header { font-weight: 600; text-align: center; font-size: 13px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+    .day-column { position: relative; background: #fff; border-radius: 16px; padding: 16px 14px; transition: var(--transition-fast); border: 1px solid rgba(148, 163, 184, 0.25); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 12px; }
+    .day-header { font-weight: 700; text-align: center; font-size: 13px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line); text-transform: uppercase; letter-spacing: .04em; }
     .day-header.today { color: var(--blue); }
-    .activities-container { min-height: 120px; display: flex; flex-direction: column; gap: 8px; }
-    .activity-pill { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: grab; border: 1px solid; transition: var(--transition-fast); text-align: left; }
+    .activities-container { min-height: 100px; display: flex; flex-direction: column; gap: 8px; }
+    .activity-pill { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: grab; border: 1px solid; transition: var(--transition-fast); text-align: left; background: var(--slate-soft); }
     .activity-pill.dragging { opacity: 0.5; transform: scale(1.05); box-shadow: var(--shadow-lg); }
     .activity-pill:not(.completed):hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
     .activity-pill.gym { background: var(--gym-soft); color: var(--gym-color); border-color: var(--gym-border); }
@@ -85,13 +118,57 @@
     .delete-activity-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 2px; margin-left: 8px; border-radius: 4px; display: flex; align-items: center; transition: var(--transition-fast); }
     .delete-activity-btn:hover { color: var(--red); background-color: var(--red-soft); }
 
-    .quick-add-btn { position: absolute; top: 8px; right: 8px; background: #fff; border: 1px solid var(--line); border-radius: 50%; width: 28px; height: 28px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
+    .quick-add-btn { position: absolute; top: 12px; right: 12px; background: #fff; border: 1px solid var(--line); border-radius: 50%; width: 30px; height: 30px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; box-shadow: var(--shadow-sm); }
     .day-column:hover .quick-add-btn { opacity: 1; }
-    .quick-add-menu { position: absolute; top: 40px; right: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); z-index: 10; display: none; flex-direction: column; overflow: hidden; }
+    .quick-add-menu { position: absolute; top: 46px; right: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-md); z-index: 10; display: none; flex-direction: column; overflow: hidden; min-width: 180px; }
     .quick-add-menu button { background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; width: 100%; font-size: 13px; }
     .quick-add-menu button:hover { background-color: var(--bg); }
-    
+
     .empty-planner { text-align: center; padding: 40px; color: var(--muted); border: 2px dashed var(--line); border-radius: 12px; margin-top: 16px; }
+
+    .day-section { display: flex; flex-direction: column; gap: 8px; }
+    .section-label { display: flex; align-items: center; justify-content: space-between; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+    .section-label strong { font-weight: 800; font-size: 11px; }
+    .custom-activities { display: flex; flex-direction: column; gap: 8px; }
+    .custom-activity-pill { border-radius: 12px; padding: 10px 12px; border: 1px solid var(--line); background: #fff; display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; transition: var(--transition-fast); box-shadow: var(--shadow-sm); }
+    .custom-activity-pill:hover { transform: translateY(-2px); }
+    .custom-activity-pill.completed { opacity: 0.85; background: var(--green-soft); border-color: var(--green-border); box-shadow: none; }
+    .custom-activity-pill.completed .custom-activity-text strong { text-decoration: line-through; color: var(--green); }
+    .custom-activity-pill.completed .custom-activity-text span { color: var(--green); }
+    .custom-activity-pill .custom-activity-main { display: flex; align-items: center; gap: 10px; }
+    .custom-activity-pill .emoji { font-size: 18px; }
+    .custom-activity-pill .custom-activity-text { display: flex; flex-direction: column; }
+    .custom-activity-pill .custom-activity-text span { font-size: 12px; color: var(--muted); }
+    .custom-activity-pill .custom-activity-actions { display: flex; align-items: center; gap: 4px; }
+    .custom-activity-pill .custom-activity-actions .icon-btn { width: 26px; height: 26px; }
+
+    .suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .suggestion-chips button { border-radius: 999px; padding: 6px 12px; border: 1px solid var(--line); background: var(--slate-soft); cursor: pointer; font-size: 12px; }
+    .suggestion-chips button:hover { border-color: var(--blue-border); background: var(--blue-soft); }
+    .custom-activity-form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+    .custom-activity-form label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; display: block; }
+    .custom-activity-form input, .custom-activity-form textarea, .custom-activity-form select { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-family: inherit; font-size: 14px; transition: border-color .2s ease; }
+    .custom-activity-form textarea { resize: vertical; min-height: 64px; }
+    .custom-activity-form input:focus, .custom-activity-form textarea:focus, .custom-activity-form select:focus { outline: none; border-color: var(--blue-border); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .custom-activity-form .form-row { display: grid; gap: 8px; }
+    .custom-activity-form .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+    .custom-activity-form .helper { font-size: 12px; color: var(--muted); }
+    .input-error { border-color: var(--red) !important; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2); }
+
+    .focus-card { display: flex; flex-direction: column; gap: 12px; background: linear-gradient(160deg, rgba(99, 102, 241, 0.12), rgba(14, 165, 233, 0.12)); border: none; }
+    .focus-card h3 { margin-bottom: 0; }
+    .focus-highlight { font-size: 16px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+    .focus-placeholder { color: var(--muted); font-style: italic; }
+
+    .snapshot-card { display: flex; flex-direction: column; gap: 16px; }
+    .snapshot-list { display: grid; gap: 12px; }
+    .snapshot-item { display: flex; justify-content: space-between; align-items: center; border: 1px dashed var(--line); padding: 12px 16px; border-radius: 14px; background: var(--slate-soft); }
+    .snapshot-item strong { font-size: 16px; }
+    .snapshot-item span { font-size: 12px; color: var(--muted); }
+
+    @media(max-width: 1024px) {
+      .planner-grid { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+    }
 
     /* Modal */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity .2s ease-out; }
@@ -168,8 +245,23 @@
             <div class="card goal-card" style="background: var(--run-soft);"><h4 class="title">🏃 Bieg</h4><div id="goal-running-progress" class="kpi-value">0/5 km</div><div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div><button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
             <div class="card goal-card" style="background: var(--read-soft);"><h4 class="title">📚 Czytanie</h4><div id="goal-reading-progress" class="kpi-value">0/100 stron</div><div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div><button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
         </div>
+        <div class="grid" style="margin-top: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            <div class="card focus-card">
+                <div class="row gap">
+                    <h3 class="title"><i data-lucide="target" class="icon"></i>Motyw tygodnia</h3>
+                    <button id="edit-week-focus" class="btn inline"><i data-lucide="sparkles" class="icon"></i>Ustal</button>
+                </div>
+                <p id="week-focus-text" class="focus-placeholder">Dodaj krótkie hasło lub priorytet, który poprowadzi Cię w tym tygodniu.</p>
+                <div id="week-focus-meta" class="muted tiny" style="display:none;"></div>
+            </div>
+            <div class="card snapshot-card">
+                <h3 class="title"><i data-lucide="compass" class="icon"></i>Przegląd tygodnia</h3>
+                <div id="week-snapshot-list" class="snapshot-list"></div>
+                <p id="week-snapshot-empty" class="muted tiny" style="display:none;">Brak zaplanowanych aktywności – zacznij od dodania planu lub aktywności dodatkowej.</p>
+            </div>
+        </div>
     </div>
-    
+
     <div class="tabs">
         <div class="tab active" data-tab="planner"><i data-lucide="calendar-days" class="icon"></i>Planer</div>
         <div class="tab" data-tab="stats"><i data-lucide="trending-up" class="icon"></i>Statystyki</div>
@@ -185,7 +277,7 @@
         <div class="planner-grid"></div>
         <div id="empty-planner-placeholder" class="empty-planner" style="display: none;">
             <h4 style="margin: 0 0 4px 0;">Tydzień jest pusty</h4>
-            <p style="margin: 0;">Zaplanuj swoje aktywności używając przycisków powyżej lub skopiuj plan z poprzedniego tygodnia.</p>
+            <p style="margin: 0;">Dodaj cele tygodnia albo własne aktywności (np. regeneracja, trening brzucha), aby zobaczyć tu swój plan.</p>
         </div>
     </div>
 
@@ -226,6 +318,28 @@ const GOAL_DEFINITIONS = {
     reading: { target: 100, unit: 'stron', label: 'Czytanie' }
 };
 const DAY_NAMES = ['Niedz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
+const DAY_INDEXES = [1, 2, 3, 4, 5, 6, 0];
+const CUSTOM_ACTIVITY_SUGGESTIONS = [
+    { name: 'Trening brzucha', emoji: '🏋️‍♂️', color: '#7c3aed' },
+    { name: 'Mobilność i stretching', emoji: '🤸‍♀️', color: '#0ea5e9' },
+    { name: 'Medytacja', emoji: '🧘', color: '#14b8a6' },
+    { name: 'Spacer regeneracyjny', emoji: '🚶', color: '#2563eb' },
+    { name: 'Sen / regeneracja', emoji: '💤', color: '#f97316' }
+];
+const DEFAULT_CUSTOM_COLOR = '#7c3aed';
+const EMPTY_DAY_MAP = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 0: [] };
+
+function createEmptyDayMap() {
+    return JSON.parse(JSON.stringify(EMPTY_DAY_MAP));
+}
+
+function ensureDayMap(map) {
+    if (!map) return createEmptyDayMap();
+    DAY_INDEXES.forEach(day => {
+        if (!Array.isArray(map[day])) map[day] = [];
+    });
+    return map;
+}
 
 let state = {};
 let currentDate = new Date();
@@ -265,11 +379,25 @@ function initializeWeekData(year, week) {
     if (!state[year][week]) {
         state[year][week] = {
             progress: { gym: 0, running: 0, reading: 0 },
-            plan: { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 0:[] },
+            plan: createEmptyDayMap(),
+            customActivities: createEmptyDayMap(),
             isComplete: false,
-            summaryShown: false
+            summaryShown: false,
+            weeklyFocus: '',
+            focusUpdatedAt: null
         };
     }
+    const weekData = state[year][week];
+    weekData.plan = ensureDayMap(weekData.plan);
+    weekData.customActivities = ensureDayMap(weekData.customActivities);
+    if (!weekData.progress) weekData.progress = { gym: 0, running: 0, reading: 0 };
+    Object.keys(GOAL_DEFINITIONS).forEach(type => {
+        if (typeof weekData.progress[type] !== 'number') weekData.progress[type] = 0;
+    });
+    if (typeof weekData.isComplete !== 'boolean') weekData.isComplete = false;
+    if (typeof weekData.summaryShown !== 'boolean') weekData.summaryShown = false;
+    if (typeof weekData.weeklyFocus !== 'string') weekData.weeklyFocus = weekData.weeklyFocus || '';
+    if (!('focusUpdatedAt' in weekData)) weekData.focusUpdatedAt = null;
 }
 
 function addActivity(type, dayIndex, plannedValue) {
@@ -321,6 +449,84 @@ function logActivity(activityId, value, isCompleted) {
     }
 }
 
+function addCustomActivity(dayIndex, data) {
+    const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
+    const weekData = state[year][week];
+    const parsedDay = typeof dayIndex === 'number' ? dayIndex : parseInt(dayIndex, 10);
+    const dayKey = Number.isNaN(parsedDay) ? 1 : parsedDay;
+    if (!weekData.customActivities[dayKey]) weekData.customActivities[dayKey] = [];
+    const newActivity = {
+        id: `custom_${Date.now()}_${Math.random()}`,
+        title: data.title,
+        emoji: data.emoji || '✨',
+        color: data.color || DEFAULT_CUSTOM_COLOR,
+        duration: data.duration || null,
+        note: data.note || '',
+        completed: false,
+        day: dayKey,
+        createdAt: new Date().toISOString()
+    };
+    weekData.customActivities[dayKey].push(newActivity);
+    saveState();
+    render();
+}
+
+function findCustomActivity(activityId) {
+    const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
+    const weekData = state[year][week];
+    for (const day of DAY_INDEXES) {
+        const list = weekData.customActivities[day] || [];
+        const index = list.findIndex(a => a.id === activityId);
+        if (index !== -1) {
+            return { year, week, day, index, activity: list[index] };
+        }
+    }
+    return null;
+}
+
+function updateCustomActivity(activityId, updates, newDayIndex) {
+    const context = findCustomActivity(activityId);
+    if (!context) return;
+    const { year, week, day, index, activity } = context;
+    const weekData = state[year][week];
+    let targetDay = (newDayIndex !== undefined && newDayIndex !== null)
+        ? (typeof newDayIndex === 'number' ? newDayIndex : parseInt(newDayIndex, 10))
+        : day;
+    if (Number.isNaN(targetDay)) targetDay = day;
+    if (targetDay !== day) {
+        const [item] = weekData.customActivities[day].splice(index, 1);
+        Object.assign(item, updates);
+        item.day = targetDay;
+        if (!weekData.customActivities[targetDay]) weekData.customActivities[targetDay] = [];
+        weekData.customActivities[targetDay].push(item);
+    } else {
+        Object.assign(activity, updates);
+    }
+    saveState();
+    render();
+}
+
+function deleteCustomActivity(activityId) {
+    const context = findCustomActivity(activityId);
+    if (!context) return;
+    const { year, week, day, index } = context;
+    state[year][week].customActivities[day].splice(index, 1);
+    saveState();
+    render();
+}
+
+function toggleCustomActivity(activityId) {
+    const context = findCustomActivity(activityId);
+    if (!context) return;
+    const { activity } = context;
+    activity.completed = !activity.completed;
+    activity.completedAt = activity.completed ? new Date().toISOString() : null;
+    saveState();
+    render();
+}
+
 function recalculateWeekProgress(year, week) {
     const weekData = state[year][week];
     weekData.progress = { gym: 0, running: 0, reading: 0 };
@@ -362,9 +568,20 @@ function copyPreviousWeek(copyProgress = false) {
         }
     });
 
+    const newCustomActivities = ensureDayMap(JSON.parse(JSON.stringify(prevWeekData.customActivities || createEmptyDayMap())));
+    Object.values(newCustomActivities).flat().forEach(activity => {
+        activity.id = `custom_${Date.now()}_${Math.random()}`;
+        activity.day = typeof activity.day === 'number' ? activity.day : parseInt(activity.day || 0, 10);
+        if (!copyProgress) {
+            activity.completed = false;
+            activity.completedAt = null;
+        }
+    });
+
     initializeWeekData(currentYear, currentWeek);
     state[currentYear][currentWeek].plan = newPlan;
-    
+    state[currentYear][currentWeek].customActivities = newCustomActivities;
+
     recalculateWeekProgress(currentYear, currentWeek);
     checkWeekCompletion(currentYear, currentWeek);
     saveState();
@@ -388,7 +605,9 @@ function render() {
 
     renderCopyPlanButton();
     renderGoals(weekData.progress);
-    renderPlanner(weekData.plan, startOfWeek);
+    renderPlanner(weekData, startOfWeek);
+    renderWeeklyFocus(weekData);
+    renderWeekSnapshot(weekData);
     renderHeaderKPIs(year);
     renderPlanningStatus(weekData.plan);
     renderOverallProgress(weekData.progress);
@@ -406,13 +625,15 @@ function renderGoals(progress) {
     }
 }
 
-function renderPlanner(plan, startOfWeek) {
+function renderPlanner(weekData, startOfWeek) {
+    const plan = weekData.plan;
+    const customActivities = weekData.customActivities || {};
     const plannerGrid = document.querySelector('.planner-grid');
     const emptyPlaceholder = document.getElementById('empty-planner-placeholder');
     plannerGrid.innerHTML = '';
     const today = new Date();
     today.setHours(0,0,0,0);
-    
+
     let isPlanEmpty = true;
 
     for (let i = 1; i <= 7; i++) {
@@ -428,9 +649,16 @@ function renderPlanner(plan, startOfWeek) {
         dayHeader.className = 'day-header';
         dayHeader.textContent = `${DAY_NAMES[dayIndex]} ${currentDay.getDate()}`;
         if (currentDay.getTime() === today.getTime()) dayHeader.classList.add('today');
-        
+
+        const goalSection = document.createElement('div');
+        goalSection.className = 'day-section';
+        const goalLabel = document.createElement('div');
+        goalLabel.className = 'section-label';
+        goalLabel.innerHTML = '<strong>Cele tygodnia</strong>';
         const activitiesContainer = document.createElement('div');
         activitiesContainer.className = 'activities-container';
+        goalSection.appendChild(goalLabel);
+        goalSection.appendChild(activitiesContainer);
 
         if (plan[dayIndex] && plan[dayIndex].length > 0) {
             isPlanEmpty = false;
@@ -466,6 +694,94 @@ function renderPlanner(plan, startOfWeek) {
             });
         }
 
+        const extrasSection = document.createElement('div');
+        extrasSection.className = 'day-section';
+        const extrasLabel = document.createElement('div');
+        extrasLabel.className = 'section-label';
+        const extrasTitle = document.createElement('strong');
+        extrasTitle.textContent = 'Aktywności dodatkowe';
+        const addCustomBtn = document.createElement('button');
+        addCustomBtn.className = 'link-btn';
+        addCustomBtn.type = 'button';
+        addCustomBtn.dataset.action = 'add-custom';
+        addCustomBtn.dataset.dayIndex = dayIndex;
+        addCustomBtn.innerHTML = '<i data-lucide="plus" class="icon" style="width:14px; height:14px;"></i>Dodaj';
+        extrasLabel.appendChild(extrasTitle);
+        extrasLabel.appendChild(addCustomBtn);
+        const customContainer = document.createElement('div');
+        customContainer.className = 'custom-activities';
+        customContainer.dataset.dayIndex = dayIndex;
+
+        const customList = customActivities[dayIndex] || [];
+        if (customList.length > 0) {
+            isPlanEmpty = false;
+            customList.forEach(activity => {
+                const pill = document.createElement('div');
+                pill.className = 'custom-activity-pill';
+                pill.dataset.activityId = activity.id;
+                pill.dataset.dayIndex = dayIndex;
+                const accentColor = activity.color || DEFAULT_CUSTOM_COLOR;
+                pill.style.borderColor = accentColor;
+                pill.style.background = activity.completed ? 'var(--green-soft)' : 'var(--slate-soft)';
+                if (activity.completed) pill.classList.add('completed');
+
+                const main = document.createElement('div');
+                main.className = 'custom-activity-main';
+                main.dataset.action = 'toggle-custom';
+                const emoji = document.createElement('span');
+                emoji.className = 'emoji';
+                emoji.textContent = activity.emoji || '✨';
+                const textWrapper = document.createElement('div');
+                textWrapper.className = 'custom-activity-text';
+                const title = document.createElement('strong');
+                title.textContent = activity.title || 'Aktywność';
+                if (!activity.completed) title.style.color = accentColor;
+                textWrapper.appendChild(title);
+                if ((typeof activity.duration === 'number' && !Number.isNaN(activity.duration)) || activity.note) {
+                    const meta = document.createElement('span');
+                    const details = [];
+                    if (typeof activity.duration === 'number' && !Number.isNaN(activity.duration)) details.push(`${activity.duration.toLocaleString('pl-PL')} min`);
+                    if (activity.note) details.push(activity.note);
+                    meta.textContent = details.join(' • ');
+                    textWrapper.appendChild(meta);
+                }
+                main.appendChild(emoji);
+                main.appendChild(textWrapper);
+
+                const actions = document.createElement('div');
+                actions.className = 'custom-activity-actions';
+                const editBtn = document.createElement('button');
+                editBtn.className = 'icon-btn';
+                editBtn.type = 'button';
+                editBtn.innerHTML = '<i data-lucide="pencil" class="icon" style="width:16px; height:16px;"></i>';
+                editBtn.dataset.action = 'edit-custom';
+                editBtn.dataset.activityId = activity.id;
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'icon-btn';
+                deleteBtn.type = 'button';
+                deleteBtn.innerHTML = '<i data-lucide="trash-2" class="icon" style="width:16px; height:16px;"></i>';
+                deleteBtn.dataset.action = 'delete-custom';
+                deleteBtn.dataset.activityId = activity.id;
+                actions.appendChild(editBtn);
+                actions.appendChild(deleteBtn);
+
+                pill.appendChild(main);
+                pill.appendChild(actions);
+                if (!activity.completed) {
+                    pill.classList.add('interactive');
+                }
+                customContainer.appendChild(pill);
+            });
+        } else {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'tiny muted';
+            placeholder.textContent = 'Brak dodatkowych wpisów.';
+            customContainer.appendChild(placeholder);
+        }
+
+        extrasSection.appendChild(extrasLabel);
+        extrasSection.appendChild(customContainer);
+
         const quickAddBtn = document.createElement('button');
         quickAddBtn.className = 'quick-add-btn';
         quickAddBtn.innerHTML = '<i data-lucide="plus" class="icon" style="width:18px; height:18px;"></i>';
@@ -487,7 +803,8 @@ function renderPlanner(plan, startOfWeek) {
         dayColumn.appendChild(quickAddMenu);
 
         dayColumn.appendChild(dayHeader);
-        dayColumn.appendChild(activitiesContainer);
+        dayColumn.appendChild(goalSection);
+        dayColumn.appendChild(extrasSection);
         dayColumn.addEventListener('dragover', handleDragOver);
         dayColumn.addEventListener('dragleave', handleDragLeave);
         dayColumn.addEventListener('drop', handleDrop);
@@ -539,7 +856,7 @@ function renderPlanningStatus(plan) {
         statusEl.textContent = '✅ Cele tygodnia zaplanowane!';
         statusEl.style.color = 'var(--green)';
     } else {
-        statusEl.textContent = '⚠️ Nie wszystkie cele są w pełni zaplanowane.';
+        statusEl.textContent = '⚠️ Nie wszystkie cele są w pełni zaplanowane. Sprawdź sekcję celów lub dodaj aktywności dodatkowe.';
         statusEl.style.color = 'var(--orange)';
     }
 }
@@ -558,11 +875,349 @@ function renderCopyPlanButton() {
     let prevWeekDate = new Date(currentDate);
     prevWeekDate.setDate(prevWeekDate.getDate() - 7);
     const [prevYear, prevWeek] = getWeekNumber(prevWeekDate);
-    
+
     const prevWeekData = state[prevYear]?.[prevWeek];
-    const hasPreviousPlan = prevWeekData && Object.values(prevWeekData.plan).some(day => day.length > 0);
-    
+    const hasPreviousPlan = prevWeekData && (
+        Object.values(prevWeekData.plan || {}).some(day => day.length > 0) ||
+        Object.values(prevWeekData.customActivities || {}).some(day => day.length > 0)
+    );
+
     document.getElementById('copy-plan-btn').style.display = hasPreviousPlan ? 'inline-flex' : 'none';
+}
+
+function renderWeeklyFocus(weekData) {
+    const focusTextEl = document.getElementById('week-focus-text');
+    const focusMetaEl = document.getElementById('week-focus-meta');
+    const focusBtn = document.getElementById('edit-week-focus');
+    if (!focusTextEl || !focusBtn) return;
+
+    const focusValue = (weekData.weeklyFocus || '').trim();
+    if (focusValue) {
+        focusTextEl.textContent = focusValue;
+        focusTextEl.classList.remove('focus-placeholder');
+        if (focusMetaEl) {
+            if (weekData.focusUpdatedAt) {
+                const updated = new Date(weekData.focusUpdatedAt);
+                focusMetaEl.textContent = `Ostatnia aktualizacja: ${updated.toLocaleDateString('pl-PL', { weekday: 'short', day: 'numeric', month: 'long' })}`;
+                focusMetaEl.style.display = 'block';
+            } else {
+                focusMetaEl.style.display = 'none';
+            }
+        }
+        focusBtn.innerHTML = '<i data-lucide="pencil" class="icon" style="width:16px; height:16px;"></i>Edytuj';
+    } else {
+        focusTextEl.textContent = 'Dodaj krótkie hasło lub priorytet, który poprowadzi Cię w tym tygodniu.';
+        focusTextEl.classList.add('focus-placeholder');
+        if (focusMetaEl) focusMetaEl.style.display = 'none';
+        focusBtn.innerHTML = '<i data-lucide="sparkles" class="icon" style="width:16px; height:16px;"></i>Ustal';
+    }
+}
+
+function renderWeekSnapshot(weekData) {
+    const listEl = document.getElementById('week-snapshot-list');
+    const emptyEl = document.getElementById('week-snapshot-empty');
+    if (!listEl || !emptyEl) return;
+
+    listEl.innerHTML = '';
+    let hasAnyPlan = false;
+    const metrics = [];
+
+    Object.keys(GOAL_DEFINITIONS).forEach(type => {
+        const goal = GOAL_DEFINITIONS[type];
+        let plannedTotal = 0;
+        Object.values(weekData.plan || {}).forEach(day => {
+            day.filter(activity => activity.type === type).forEach(activity => {
+                if (type === 'gym') plannedTotal += 1;
+                else plannedTotal += Number(activity.plannedValue) || 0;
+            });
+        });
+        const completed = weekData.progress[type] || 0;
+        const target = goal.target;
+        const percent = target ? Math.min(100, Math.round((completed / target) * 100)) : 0;
+        metrics.push({
+            title: goal.label,
+            primary: type === 'gym'
+                ? `${completed}/${target} sesji`
+                : `${completed.toLocaleString('pl-PL')}/${target.toLocaleString('pl-PL')} ${goal.unit}`,
+            secondary: type === 'gym'
+                ? `Plan: ${plannedTotal} ${plannedTotal === 1 ? 'sesja' : 'sesje'}`
+                : `Plan: ${plannedTotal.toLocaleString('pl-PL')} ${goal.unit}`,
+            percent
+        });
+        if (plannedTotal > 0 || completed > 0) hasAnyPlan = true;
+    });
+
+    const customPlanned = DAY_INDEXES.reduce((acc, day) => acc + ((weekData.customActivities?.[day] || []).length), 0);
+    const customCompleted = DAY_INDEXES.reduce((acc, day) => acc + ((weekData.customActivities?.[day] || []).filter(a => a.completed).length), 0);
+    if (customPlanned > 0 || customCompleted > 0) {
+        hasAnyPlan = true;
+        const percent = customPlanned ? Math.min(100, Math.round((customCompleted / customPlanned) * 100)) : 0;
+        metrics.push({
+            title: 'Aktywności dodatkowe',
+            primary: `${customCompleted}/${customPlanned}`,
+            secondary: 'Ukończone / zaplanowane',
+            percent
+        });
+    }
+
+    const activeDays = DAY_INDEXES.filter(day => {
+        const planned = (weekData.plan?.[day]?.length || 0) + (weekData.customActivities?.[day]?.length || 0);
+        return planned > 0;
+    }).length;
+    if (activeDays > 0) hasAnyPlan = true;
+    metrics.push({
+        title: 'Aktywne dni',
+        primary: `${activeDays}/7`,
+        secondary: 'Dni z aktywnościami',
+        percent: Math.round((activeDays / 7) * 100)
+    });
+
+    metrics.forEach(metric => {
+        const item = document.createElement('div');
+        item.className = 'snapshot-item';
+        const left = document.createElement('div');
+        left.style.display = 'flex';
+        left.style.flexDirection = 'column';
+        left.style.gap = '4px';
+        const title = document.createElement('strong');
+        title.textContent = metric.title;
+        const secondary = document.createElement('span');
+        secondary.textContent = metric.secondary;
+        left.appendChild(title);
+        left.appendChild(secondary);
+
+        const right = document.createElement('div');
+        right.style.textAlign = 'right';
+        right.style.display = 'flex';
+        right.style.flexDirection = 'column';
+        right.style.gap = '4px';
+        const primary = document.createElement('strong');
+        primary.textContent = metric.primary;
+        const percent = document.createElement('span');
+        percent.textContent = `${isNaN(metric.percent) ? 0 : metric.percent}% celu`;
+        right.appendChild(primary);
+        right.appendChild(percent);
+
+        item.appendChild(left);
+        item.appendChild(right);
+        listEl.appendChild(item);
+    });
+
+    emptyEl.style.display = hasAnyPlan ? 'none' : 'block';
+}
+
+function openCustomActivityModal(dayIndex, existingActivity = null) {
+    const isEdit = !!existingActivity;
+    const defaultDay = typeof dayIndex === 'number' ? dayIndex : parseInt(dayIndex, 10);
+    showModal({
+        title: isEdit ? 'Edytuj aktywność' : 'Aktywność dodatkowa',
+        text: 'Dodaj aktywność spoza głównych celów lub zaktualizuj istniejącą.',
+        customContent: (container) => {
+            const form = document.createElement('div');
+            form.className = 'custom-activity-form';
+
+            const nameLabel = document.createElement('label');
+            nameLabel.setAttribute('for', 'custom-activity-name');
+            nameLabel.textContent = 'Nazwa aktywności';
+            const nameInput = document.createElement('input');
+            nameInput.id = 'custom-activity-name';
+            nameInput.type = 'text';
+            nameInput.placeholder = 'Np. Trening brzucha';
+            nameInput.value = existingActivity?.title || '';
+            nameInput.addEventListener('input', () => nameInput.classList.remove('input-error'));
+            form.appendChild(nameLabel);
+            form.appendChild(nameInput);
+
+            const suggestions = document.createElement('div');
+            suggestions.className = 'suggestion-chips';
+
+            const emojiInput = document.createElement('input');
+            emojiInput.id = 'custom-activity-emoji';
+            emojiInput.type = 'text';
+            emojiInput.maxLength = 4;
+            emojiInput.placeholder = 'Emoji';
+            emojiInput.value = existingActivity?.emoji || '✨';
+
+            const colorInput = document.createElement('input');
+            colorInput.id = 'custom-activity-color';
+            colorInput.type = 'color';
+            colorInput.value = existingActivity?.color || DEFAULT_CUSTOM_COLOR;
+
+            CUSTOM_ACTIVITY_SUGGESTIONS.forEach(suggestion => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.innerHTML = `${suggestion.emoji} ${suggestion.name}`;
+                btn.addEventListener('click', () => {
+                    nameInput.value = suggestion.name;
+                    emojiInput.value = suggestion.emoji;
+                    colorInput.value = suggestion.color;
+                });
+                suggestions.appendChild(btn);
+            });
+            form.appendChild(suggestions);
+
+            const inlineInputs = document.createElement('div');
+            inlineInputs.className = 'inline-inputs';
+
+            const emojiWrapper = document.createElement('div');
+            emojiWrapper.className = 'form-row';
+            const emojiLabel = document.createElement('label');
+            emojiLabel.setAttribute('for', 'custom-activity-emoji');
+            emojiLabel.textContent = 'Symbol / emoji';
+            emojiWrapper.appendChild(emojiLabel);
+            emojiWrapper.appendChild(emojiInput);
+
+            const colorWrapper = document.createElement('div');
+            colorWrapper.className = 'form-row';
+            const colorLabel = document.createElement('label');
+            colorLabel.setAttribute('for', 'custom-activity-color');
+            colorLabel.textContent = 'Kolor akcentu';
+            colorWrapper.appendChild(colorLabel);
+            colorWrapper.appendChild(colorInput);
+
+            inlineInputs.appendChild(emojiWrapper);
+            inlineInputs.appendChild(colorWrapper);
+            form.appendChild(inlineInputs);
+
+            const durationWrapper = document.createElement('div');
+            durationWrapper.className = 'form-row';
+            const durationLabel = document.createElement('label');
+            durationLabel.setAttribute('for', 'custom-activity-duration');
+            durationLabel.textContent = 'Czas lub ilość (opcjonalnie)';
+            const durationInput = document.createElement('input');
+            durationInput.id = 'custom-activity-duration';
+            durationInput.type = 'number';
+            durationInput.min = '0';
+            durationInput.placeholder = 'np. 15';
+            durationInput.value = existingActivity?.duration ?? '';
+            durationWrapper.appendChild(durationLabel);
+            durationWrapper.appendChild(durationInput);
+            form.appendChild(durationWrapper);
+
+            const noteWrapper = document.createElement('div');
+            noteWrapper.className = 'form-row';
+            const noteLabel = document.createElement('label');
+            noteLabel.setAttribute('for', 'custom-activity-note');
+            noteLabel.textContent = 'Notatka / cel jakościowy';
+            const noteInput = document.createElement('textarea');
+            noteInput.id = 'custom-activity-note';
+            noteInput.placeholder = 'Co będzie oznaczało sukces?';
+            noteInput.value = existingActivity?.note || '';
+            noteWrapper.appendChild(noteLabel);
+            noteWrapper.appendChild(noteInput);
+            form.appendChild(noteWrapper);
+
+            const dayWrapper = document.createElement('div');
+            dayWrapper.className = 'form-row';
+            const dayLabel = document.createElement('label');
+            dayLabel.setAttribute('for', 'custom-activity-day');
+            dayLabel.textContent = 'Dzień tygodnia';
+            const daySelect = document.createElement('select');
+            daySelect.id = 'custom-activity-day';
+            DAY_INDEXES.forEach(day => {
+                const option = document.createElement('option');
+                option.value = day;
+                option.textContent = DAY_NAMES[day];
+                daySelect.appendChild(option);
+            });
+            daySelect.value = String(existingActivity?.day ?? defaultDay);
+            dayWrapper.appendChild(dayLabel);
+            dayWrapper.appendChild(daySelect);
+            form.appendChild(dayWrapper);
+
+            const helper = document.createElement('div');
+            helper.className = 'helper';
+            helper.textContent = 'Możesz zapisywać aktywności regeneracyjne, zdrowotne, edukacyjne lub dowolne inne cele.';
+            form.appendChild(helper);
+
+            container.appendChild(form);
+        },
+        buttons: [
+            ...(isEdit ? [{ text: 'Usuń', class: 'btn danger', action: () => { deleteCustomActivity(existingActivity.id); } }] : []),
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: isEdit ? 'Zapisz' : 'Dodaj', class: 'btn', action: () => {
+                const nameInput = document.getElementById('custom-activity-name');
+                const emojiInput = document.getElementById('custom-activity-emoji');
+                const colorInput = document.getElementById('custom-activity-color');
+                const durationInput = document.getElementById('custom-activity-duration');
+                const noteInput = document.getElementById('custom-activity-note');
+                const daySelect = document.getElementById('custom-activity-day');
+                const title = nameInput?.value.trim();
+                if (!title) {
+                    if (nameInput) nameInput.classList.add('input-error');
+                    return false;
+                }
+                const emoji = emojiInput?.value.trim() || '✨';
+                const color = colorInput?.value || DEFAULT_CUSTOM_COLOR;
+                let durationValue = null;
+                if (durationInput && durationInput.value !== '') {
+                    const parsedDuration = parseFloat(durationInput.value);
+                    durationValue = Number.isNaN(parsedDuration) ? null : Math.max(0, parsedDuration);
+                }
+                const note = noteInput?.value.trim() || '';
+                const rawDay = daySelect ? parseInt(daySelect.value, 10) : defaultDay;
+                const selectedDay = Number.isNaN(rawDay) ? defaultDay : rawDay;
+                if (isEdit) {
+                    updateCustomActivity(existingActivity.id, {
+                        title,
+                        emoji,
+                        color,
+                        duration: durationValue,
+                        note
+                    }, selectedDay);
+                } else {
+                    addCustomActivity(selectedDay, { title, emoji, color, duration: durationValue, note });
+                }
+            }}
+        ]
+    });
+}
+
+function updateWeeklyFocus(newFocus) {
+    const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
+    const weekData = state[year][week];
+    const trimmed = (newFocus || '').trim();
+    weekData.weeklyFocus = trimmed;
+    weekData.focusUpdatedAt = trimmed ? new Date().toISOString() : null;
+    saveState();
+    render();
+}
+
+function showWeeklyFocusModal() {
+    const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
+    const weekData = state[year][week];
+    showModal({
+        title: 'Motyw tygodnia',
+        text: 'Zdefiniuj swoją myśl przewodnią lub najważniejszy priorytet na ten tydzień.',
+        customContent: (container) => {
+            const form = document.createElement('div');
+            form.className = 'custom-activity-form';
+            const label = document.createElement('label');
+            label.setAttribute('for', 'weekly-focus-input');
+            label.textContent = 'Hasło przewodnie';
+            const textarea = document.createElement('textarea');
+            textarea.id = 'weekly-focus-input';
+            textarea.placeholder = 'Np. Skup się na jakości snu i regeneracji';
+            textarea.value = weekData.weeklyFocus || '';
+            form.appendChild(label);
+            form.appendChild(textarea);
+            const helper = document.createElement('div');
+            helper.className = 'helper';
+            helper.textContent = 'Krótka mantra pomaga utrzymać kierunek – możesz ją zmieniać w razie potrzeby.';
+            form.appendChild(helper);
+            container.appendChild(form);
+        },
+        buttons: [
+            { text: 'Wyczyść', class: 'btn danger', action: () => updateWeeklyFocus('') },
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: 'Zapisz', class: 'btn', action: () => {
+                const textarea = document.getElementById('weekly-focus-input');
+                updateWeeklyFocus(textarea ? textarea.value : '');
+            }}
+        ]
+    });
 }
 
 
@@ -584,7 +1239,7 @@ function showModal(config) {
         input.value = config.input.value || '';
         inputContainer.appendChild(input);
     }
-    
+
     if (config.options) {
         const optionsDiv = document.createElement('div');
         optionsDiv.className = 'modal-options';
@@ -597,6 +1252,14 @@ function showModal(config) {
         optionsContainer.appendChild(optionsDiv);
     }
 
+    if (config.customContent) {
+        if (typeof config.customContent === 'function') {
+            config.customContent(inputContainer);
+        } else if (config.customContent instanceof HTMLElement) {
+            inputContainer.appendChild(config.customContent);
+        }
+    }
+
     const actions = document.getElementById('modal-actions');
     actions.innerHTML = '';
     config.buttons.forEach(btnConfig => {
@@ -606,10 +1269,11 @@ function showModal(config) {
         button.onclick = () => {
             if (btnConfig.action === 'close') {
                 modal.classList.remove('visible');
-            } else {
-                const value = inputContainer.querySelector('input')?.value;
+            } else if (typeof btnConfig.action === 'function') {
+                const value = inputContainer.querySelector('#modal-input-field')?.value;
                 const selectedOption = optionsContainer.querySelector('input:checked')?.value;
-                btnConfig.action(value, selectedOption);
+                const shouldClose = btnConfig.action(value, selectedOption);
+                if (shouldClose === false) return;
                 modal.classList.remove('visible');
             }
         };
@@ -755,7 +1419,38 @@ function setupEventListeners() {
         const dayColumn = e.target.closest('.day-column');
         if (!dayColumn) return;
         const dayIndex = parseInt(dayColumn.dataset.dayIndex, 10);
-        
+
+        const addCustomTrigger = e.target.closest('[data-action="add-custom"]');
+        if (addCustomTrigger) {
+            const targetDay = addCustomTrigger.dataset.dayIndex ? parseInt(addCustomTrigger.dataset.dayIndex, 10) : dayIndex;
+            openCustomActivityModal(targetDay);
+            e.stopPropagation();
+            return;
+        }
+
+        const deleteCustomBtn = e.target.closest('[data-action="delete-custom"]');
+        if (deleteCustomBtn) {
+            deleteCustomActivity(deleteCustomBtn.dataset.activityId);
+            e.stopPropagation();
+            return;
+        }
+
+        const editCustomBtn = e.target.closest('[data-action="edit-custom"]');
+        if (editCustomBtn) {
+            const context = findCustomActivity(editCustomBtn.dataset.activityId);
+            if (context) openCustomActivityModal(context.day, context.activity);
+            e.stopPropagation();
+            return;
+        }
+
+        const toggleCustomTarget = e.target.closest('[data-action="toggle-custom"]');
+        if (toggleCustomTarget) {
+            const pill = toggleCustomTarget.closest('.custom-activity-pill');
+            if (pill) toggleCustomActivity(pill.dataset.activityId);
+            e.stopPropagation();
+            return;
+        }
+
         if (planningState.isPlanning) {
             if (!e.target.closest('.activity-pill') && !e.target.closest('.quick-add-btn')) {
                 showPlanModal(planningState.activityType, dayIndex);
@@ -814,6 +1509,9 @@ function setupEventListeners() {
         });
     });
 
+    const focusBtn = document.getElementById('edit-week-focus');
+    if (focusBtn) focusBtn.addEventListener('click', showWeeklyFocusModal);
+
     document.getElementById('cancel-planning-btn').addEventListener('click', stopPlanning);
 }
 
@@ -836,13 +1534,19 @@ function renderStats() {
 
     const activitiesByDay = {};
     Object.keys(yearData).forEach(week => {
-        Object.keys(yearData[week].plan).forEach(day => {
-            const activities = yearData[week].plan[day];
-            if (activities.length > 0) {
+        const weekPlan = ensureDayMap(yearData[week].plan);
+        const weekCustom = ensureDayMap(yearData[week].customActivities);
+        DAY_INDEXES.forEach(day => {
+            const planActivities = weekPlan[day] || [];
+            const customActivities = weekCustom[day] || [];
+            if (planActivities.length > 0 || customActivities.length > 0) {
                 const date = new Date(getStartOfWeek(year, parseInt(week)));
                 date.setDate(date.getDate() + (parseInt(day) - 1 + 7) % 7);
                 const dateString = toYYYYMMDD(date);
-                activitiesByDay[dateString] = (activitiesByDay[dateString] || 0) + activities.filter(a => a.completed).length;
+                const completedCount = planActivities.filter(a => a.completed).length + customActivities.filter(a => a.completed).length;
+                if (completedCount > 0) {
+                    activitiesByDay[dateString] = (activitiesByDay[dateString] || 0) + completedCount;
+                }
             }
         });
     });
