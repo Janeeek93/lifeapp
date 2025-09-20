@@ -15,9 +15,12 @@
       --red: #dc2626; --red-soft: #fef2f2; --red-border: #fecaca;
       --orange: #ea580c; --orange-soft: #fff7ed; --orange-border: #fed7aa;
       --blue: #2563eb; --blue-soft: #eff6ff; --blue-border: #bfdbfe;
+      --purple: #7c3aed; --yellow: #ca8a04;
       --gym-color: #5b21b6; --gym-soft: #f5f3ff; --gym-border: #ddd6fe;
       --run-color: #047857; --run-soft: #ecfdf5; --run-border: #a7f3d0;
       --read-color: #0369a1; --read-soft: #f0f9ff; --read-border: #bae6fd;
+      --extra-training: #9333ea; --extra-learning: #2563eb; --extra-relax: #0ea5e9;
+      --extra-home: #f97316; --extra-other: #334155;
       --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
       --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
       --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -25,22 +28,31 @@
       --transition-fast: all .2s ease-in-out;
     }
     *, *::before, *::after { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    body { margin: 0; min-height: 100vh; background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 20%, #f8fafc 100%); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 48px 24px 64px; }
     .grid { display: grid; gap: 16px; }
+    .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    @media(max-width: 768px) { .g-3 { grid-template-columns: 1fr; } }
+    @media(max-width: 1024px) { .g-3, .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media(max-width: 768px) { .g-3, .g-2 { grid-template-columns: 1fr; } }
     
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); }
+    .card { background: var(--card); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); position: relative; overflow: hidden; }
+    .card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), transparent); opacity: 0; transition: opacity .3s ease; }
+    .card:hover::after { opacity: 1; }
+    .card > * { position: relative; z-index: 1; }
     .card:hover { box-shadow: var(--shadow-md); }
     .title { margin: 0 0 8px 0; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; }
     .muted { color: var(--muted); }
     .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; border-radius: 12px; padding: 10px 16px; border: 1px solid transparent; background: var(--ink); color: #fff; cursor: pointer; text-decoration: none; font-weight: 600; transition: var(--transition-fast); }
     .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .btn.soft { background: #fff; border-color: var(--line); color: var(--ink); }
+    .btn.soft { background: #fff; border-color: rgba(148, 163, 184, 0.3); color: var(--ink); }
     .btn.soft:hover { background: var(--bg); border-color: #d1d5db; }
+    .btn.ghost { background: rgba(255, 255, 255, 0.6); border-color: rgba(148, 163, 184, 0.2); color: var(--muted); }
+    .btn.ghost:hover { background: rgba(255, 255, 255, 0.95); color: var(--ink); }
     .btn.danger { background: var(--red-soft); border-color: var(--red-border); color: var(--red); }
     .btn.danger:hover { background: var(--red); color: #fff; }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn:disabled:hover { transform: none; box-shadow: none; }
     
     .progress-bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 4px; }
     .progress-bar > div { height: 100%; transition: width .4s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -48,16 +60,65 @@
     .row { display: flex; justify-content: space-between; align-items: center; }
 
     /* Header */
-    .page-header { margin-bottom: 32px; }
-    .header-kpis { padding: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; }
-    .kpi-item { text-align: center; }
-    .kpi-separator { width: 1px; height: 40px; background-color: var(--line); }
+    .page-header { display: grid; gap: 20px; margin-bottom: 32px; }
+    .page-header-main { display: flex; flex-direction: row; gap: 24px; align-items: center; padding: 28px; border-radius: 24px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(14, 165, 233, 0.05) 100%); border: 1px solid rgba(148, 163, 184, 0.25); position: relative; overflow: hidden; box-shadow: var(--shadow); }
+    .page-header-main::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(59,130,246,0.16), transparent 55%); pointer-events: none; }
+    .page-header-main > * { position: relative; z-index: 1; }
+    .back-btn { height: fit-content; align-self: flex-start; }
+    .page-header-copy { display: flex; flex-direction: column; gap: 12px; }
+    .page-header-copy h1 { font-size: 32px; margin: 0; font-weight: 800; letter-spacing: -0.5px; }
+    .header-subtitle { max-width: 520px; }
+    .eyebrow { text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; font-weight: 600; color: var(--blue); }
+    .header-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(37, 99, 235, 0.12); color: var(--blue); }
+    .chip-outline { background: transparent; border: 1px solid rgba(148, 163, 184, 0.35); color: var(--muted); }
+    .header-kpis { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); padding: 20px; }
+    .kpi-item { text-align: left; display: flex; flex-direction: column; gap: 4px; }
     .kpi-value { font-size: 26px; font-weight: 800; line-height: 1.1; }
-    .goal-card { padding: 20px; box-shadow: none; transition: var(--transition-fast); }
-    .goal-card:hover { transform: scale(1.02); box-shadow: var(--shadow-md); }
-    .goal-card .title { font-size: 14px; margin-bottom: 4px; }
-    .goal-card .kpi-value { font-size: 20px; font-weight: 700; }
+    .kpi-note { margin: 0; color: var(--muted); }
+    .goal-card { padding: 20px; box-shadow: none; transition: var(--transition-fast); border: 1px solid rgba(148, 163, 184, 0.2); }
+    .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .goal-card .title { font-size: 15px; margin-bottom: 6px; }
+    .goal-card .kpi-value { font-size: 22px; font-weight: 700; }
     .goal-card .btn { width: 100%; margin-top: 16px; padding: 8px 12px; font-size: 13px; }
+    .goal-meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .weekly-overview-card { position: relative; overflow: visible; }
+    .overview-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .button-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .overview-progress { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
+    .progress-summary { display: flex; justify-content: space-between; align-items: center; }
+    .goal-grid .goal-card { box-shadow: none; }
+    .goal-grid { margin-top: 20px; }
+    .goal-card.goal-gym { background: var(--gym-soft); border-color: var(--gym-border); }
+    .goal-card.goal-running { background: var(--run-soft); border-color: var(--run-border); }
+    .goal-card.goal-reading { background: var(--read-soft); border-color: var(--read-border); }
+    .insights-grid { margin-top: 20px; }
+    .insights-grid .card { min-height: 220px; display: flex; flex-direction: column; gap: 12px; }
+    .focus-text { font-size: 14px; line-height: 1.6; }
+    .focus-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+    .priority-list, .next-actions-list { list-style: none; padding: 0; margin: 12px 0; display: flex; flex-direction: column; gap: 12px; }
+    .priority-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.35); background: rgba(248, 250, 252, 0.7); transition: var(--transition-fast); }
+    .priority-item:hover { border-color: rgba(37, 99, 235, 0.35); box-shadow: var(--shadow-sm); }
+    .priority-item.completed { background: var(--green-soft); border-color: var(--green-border); }
+    .priority-details { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .priority-title { font-weight: 600; font-size: 14px; }
+    .priority-item.completed .priority-title { text-decoration: line-through; color: var(--muted); }
+    .priority-meta { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .priority-actions { display: flex; gap: 6px; }
+    .priority-toggle, .priority-delete { background: transparent; border: none; cursor: pointer; border-radius: 8px; padding: 4px; display: flex; align-items: center; justify-content: center; transition: var(--transition-fast); color: var(--muted); }
+    .priority-toggle:hover { color: var(--green); background: var(--green-soft); }
+    .priority-delete:hover { color: var(--red); background: var(--red-soft); }
+    .empty-priority { margin: 0; text-align: center; font-size: 13px; color: var(--muted); }
+    .next-actions-card { position: relative; }
+    .next-action-item { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.35); background: #fff; }
+    .next-action-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .next-action-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .next-action-date { font-size: 12px; color: var(--muted); }
+    .next-action-badge { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: rgba(37, 99, 235, 0.12); border-radius: 999px; padding: 4px 8px; }
+    @media(max-width: 640px) {
+      .page-header-main { flex-direction: column; align-items: flex-start; }
+      .back-btn { width: 100%; }
+    }
 
     /* Tabs */
     .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
@@ -90,7 +151,30 @@
     .quick-add-menu { position: absolute; top: 40px; right: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); z-index: 10; display: none; flex-direction: column; overflow: hidden; }
     .quick-add-menu button { background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; width: 100%; font-size: 13px; }
     .quick-add-menu button:hover { background-color: var(--bg); }
-    
+
+    .extras-container { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .extras-header { display: flex; justify-content: space-between; align-items: center; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .extra-pill { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px 12px 20px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.4); background: #fff; box-shadow: var(--shadow-sm); transition: var(--transition-fast); }
+    .extra-pill::before { content: ""; position: absolute; left: 8px; top: 12px; bottom: 12px; width: 4px; border-radius: 999px; background: var(--extra-other); }
+    .extra-pill[data-category="training"]::before { background: var(--extra-training); }
+    .extra-pill[data-category="learning"]::before { background: var(--extra-learning); }
+    .extra-pill[data-category="relax"]::before { background: var(--extra-relax); }
+    .extra-pill[data-category="home"]::before { background: var(--extra-home); }
+    .extra-pill:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .extra-pill.completed { background: var(--green-soft); border-color: var(--green-border); }
+    .extra-main { display: flex; align-items: center; gap: 12px; flex: 1; }
+    .extra-toggle { width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(148, 163, 184, 0.2); color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition-fast); }
+    .extra-toggle:hover { background: rgba(37, 99, 235, 0.12); color: var(--blue); }
+    .extra-pill.completed .extra-toggle { background: var(--green); color: #fff; }
+    .extra-info { display: flex; flex-direction: column; gap: 4px; }
+    .extra-title { font-weight: 600; font-size: 14px; }
+    .extra-pill.completed .extra-title { text-decoration: line-through; color: var(--muted); }
+    .extra-category { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .extra-delete-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px; border-radius: 8px; display: flex; align-items: center; transition: var(--transition-fast); }
+    .extra-delete-btn:hover { color: var(--red); background: var(--red-soft); }
+    .add-extra-btn { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; border: 1px dashed rgba(148, 163, 184, 0.6); background: transparent; padding: 6px 10px; border-radius: 10px; font-size: 12px; color: var(--muted); cursor: pointer; transition: var(--transition-fast); }
+    .add-extra-btn:hover { border-color: var(--blue); color: var(--blue); }
+
     .empty-planner { text-align: center; padding: 40px; color: var(--muted); border: 2px dashed var(--line); border-radius: 12px; margin-top: 16px; }
 
     /* Modal */
@@ -128,47 +212,104 @@
 </head>
 <body>
   <div class="wrap">
-    <header class="row page-header">
-      <div style="display: flex; align-items: center; gap: 16px;">
-        <a href="./index.html" class="btn soft"><i data-lucide="arrow-left" class="icon"></i> Powrót</a>
-        <div>
-          <h1 style="font-size: 28px; font-weight: 800; margin:0;">Plany i Progres</h1>
-          <p class="muted" style="margin:0;">Planuj i śledź swoje tygodniowe cele rozwojowe.</p>
+    <header class="page-header">
+      <div class="page-header-main">
+        <a href="./index.html" class="btn soft back-btn"><i data-lucide="arrow-left" class="icon"></i> Powrót</a>
+        <div class="page-header-copy">
+          <span class="eyebrow">Twoje centrum dowodzenia celami</span>
+          <h1>Plany i Progres</h1>
+          <p class="muted header-subtitle">Planuj, rób miejsce na dodatkowe aktywności i pilnuj tygodniowego rytmu.</p>
+          <div class="header-tags">
+            <span id="header-focus-chip" class="chip chip-outline">Brak zdefiniowanego fokusu</span>
+            <span class="chip">
+              Postęp tygodnia: <span id="header-week-progress">0%</span>
+            </span>
+          </div>
         </div>
       </div>
       <div class="card header-kpis">
         <div class="kpi-item">
             <div class="muted">Ukończone tyg.</div>
             <div id="yearly-progress-value" class="kpi-value" style="color: var(--green);">0/36</div>
+            <p class="kpi-note tiny">Cel roczny</p>
         </div>
-        <div class="kpi-separator"></div>
         <div class="kpi-item">
             <div class="muted">Seria</div>
             <div id="streak-value" class="kpi-value" style="color: var(--orange);">0</div>
+            <p class="kpi-note tiny">Najdłuższa passa</p>
+        </div>
+        <div class="kpi-item">
+            <div class="muted">Najbliższa aktywność</div>
+            <div id="next-activity-kpi" class="kpi-value" style="color: var(--blue); font-size: 18px;">Brak planu</div>
+            <p id="next-activity-date" class="kpi-note tiny muted"></p>
         </div>
       </div>
     </header>
 
-    <div class="card">
-        <div class="row">
-            <h3 class="title"><i data-lucide="calendar-check" class="icon"></i><span id="week-title">Cele na ten tydzień</span></h3>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button id="copy-plan-btn" class="btn soft" style="display: none;"><i data-lucide="copy" class="icon"></i>Kopiuj plan</button>
-                <button id="prev-week-btn" class="btn soft"><i data-lucide="chevron-left" class="icon"></i>Poprzedni</button>
-                <button id="today-week-btn" class="btn soft" style="display: none;">Dziś</button>
-                <button id="next-week-btn" class="btn soft">Następny<i data-lucide="chevron-right" class="icon"></i></button>
-            </div>
-        </div>
-        <div style="margin-top: 16px;">
-            <div class="row" style="justify-content: space-between;"><span id="overall-progress-label" class="tiny muted">Postęp tygodnia: 0%</span></div>
-            <div class="progress-bar"><div id="overall-progress-bar" style="width:0%; background: var(--blue);"></div></div>
-        </div>
-        <div class="grid g-3" style="margin-top: 20px;">
-            <div class="card goal-card" style="background: var(--gym-soft);"><h4 class="title">💪 Trening siłowy</h4><div id="goal-gym-progress" class="kpi-value">0/3 sesje</div><div class="progress-bar"><div id="goal-gym-bar" style="width:0%; background: var(--gym-color);"></div></div><button class="btn soft" data-activity-type="gym" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
-            <div class="card goal-card" style="background: var(--run-soft);"><h4 class="title">🏃 Bieg</h4><div id="goal-running-progress" class="kpi-value">0/5 km</div><div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div><button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
-            <div class="card goal-card" style="background: var(--read-soft);"><h4 class="title">📚 Czytanie</h4><div id="goal-reading-progress" class="kpi-value">0/100 stron</div><div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div><button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button></div>
-        </div>
-    </div>
+      <div class="card weekly-overview-card">
+          <div class="overview-header">
+              <h3 class="title"><i data-lucide="calendar-check" class="icon"></i><span id="week-title">Cele na ten tydzień</span></h3>
+              <div class="button-group">
+                  <button id="copy-plan-btn" class="btn soft" style="display: none;"><i data-lucide="copy" class="icon"></i>Kopiuj plan</button>
+                  <button id="prev-week-btn" class="btn soft"><i data-lucide="chevron-left" class="icon"></i>Poprzedni</button>
+                  <button id="today-week-btn" class="btn soft" style="display: none;">Dziś</button>
+                  <button id="next-week-btn" class="btn soft">Następny<i data-lucide="chevron-right" class="icon"></i></button>
+              </div>
+          </div>
+          <div class="overview-progress">
+              <div class="progress-summary">
+                  <span id="overall-progress-label" class="tiny muted">Postęp tygodnia: 0%</span>
+              </div>
+              <div class="progress-bar"><div id="overall-progress-bar" style="width:0%; background: var(--blue);"></div></div>
+          </div>
+          <div class="grid g-3 goal-grid">
+              <div class="card goal-card goal-gym">
+                  <h4 class="title">💪 Trening siłowy</h4>
+                  <div id="goal-gym-progress" class="kpi-value">0/3 sesje</div>
+                  <div class="progress-bar"><div id="goal-gym-bar" style="width:0%; background: var(--gym-color);"></div></div>
+                  <p class="goal-meta" id="goal-gym-remaining">Pozostało: 3 sesje</p>
+                  <button class="btn soft" data-activity-type="gym" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button>
+              </div>
+              <div class="card goal-card goal-running">
+                  <h4 class="title">🏃 Bieg</h4>
+                  <div id="goal-running-progress" class="kpi-value">0/5 km</div>
+                  <div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div>
+                  <p class="goal-meta" id="goal-running-remaining">Pozostało: 5 km</p>
+                  <button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button>
+              </div>
+              <div class="card goal-card goal-reading">
+                  <h4 class="title">📚 Czytanie</h4>
+                  <div id="goal-reading-progress" class="kpi-value">0/100 stron</div>
+                  <div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div>
+                  <p class="goal-meta" id="goal-reading-remaining">Pozostało: 100 stron</p>
+                  <button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Zaplanuj</button>
+              </div>
+          </div>
+      </div>
+
+      <div class="grid g-3 insights-grid">
+          <div class="card focus-card">
+              <h3 class="title"><i data-lucide="target" class="icon"></i>Fokus tygodnia</h3>
+              <p id="focus-text" class="muted focus-text">Zdefiniuj główny kierunek działań, aby codziennie wiedzieć na czym się skupić.</p>
+              <div class="focus-actions">
+                  <button id="edit-focus-btn" class="btn soft"><i data-lucide="compass"></i>Ustal fokus</button>
+                  <button id="clear-focus-btn" class="btn ghost" style="display: none;"><i data-lucide="x"></i>Wyczyść</button>
+              </div>
+          </div>
+          <div class="card priorities-card">
+              <h3 class="title"><i data-lucide="star" class="icon"></i>Priorytety tygodnia</h3>
+              <p class="muted tiny" style="margin-top:-4px;">Wybierz do trzech najważniejszych kroków z wysokim wpływem.</p>
+              <ul id="priority-list" class="priority-list"></ul>
+              <p id="priority-empty" class="empty-priority">Dodaj pierwszy priorytet, by mieć jasność działań.</p>
+              <button id="add-priority-btn" class="btn soft"><i data-lucide="plus-circle" class="icon"></i>Dodaj priorytet</button>
+          </div>
+          <div class="card next-actions-card">
+              <h3 class="title"><i data-lucide="alarm-clock" class="icon"></i>Najbliższe kroki</h3>
+              <p class="muted tiny" style="margin-top:-4px;">Automatyczne podpowiedzi z planera i aktywności dodatkowych.</p>
+              <ul id="next-actions-list" class="next-actions-list"></ul>
+              <p id="next-actions-empty" class="empty-priority">Brak zaplanowanych aktywności na horyzoncie.</p>
+          </div>
+      </div>
     
     <div class="tabs">
         <div class="tab active" data-tab="planner"><i data-lucide="calendar-days" class="icon"></i>Planer</div>
@@ -221,17 +362,63 @@
 // --- KONFIGURACJA ---
 const STORAGE_KEY = 'lifeos_trainings_v1';
 const GOAL_DEFINITIONS = {
-    gym: { target: 3, unit: 'sesje', label: 'Trening siłowy' },
-    running: { target: 5, unit: 'km', label: 'Bieg' },
-    reading: { target: 100, unit: 'stron', label: 'Czytanie' }
+    gym: { target: 3, unit: 'sesje', label: 'Trening siłowy', icon: 'dumbbell' },
+    running: { target: 5, unit: 'km', label: 'Bieg', icon: 'activity' },
+    reading: { target: 100, unit: 'stron', label: 'Czytanie', icon: 'book-open' }
 };
+const EXTRA_ACTIVITY_CATEGORIES = [
+    { value: 'training', label: 'Trening / ruch' },
+    { value: 'learning', label: 'Nauka / rozwój' },
+    { value: 'relax', label: 'Regeneracja' },
+    { value: 'home', label: 'Dom i organizacja' },
+    { value: 'other', label: 'Inne' }
+];
+const EXTRA_CATEGORY_LABELS = EXTRA_ACTIVITY_CATEGORIES.reduce((acc, item) => {
+    acc[item.value] = item.label;
+    return acc;
+}, {});
+const MAX_PRIORITIES = 3;
+const PRIORITY_IMPACT_OPTIONS = [
+    { value: 'high', label: 'Wysoki wpływ' },
+    { value: 'medium', label: 'Średni wpływ' },
+    { value: 'low', label: 'Lekki wpływ' }
+];
+const PRIORITY_IMPACT_LABELS = PRIORITY_IMPACT_OPTIONS.reduce((acc, opt) => {
+    acc[opt.value] = opt.label;
+    return acc;
+}, {});
+const DEFAULT_EXTRA_CATEGORY = 'other';
+const MAX_NEXT_ACTIONS = 5;
 const DAY_NAMES = ['Niedz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
+
+function createEmptyDayMapping() {
+    return { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 0: [] };
+}
 
 let state = {};
 let currentDate = new Date();
 let planningState = { isPlanning: false, activityType: null };
 let dragState = { activityId: null, sourceDay: null };
 let saveTimeout;
+
+function ensureWeekDataShape(weekData) {
+    if (!weekData.plan) weekData.plan = createEmptyDayMapping();
+    if (!weekData.progress) weekData.progress = { gym: 0, running: 0, reading: 0 };
+    if (!weekData.extras) weekData.extras = createEmptyDayMapping();
+    if (!Array.isArray(weekData.priorities)) weekData.priorities = [];
+    if (typeof weekData.focus !== 'string') weekData.focus = '';
+}
+
+function getCurrentWeekContext() {
+    const [year, week] = getWeekNumber(currentDate);
+    initializeWeekData(year, week);
+    return { year, week, weekData: state[year][week] };
+}
+
+function formatDateWithDay(date) {
+    const dayLabel = DAY_NAMES[date.getDay()] || '';
+    return `${dayLabel} · ${date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' })}`;
+}
 
 // --- STAN APLIKACJI ---
 function loadState() { state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
@@ -265,16 +452,19 @@ function initializeWeekData(year, week) {
     if (!state[year][week]) {
         state[year][week] = {
             progress: { gym: 0, running: 0, reading: 0 },
-            plan: { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 0:[] },
+            plan: createEmptyDayMapping(),
+            extras: createEmptyDayMapping(),
+            priorities: [],
+            focus: '',
             isComplete: false,
             summaryShown: false
         };
     }
+    ensureWeekDataShape(state[year][week]);
 }
 
 function addActivity(type, dayIndex, plannedValue) {
-    const [year, week] = getWeekNumber(currentDate);
-    const weekData = state[year][week];
+    const { weekData } = getCurrentWeekContext();
     const newActivity = {
         id: `act_${Date.now()}_${Math.random()}`,
         type: type,
@@ -290,8 +480,7 @@ function addActivity(type, dayIndex, plannedValue) {
 }
 
 function deleteActivity(activityId) {
-    const [year, week] = getWeekNumber(currentDate);
-    const weekData = state[year][week];
+    const { year, week, weekData } = getCurrentWeekContext();
     for (const day in weekData.plan) {
         const initialLength = weekData.plan[day].length;
         weekData.plan[day] = weekData.plan[day].filter(a => a.id !== activityId);
@@ -304,8 +493,7 @@ function deleteActivity(activityId) {
 }
 
 function logActivity(activityId, value, isCompleted) {
-    const [year, week] = getWeekNumber(currentDate);
-    const weekData = state[year][week];
+    const { year, week, weekData } = getCurrentWeekContext();
     let activityFound = null;
     for (const day in weekData.plan) {
         const activity = weekData.plan[day].find(a => a.id === activityId);
@@ -316,6 +504,57 @@ function logActivity(activityId, value, isCompleted) {
         activityFound.loggedValue = Number(value) || 0;
         recalculateWeekProgress(year, week);
         checkWeekCompletion(year, week);
+        saveState();
+        render();
+    }
+}
+
+function addExtraActivity(dayIndex, title, category = DEFAULT_EXTRA_CATEGORY) {
+    const trimmedTitle = (title || '').trim();
+    if (!trimmedTitle) return;
+    const { weekData } = getCurrentWeekContext();
+    if (!weekData.extras[dayIndex]) weekData.extras[dayIndex] = [];
+    weekData.extras[dayIndex].push({
+        id: `extra_${Date.now()}_${Math.random()}`,
+        title: trimmedTitle,
+        category: category || DEFAULT_EXTRA_CATEGORY,
+        completed: false,
+        day: dayIndex,
+        createdAt: Date.now()
+    });
+    saveState();
+    render();
+}
+
+function toggleExtraActivity(activityId) {
+    const { weekData } = getCurrentWeekContext();
+    let updated = false;
+    for (const day in weekData.extras) {
+        const activity = weekData.extras[day].find(a => a.id === activityId);
+        if (activity) {
+            activity.completed = !activity.completed;
+            updated = true;
+            break;
+        }
+    }
+    if (updated) {
+        saveState();
+        render();
+    }
+}
+
+function deleteExtraActivity(activityId) {
+    const { weekData } = getCurrentWeekContext();
+    let removed = false;
+    for (const day in weekData.extras) {
+        const before = weekData.extras[day].length;
+        weekData.extras[day] = weekData.extras[day].filter(a => a.id !== activityId);
+        if (weekData.extras[day].length !== before) {
+            removed = true;
+            break;
+        }
+    }
+    if (removed) {
         saveState();
         render();
     }
@@ -364,7 +603,29 @@ function copyPreviousWeek(copyProgress = false) {
 
     initializeWeekData(currentYear, currentWeek);
     state[currentYear][currentWeek].plan = newPlan;
-    
+
+    const newExtras = createEmptyDayMapping();
+    if (prevWeekData.extras) {
+        Object.keys(prevWeekData.extras).forEach(day => {
+            newExtras[day] = prevWeekData.extras[day].map(extra => ({
+                ...extra,
+                id: `extra_${Date.now()}_${Math.random()}`,
+                completed: copyProgress ? extra.completed : false,
+                day: parseInt(day, 10)
+            }));
+        });
+    }
+    state[currentYear][currentWeek].extras = newExtras;
+
+    state[currentYear][currentWeek].focus = copyProgress ? (prevWeekData.focus || '') : '';
+    state[currentYear][currentWeek].priorities = copyProgress && Array.isArray(prevWeekData.priorities)
+        ? prevWeekData.priorities.map(priority => ({
+            ...priority,
+            id: `prio_${Date.now()}_${Math.random()}`,
+            completed: copyProgress ? priority.completed : false
+        }))
+        : [];
+
     recalculateWeekProgress(currentYear, currentWeek);
     checkWeekCompletion(currentYear, currentWeek);
     saveState();
@@ -388,8 +649,11 @@ function render() {
 
     renderCopyPlanButton();
     renderGoals(weekData.progress);
-    renderPlanner(weekData.plan, startOfWeek);
-    renderHeaderKPIs(year);
+    renderWeekFocus(weekData);
+    renderPriorities(weekData.priorities);
+    const upcoming = renderNextActions(weekData, startOfWeek);
+    renderPlanner(weekData, startOfWeek);
+    renderHeaderKPIs(year, upcoming[0]);
     renderPlanningStatus(weekData.plan);
     renderOverallProgress(weekData.progress);
     lucide.createIcons();
@@ -403,17 +667,26 @@ function renderGoals(progress) {
 
         document.getElementById(`goal-${type}-progress`).textContent = `${currentProgress.toLocaleString('pl-PL')}/${goal.target} ${goal.unit}`;
         document.getElementById(`goal-${type}-bar`).style.width = `${progressPercent}%`;
+        const remainingValue = Math.max(0, goal.target - currentProgress);
+        const remainingEl = document.getElementById(`goal-${type}-remaining`);
+        if (remainingEl) {
+            remainingEl.textContent = remainingValue <= 0
+                ? 'Cel zrealizowany! Świetna robota!'
+                : `Pozostało: ${remainingValue.toLocaleString('pl-PL')} ${goal.unit}`;
+        }
     }
 }
 
-function renderPlanner(plan, startOfWeek) {
+function renderPlanner(weekData, startOfWeek) {
     const plannerGrid = document.querySelector('.planner-grid');
     const emptyPlaceholder = document.getElementById('empty-planner-placeholder');
     plannerGrid.innerHTML = '';
     const today = new Date();
     today.setHours(0,0,0,0);
-    
+
     let isPlanEmpty = true;
+    const plan = weekData.plan || {};
+    const extrasMap = weekData.extras || {};
 
     for (let i = 1; i <= 7; i++) {
         const dayIndex = i % 7;
@@ -432,14 +705,15 @@ function renderPlanner(plan, startOfWeek) {
         const activitiesContainer = document.createElement('div');
         activitiesContainer.className = 'activities-container';
 
-        if (plan[dayIndex] && plan[dayIndex].length > 0) {
+        const plannedActivities = plan[dayIndex] || [];
+        if (plannedActivities.length > 0) {
             isPlanEmpty = false;
-            plan[dayIndex].forEach(activity => {
+            plannedActivities.forEach(activity => {
                 const goal = GOAL_DEFINITIONS[activity.type];
                 const pill = document.createElement('div');
                 pill.className = `activity-pill ${activity.type}`;
                 pill.dataset.activityId = activity.id;
-                
+
                 let text = `<span>${goal.label}`;
                 if (activity.type !== 'gym') {
                      if (activity.completed) text += ` (${activity.loggedValue.toLocaleString('pl-PL')}/${activity.plannedValue.toLocaleString('pl-PL')} ${goal.unit})`;
@@ -484,10 +758,81 @@ function renderPlanner(plan, startOfWeek) {
             };
             quickAddMenu.appendChild(btn);
         }
+        const customBtn = document.createElement('button');
+        customBtn.textContent = 'Aktywność własna';
+        customBtn.onclick = (e) => {
+            e.stopPropagation();
+            showExtraActivityModal(dayIndex);
+            quickAddMenu.style.display = 'none';
+        };
+        quickAddMenu.appendChild(customBtn);
         dayColumn.appendChild(quickAddMenu);
 
         dayColumn.appendChild(dayHeader);
         dayColumn.appendChild(activitiesContainer);
+
+        const extras = extrasMap[dayIndex] || [];
+        if (extras.length > 0) {
+            isPlanEmpty = false;
+        }
+
+        const extrasContainer = document.createElement('div');
+        extrasContainer.className = 'extras-container';
+        if (extras.length > 0) {
+            const extrasHeader = document.createElement('div');
+            extrasHeader.className = 'extras-header';
+            extrasHeader.innerHTML = '<span>Aktywności dodatkowe</span>';
+            extrasContainer.appendChild(extrasHeader);
+        }
+
+        extras.forEach(extra => {
+            const extraPill = document.createElement('div');
+            extraPill.className = 'extra-pill';
+            extraPill.dataset.extraId = extra.id;
+            extraPill.dataset.category = extra.category || DEFAULT_EXTRA_CATEGORY;
+            if (extra.completed) extraPill.classList.add('completed');
+
+            const extraMain = document.createElement('div');
+            extraMain.className = 'extra-main';
+
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'extra-toggle';
+            toggleBtn.dataset.extraId = extra.id;
+            toggleBtn.innerHTML = `<i data-lucide="${extra.completed ? 'check-circle-2' : 'circle'}" class="icon" style="width:18px; height:18px;"></i>`;
+            extraMain.appendChild(toggleBtn);
+
+            const info = document.createElement('div');
+            info.className = 'extra-info';
+            const title = document.createElement('span');
+            title.className = 'extra-title';
+            title.textContent = extra.title;
+            info.appendChild(title);
+            const categoryLabel = document.createElement('span');
+            categoryLabel.className = 'extra-category';
+            categoryLabel.textContent = EXTRA_CATEGORY_LABELS[extra.category] || EXTRA_CATEGORY_LABELS[DEFAULT_EXTRA_CATEGORY];
+            info.appendChild(categoryLabel);
+            extraMain.appendChild(info);
+
+            extraPill.appendChild(extraMain);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'extra-delete-btn';
+            deleteBtn.dataset.extraId = extra.id;
+            deleteBtn.setAttribute('aria-label', 'Usuń aktywność dodatkową');
+            deleteBtn.innerHTML = '<i data-lucide="trash-2" class="icon" style="width:16px; height:16px;"></i>';
+            extraPill.appendChild(deleteBtn);
+
+            extrasContainer.appendChild(extraPill);
+        });
+
+        const addExtraBtn = document.createElement('button');
+        addExtraBtn.type = 'button';
+        addExtraBtn.className = 'add-extra-btn';
+        addExtraBtn.dataset.dayIndex = dayIndex;
+        addExtraBtn.innerHTML = '<i data-lucide="plus" class="icon" style="width:16px; height:16px;"></i>Dodaj aktywność';
+        extrasContainer.appendChild(addExtraBtn);
+
+        dayColumn.appendChild(extrasContainer);
         dayColumn.addEventListener('dragover', handleDragOver);
         dayColumn.addEventListener('dragleave', handleDragLeave);
         dayColumn.addEventListener('drop', handleDrop);
@@ -497,10 +842,10 @@ function renderPlanner(plan, startOfWeek) {
     emptyPlaceholder.style.display = isPlanEmpty ? 'block' : 'none';
 }
 
-function renderHeaderKPIs(year) {
+function renderHeaderKPIs(year, nextUpcoming) {
     const yearData = state[year] || {};
     const [currentYear, currentWeek] = getWeekNumber(new Date());
-    
+
     const relevantWeeks = (year < currentYear) ? getWeekNumber(new Date(year, 11, 28))[1] : currentWeek;
     const completedWeeks = Object.keys(yearData).filter(weekNum => parseInt(weekNum) <= relevantWeeks && yearData[weekNum].isComplete).length;
     
@@ -524,6 +869,16 @@ function renderHeaderKPIs(year) {
     maxStreak = Math.max(maxStreak, tempStreak);
 
     document.getElementById('streak-value').innerHTML = `${currentStreak} <span class="tiny" style="font-weight: 500;">(max ${maxStreak})</span>`;
+
+    const nextLabelEl = document.getElementById('next-activity-kpi');
+    const nextDateEl = document.getElementById('next-activity-date');
+    if (nextUpcoming && nextLabelEl && nextDateEl) {
+        nextLabelEl.textContent = nextUpcoming.label;
+        nextDateEl.textContent = `${nextUpcoming.badge} • ${formatDateWithDay(nextUpcoming.date)}`;
+    } else if (nextLabelEl && nextDateEl) {
+        nextLabelEl.textContent = 'Brak planu';
+        nextDateEl.textContent = '';
+    }
 }
 
 function renderPlanningStatus(plan) {
@@ -552,17 +907,204 @@ function renderOverallProgress(progress) {
     const avgPercent = totalPercent / Object.keys(GOAL_DEFINITIONS).length;
     document.getElementById('overall-progress-bar').style.width = `${avgPercent}%`;
     document.getElementById('overall-progress-label').textContent = `Postęp tygodnia: ${Math.round(avgPercent)}%`;
+    const headerProgress = document.getElementById('header-week-progress');
+    if (headerProgress) {
+        headerProgress.textContent = `${Math.round(avgPercent)}%`;
+    }
 }
 
 function renderCopyPlanButton() {
     let prevWeekDate = new Date(currentDate);
     prevWeekDate.setDate(prevWeekDate.getDate() - 7);
     const [prevYear, prevWeek] = getWeekNumber(prevWeekDate);
-    
+
     const prevWeekData = state[prevYear]?.[prevWeek];
-    const hasPreviousPlan = prevWeekData && Object.values(prevWeekData.plan).some(day => day.length > 0);
-    
+    const hasPreviousPlan = prevWeekData && (
+        Object.values(prevWeekData.plan || {}).some(day => day.length > 0) ||
+        Object.values(prevWeekData.extras || {}).some(day => day.length > 0)
+    );
+
     document.getElementById('copy-plan-btn').style.display = hasPreviousPlan ? 'inline-flex' : 'none';
+}
+
+function renderWeekFocus(weekData) {
+    const focusTextEl = document.getElementById('focus-text');
+    const clearBtn = document.getElementById('clear-focus-btn');
+    const headerChip = document.getElementById('header-focus-chip');
+    const focusValue = (weekData.focus || '').trim();
+
+    if (focusTextEl) {
+        focusTextEl.textContent = focusValue || 'Zdefiniuj główny kierunek działań, aby codziennie wiedzieć na czym się skupić.';
+    }
+    if (clearBtn) {
+        clearBtn.style.display = focusValue ? 'inline-flex' : 'none';
+    }
+    if (headerChip) {
+        if (focusValue) {
+            headerChip.textContent = `Fokus: ${focusValue}`;
+            headerChip.classList.remove('chip-outline');
+        } else {
+            headerChip.textContent = 'Brak zdefiniowanego fokusu';
+            if (!headerChip.classList.contains('chip-outline')) headerChip.classList.add('chip-outline');
+        }
+    }
+}
+
+function renderPriorities(priorities = []) {
+    const listEl = document.getElementById('priority-list');
+    const emptyEl = document.getElementById('priority-empty');
+    const addBtn = document.getElementById('add-priority-btn');
+    if (!listEl || !emptyEl || !addBtn) return;
+
+    listEl.innerHTML = '';
+    const sorted = [...priorities].sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        return (a.createdAt || 0) - (b.createdAt || 0);
+    });
+
+    if (sorted.length === 0) {
+        emptyEl.style.display = 'block';
+    } else {
+        emptyEl.style.display = 'none';
+    }
+
+    sorted.forEach(priority => {
+        const item = document.createElement('li');
+        item.className = 'priority-item';
+        item.dataset.priorityId = priority.id;
+        if (priority.completed) item.classList.add('completed');
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'priority-toggle';
+        toggleBtn.dataset.priorityId = priority.id;
+        toggleBtn.innerHTML = `<i data-lucide="${priority.completed ? 'check-circle-2' : 'circle'}" class="icon" style="width:18px; height:18px;"></i>`;
+
+        const details = document.createElement('div');
+        details.className = 'priority-details';
+        const title = document.createElement('span');
+        title.className = 'priority-title';
+        title.textContent = priority.title;
+        details.appendChild(title);
+        const meta = document.createElement('span');
+        meta.className = 'priority-meta';
+        meta.textContent = PRIORITY_IMPACT_LABELS[priority.impact] || 'Priorytet';
+        details.appendChild(meta);
+
+        const actions = document.createElement('div');
+        actions.className = 'priority-actions';
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'priority-delete';
+        deleteBtn.dataset.priorityId = priority.id;
+        deleteBtn.innerHTML = '<i data-lucide="trash-2" class="icon" style="width:16px; height:16px;"></i>';
+        actions.appendChild(deleteBtn);
+
+        item.appendChild(toggleBtn);
+        item.appendChild(details);
+        item.appendChild(actions);
+        listEl.appendChild(item);
+    });
+
+    if (sorted.length >= MAX_PRIORITIES) {
+        addBtn.disabled = true;
+        addBtn.innerHTML = '<i data-lucide="check" class="icon"></i>Limit priorytetów';
+    } else {
+        addBtn.disabled = false;
+        addBtn.innerHTML = '<i data-lucide="plus-circle" class="icon"></i>Dodaj priorytet';
+    }
+}
+
+function renderNextActions(weekData, startOfWeek) {
+    const listEl = document.getElementById('next-actions-list');
+    const emptyEl = document.getElementById('next-actions-empty');
+    if (!listEl || !emptyEl) return [];
+
+    listEl.innerHTML = '';
+    const upcoming = [];
+    for (let i = 1; i <= 7; i++) {
+        const dayIndex = i % 7;
+        const currentDay = new Date(startOfWeek);
+        currentDay.setDate(startOfWeek.getDate() + (dayIndex - 1 + 7) % 7);
+
+        const plannedActivities = weekData.plan?.[dayIndex] || [];
+        plannedActivities.forEach((activity, index) => {
+            if (activity.completed) return;
+            const goal = GOAL_DEFINITIONS[activity.type];
+            if (!goal) return;
+            let label = goal.label;
+            if (activity.type === 'gym') {
+                label += ' • sesja';
+            } else if (activity.plannedValue) {
+                label += ` • cel ${activity.plannedValue.toLocaleString('pl-PL')} ${goal.unit}`;
+            }
+            upcoming.push({
+                label,
+                badge: 'Cel tygodnia',
+                date: new Date(currentDay),
+                icon: goal.icon || 'check',
+                order: index,
+                type: 'goal'
+            });
+        });
+
+        const extras = weekData.extras?.[dayIndex] || [];
+        extras.forEach((extra, index) => {
+            if (extra.completed) return;
+            upcoming.push({
+                label: extra.title,
+                badge: EXTRA_CATEGORY_LABELS[extra.category] || EXTRA_CATEGORY_LABELS[DEFAULT_EXTRA_CATEGORY],
+                date: new Date(currentDay),
+                icon: 'sparkles',
+                order: index,
+                type: 'extra'
+            });
+        });
+    }
+
+    upcoming.sort((a, b) => {
+        const diff = a.date - b.date;
+        if (diff !== 0) return diff;
+        if (a.type !== b.type) return a.type === 'goal' ? -1 : 1;
+        return (a.order || 0) - (b.order || 0);
+    });
+
+    const limited = upcoming.slice(0, MAX_NEXT_ACTIONS);
+    if (limited.length === 0) {
+        emptyEl.style.display = 'block';
+    } else {
+        emptyEl.style.display = 'none';
+        limited.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'next-action-item';
+
+            const iconWrapper = document.createElement('span');
+            iconWrapper.innerHTML = `<i data-lucide="${item.icon}" class="icon" style="width:18px; height:18px;"></i>`;
+            li.appendChild(iconWrapper);
+
+            const info = document.createElement('div');
+            info.className = 'next-action-info';
+            const title = document.createElement('span');
+            title.style.fontWeight = '600';
+            title.textContent = item.label;
+            info.appendChild(title);
+
+            const meta = document.createElement('div');
+            meta.className = 'next-action-meta';
+            const badge = document.createElement('span');
+            badge.className = 'next-action-badge';
+            badge.textContent = item.badge;
+            const date = document.createElement('span');
+            date.className = 'next-action-date';
+            date.textContent = formatDateWithDay(item.date);
+            meta.appendChild(badge);
+            meta.appendChild(date);
+            info.appendChild(meta);
+
+            li.appendChild(info);
+            listEl.appendChild(li);
+        });
+    }
+
+    return limited;
 }
 
 
@@ -580,9 +1122,25 @@ function showModal(config) {
         const input = document.createElement('input');
         input.type = config.input.type;
         input.placeholder = config.input.placeholder || '';
-        input.id = 'modal-input-field';
         input.value = config.input.value || '';
+        input.autocomplete = 'off';
+        input.dataset.modalInput = 'true';
         inputContainer.appendChild(input);
+    }
+
+    if (config.textarea) {
+        const textarea = document.createElement('textarea');
+        textarea.placeholder = config.textarea.placeholder || '';
+        textarea.value = config.textarea.value || '';
+        textarea.rows = config.textarea.rows || 4;
+        textarea.style.marginTop = '12px';
+        textarea.style.width = '100%';
+        textarea.style.borderRadius = '12px';
+        textarea.style.border = '1px solid var(--line)';
+        textarea.style.padding = '12px';
+        textarea.style.fontSize = '14px';
+        textarea.dataset.modalInput = 'true';
+        inputContainer.appendChild(textarea);
     }
     
     if (config.options) {
@@ -607,7 +1165,8 @@ function showModal(config) {
             if (btnConfig.action === 'close') {
                 modal.classList.remove('visible');
             } else {
-                const value = inputContainer.querySelector('input')?.value;
+                const valueField = inputContainer.querySelector('[data-modal-input]');
+                const value = valueField ? valueField.value : '';
                 const selectedOption = optionsContainer.querySelector('input:checked')?.value;
                 btnConfig.action(value, selectedOption);
                 modal.classList.remove('visible');
@@ -616,7 +1175,8 @@ function showModal(config) {
         actions.appendChild(button);
     });
     modal.classList.add('visible');
-    if (config.input) { document.getElementById('modal-input-field').focus(); }
+    const focusTarget = inputContainer.querySelector('[data-modal-input]');
+    if (focusTarget) { focusTarget.focus(); }
 }
 
 function showPlanModal(type, dayIndex) {
@@ -629,6 +1189,55 @@ function showPlanModal(type, dayIndex) {
         buttons: [
             { text: 'Anuluj', class: 'btn soft', action: 'close' },
             { text: 'Dodaj plan', class: 'btn', action: (value) => addActivity(type, dayIndex, parseFloat(value) || 0) }
+        ]
+    });
+}
+
+function showExtraActivityModal(dayIndex) {
+    showModal({
+        title: 'Dodaj aktywność dodatkową',
+        text: 'Nazwij aktywność i wybierz kategorię, aby mieć pełny obraz tygodnia.',
+        input: { type: 'text', placeholder: 'np. Trening brzucha' },
+        options: EXTRA_ACTIVITY_CATEGORIES.map((cat, index) => ({
+            value: cat.value,
+            label: cat.label,
+            checked: index === 0
+        })),
+        buttons: [
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: 'Dodaj', class: 'btn', action: (value, selectedOption) => addExtraActivity(dayIndex, value, selectedOption || DEFAULT_EXTRA_CATEGORY) }
+        ]
+    });
+}
+
+function showFocusModal() {
+    const { weekData } = getCurrentWeekContext();
+    showModal({
+        title: 'Ustal fokus tygodnia',
+        text: 'Jedno zdanie, które przypomni Ci, co jest najważniejsze.',
+        textarea: { placeholder: 'np. Codziennie dbam o ruch i spokojny sen', value: weekData.focus || '', rows: 4 },
+        buttons: [
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: 'Zapisz fokus', class: 'btn', action: (value) => setWeekFocus(value || '') }
+        ]
+    });
+}
+
+function showPriorityModal() {
+    const { weekData } = getCurrentWeekContext();
+    if (weekData.priorities.length >= MAX_PRIORITIES) return;
+    showModal({
+        title: 'Dodaj priorytet tygodnia',
+        text: 'Wybierz działanie o największym wpływie na Twój cel.',
+        input: { type: 'text', placeholder: 'np. 3 treningi brzucha' },
+        options: PRIORITY_IMPACT_OPTIONS.map((opt, index) => ({
+            value: opt.value,
+            label: opt.label,
+            checked: index === 0
+        })),
+        buttons: [
+            { text: 'Anuluj', class: 'btn soft', action: 'close' },
+            { text: 'Dodaj priorytet', class: 'btn', action: (value, selectedOption) => addPriority(value, selectedOption || 'high') }
         ]
     });
 }
@@ -695,6 +1304,10 @@ function showWeeklySummary() {
             const target = GOAL_DEFINITIONS[type].target;
             summaryText += `<b>${GOAL_DEFINITIONS[type].label}:</b> ${progress.toLocaleString('pl-PL')}/${target.toLocaleString('pl-PL')} ${GOAL_DEFINITIONS[type].unit}<br>`;
         });
+        const completedExtras = Object.values(weekData.extras || {}).flat().filter(extra => extra.completed).length;
+        if (completedExtras > 0) {
+            summaryText += `<b>Aktywności dodatkowe:</b> ${completedExtras}<br>`;
+        }
         summaryText += `<br>${weekData.isComplete ? 'Świetna robota! Osiągnąłeś wszystkie cele.' : 'Dobra robota! Tak trzymaj.'}`;
 
         showModal({
@@ -704,6 +1317,57 @@ function showWeeklySummary() {
         });
         weekData.summaryShown = true;
         saveState();
+    }
+}
+
+function setWeekFocus(value) {
+    const { weekData } = getCurrentWeekContext();
+    const normalized = (value || '')
+        .split('\n')
+        .map(part => part.trim())
+        .filter(Boolean)
+        .join(' ');
+    weekData.focus = normalized;
+    saveState();
+    render();
+}
+
+function clearWeekFocus() {
+    setWeekFocus('');
+}
+
+function addPriority(title, impact = 'high') {
+    const trimmed = (title || '').trim();
+    if (!trimmed) return;
+    const { weekData } = getCurrentWeekContext();
+    if (weekData.priorities.length >= MAX_PRIORITIES) return;
+    weekData.priorities.push({
+        id: `prio_${Date.now()}_${Math.random()}`,
+        title: trimmed,
+        impact,
+        completed: false,
+        createdAt: Date.now()
+    });
+    saveState();
+    render();
+}
+
+function togglePriority(priorityId) {
+    const { weekData } = getCurrentWeekContext();
+    const priority = weekData.priorities.find(p => p.id === priorityId);
+    if (!priority) return;
+    priority.completed = !priority.completed;
+    saveState();
+    render();
+}
+
+function deletePriority(priorityId) {
+    const { weekData } = getCurrentWeekContext();
+    const initialLength = weekData.priorities.length;
+    weekData.priorities = weekData.priorities.filter(p => p.id !== priorityId);
+    if (weekData.priorities.length !== initialLength) {
+        saveState();
+        render();
     }
 }
 
@@ -750,7 +1414,17 @@ function setupEventListeners() {
     document.querySelectorAll('[data-action="plan"]').forEach(btn => {
         btn.addEventListener('click', (e) => startPlanning(e.currentTarget.dataset.activityType));
     });
-    
+
+    document.getElementById('edit-focus-btn').addEventListener('click', showFocusModal);
+    document.getElementById('clear-focus-btn').addEventListener('click', clearWeekFocus);
+    document.getElementById('add-priority-btn').addEventListener('click', showPriorityModal);
+    document.getElementById('priority-list').addEventListener('click', (e) => {
+        const toggleBtn = e.target.closest('.priority-toggle');
+        if (toggleBtn) { togglePriority(toggleBtn.dataset.priorityId); return; }
+        const deleteBtn = e.target.closest('.priority-delete');
+        if (deleteBtn) { deletePriority(deleteBtn.dataset.priorityId); return; }
+    });
+
     document.querySelector('.planner-grid').addEventListener('click', (e) => {
         const dayColumn = e.target.closest('.day-column');
         if (!dayColumn) return;
@@ -770,6 +1444,25 @@ function setupEventListeners() {
             });
             menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
             e.stopPropagation();
+            return;
+        }
+
+        const addExtraBtn = e.target.closest('.add-extra-btn');
+        if (addExtraBtn) {
+            document.querySelectorAll('.quick-add-menu').forEach(menu => menu.style.display = 'none');
+            showExtraActivityModal(dayIndex);
+            return;
+        }
+
+        const extraToggle = e.target.closest('.extra-toggle');
+        if (extraToggle) {
+            toggleExtraActivity(extraToggle.dataset.extraId);
+            return;
+        }
+
+        const extraDelete = e.target.closest('.extra-delete-btn');
+        if (extraDelete) {
+            deleteExtraActivity(extraDelete.dataset.extraId);
             return;
         }
 
@@ -837,12 +1530,14 @@ function renderStats() {
     const activitiesByDay = {};
     Object.keys(yearData).forEach(week => {
         Object.keys(yearData[week].plan).forEach(day => {
-            const activities = yearData[week].plan[day];
-            if (activities.length > 0) {
+            const plannedActivities = yearData[week].plan[day] || [];
+            const extraActivities = yearData[week].extras?.[day] || [];
+            const completedCount = plannedActivities.filter(a => a.completed).length + extraActivities.filter(a => a.completed).length;
+            if (completedCount > 0) {
                 const date = new Date(getStartOfWeek(year, parseInt(week)));
                 date.setDate(date.getDate() + (parseInt(day) - 1 + 7) % 7);
                 const dateString = toYYYYMMDD(date);
-                activitiesByDay[dateString] = (activitiesByDay[dateString] || 0) + activities.filter(a => a.completed).length;
+                activitiesByDay[dateString] = (activitiesByDay[dateString] || 0) + completedCount;
             }
         });
     });
