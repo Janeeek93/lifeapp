@@ -100,6 +100,20 @@
     .kpi-trend.trend-up{color:var(--green)}
     .kpi-trend.trend-down{color:var(--red)}
     .kpi-trend.trend-flat{color:var(--muted)}
+    .inventory-toolbar{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start;margin-top:16px}
+    .inventory-toolbar .row{gap:8px;flex-wrap:wrap}
+    .inventory-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:12px}
+    .inventory-section{margin-top:16px}
+    .inventory-import{margin-top:16px}
+    .inventory-import textarea{width:100%;min-height:120px;border-radius:12px;border:1px dashed var(--line);padding:10px;font-family:inherit}
+    .inventory-inline{margin-top:8px;background:#f8fafc;border:1px dashed var(--line);border-radius:12px;padding:12px}
+    .inventory-inline .grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+    .inventory-empty{text-align:center;padding:16px;color:var(--muted);font-size:13px}
+    .inventory-table-actions{display:flex;flex-wrap:wrap;gap:6px}
+    .inventory-badge{display:inline-flex;align-items:center;gap:4px;background:#e2e8f0;border-radius:999px;padding:2px 8px;font-size:11px;color:#475569}
+    .inventory-quick-note{font-size:12px;color:var(--muted);margin-top:4px}
+    .chart-box{position:relative}
+    .chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
   </style>
 </head>
 <body>
@@ -132,6 +146,7 @@
       <button class="tab" data-tab="eom">Salda (EOM)</button>
       <button class="tab" data-tab="goals">Cele</button>
       <button class="tab" data-tab="analytics">Analityka</button>
+      <button class="tab" data-tab="inventory">Inventory</button>
     </div>
 
     <!-- Dashboard -->
@@ -654,6 +669,169 @@
         <table id="analytics-top-transactions"></table>
       </div>
     </section>
+
+    <!-- Inventory -->
+    <section id="tab-inventory" class="card" style="margin-top:12px;display:none">
+      <div class="row" style="align-items:flex-start;justify-content:space-between;gap:12px">
+        <div>
+          <h3 class="title" style="margin-bottom:4px">Magazyn sprzedażowy</h3>
+          <div class="muted" style="max-width:640px">Monitoruj zapasy, wynik i przepływ gotówki z odsprzedaży obuwia oraz ubrań.</div>
+        </div>
+        <div class="inventory-badge">🧾 Stan magazynowy</div>
+      </div>
+
+      <div class="inventory-toolbar">
+        <div class="row">
+          <label class="tiny">Wyświetl w walucie
+            <select id="inv-currency-select" style="min-width:120px">
+              <option value="PLN">PLN</option>
+              <option value="EUR">EUR</option>
+              <option value="USD">USD</option>
+            </select>
+          </label>
+          <button class="btn soft" id="inv-refresh-rates">🔄 Pobierz dzisiejsze kursy</button>
+          <span class="muted" id="inv-rate-info">Brak kursów – pobierz aktualne notowania.</span>
+        </div>
+        <div class="row">
+          <button class="btn ghost" id="inv-toggle-import">📥 Import / wklejka</button>
+          <button class="btn ghost" id="inv-export-btn">⬇️ Eksport CSV</button>
+        </div>
+      </div>
+
+      <div class="inventory-kpis">
+        <div class="kpi-card light">
+          <div class="label">Towar na stanie</div>
+          <div class="value" id="inv-kpi-stock-count">0</div>
+          <div class="sub" id="inv-kpi-stock-extra">Koszt zakupu: —</div>
+        </div>
+        <div class="kpi-card light">
+          <div class="label">Wycena (wybrana waluta)</div>
+          <div class="value" id="inv-kpi-stock-worth">—</div>
+          <div class="sub" id="inv-kpi-stock-worth-sub">Śr. koszt i czas w magazynie</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Sprzedane pozycje</div>
+          <div class="value" id="inv-kpi-sold-count">0</div>
+          <div class="sub" id="inv-kpi-sold-revenue">Przychód: —</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Zrealizowany wynik</div>
+          <div class="value" id="inv-kpi-sold-pnl">—</div>
+          <div class="sub" id="inv-kpi-sold-roi">ROI: —</div>
+        </div>
+      </div>
+
+      <form id="inv-import-form" class="inventory-import" style="display:none">
+        <h4 class="title" style="font-size:16px;margin:0 0 4px 0">Szybki import / wklejka</h4>
+        <p class="hint">Wklej dane w formacie: marka;model;rozmiar;kwota;data (opcjonalnie). Możesz też użyć CSV lub danych z Excela.</p>
+        <textarea id="inv-import-input" placeholder="Nike;Air Max 1;44;320;2024-05-10&#10;Adidas;Campus 00s;43;280"></textarea>
+        <div class="row" style="justify-content:flex-end;gap:8px;margin-top:8px">
+          <button class="btn ghost" type="button" id="inv-import-cancel">Anuluj</button>
+          <button class="btn" type="submit">Dodaj pozycje</button>
+        </div>
+      </form>
+
+      <div class="card inventory-section">
+        <div class="row" style="align-items:flex-end;gap:12px;justify-content:space-between">
+          <div>
+            <h4 class="title" style="margin:0">Dodaj nowy towar</h4>
+            <div class="muted">Uzupełnij podstawowe informacje, aby śledzić wartość magazynu.</div>
+          </div>
+          <span class="inventory-badge">💡 Możesz też importować hurtowo</span>
+        </div>
+        <form id="inv-add-form" class="grid g-4" style="margin-top:12px">
+          <label class="tiny">Marka<input name="brand" placeholder="np. Nike" required /></label>
+          <label class="tiny">Model<input name="model" placeholder="np. Air Max 1" required /></label>
+          <label class="tiny">Rozmiar<input name="size" placeholder="np. 44 EU" /></label>
+          <label class="tiny">Data zakupu<input name="purchaseDate" type="date" /></label>
+          <label class="tiny">Kwota zakupu (PLN)<input name="purchasePrice" inputmode="decimal" placeholder="0,00" required /></label>
+          <label class="tiny" style="grid-column:1 / -1">Notatka / źródło<input name="purchaseNote" placeholder="np. Allegro, outlet" /></label>
+          <button class="btn" type="submit" style="grid-column:1 / -1">Dodaj do magazynu</button>
+        </form>
+      </div>
+
+      <div class="split-box inventory-section">
+        <div class="grid g-4" style="gap:8px">
+          <input id="inv-search" placeholder="Szukaj po marce lub modelu" />
+          <select id="inv-filter-brand"></select>
+          <select id="inv-filter-size"></select>
+          <select id="inv-sort">
+            <option value="newest">Najnowsze</option>
+            <option value="oldest">Najstarsze</option>
+            <option value="priceDesc">Najdroższe</option>
+            <option value="priceAsc">Najtańsze</option>
+            <option value="brand">Marka A→Z</option>
+            <option value="age">Najdłużej na stanie</option>
+          </select>
+        </div>
+        <div class="row" style="justify-content:space-between;align-items:center;gap:8px;margin-top:8px">
+          <div id="inv-filter-summary" class="inventory-quick-note">Brak pozycji w magazynie.</div>
+          <button class="btn ghost" id="inv-reset-filters" type="button">Wyczyść filtry</button>
+        </div>
+      </div>
+
+      <div class="card inventory-section">
+        <div class="row" style="justify-content:space-between;align-items:flex-end;gap:12px">
+          <h4 class="title" style="margin:0">Towary na sprzedaż</h4>
+          <span class="muted">Kwoty w PLN oraz w wybranej walucie (<span data-inv-currency-label>PLN</span>)</span>
+        </div>
+        <div style="overflow-x:auto;margin-top:8px">
+          <table id="inventory-active-table" class="table-modern">
+            <thead>
+              <tr>
+                <th>Produkt</th>
+                <th>Zakup (PLN)</th>
+                <th>Wycena (<span data-inv-currency-label>PLN</span>)</th>
+                <th>Dni w magazynie</th>
+                <th>Notatki</th>
+                <th>Akcje</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card inventory-section">
+        <div class="row" style="justify-content:space-between;align-items:flex-end;gap:12px">
+          <h4 class="title" style="margin:0">Sprzedane pozycje</h4>
+          <span class="muted">Wszystkie wartości w PLN oraz w walucie <span data-inv-currency-label>PLN</span></span>
+        </div>
+        <div style="overflow-x:auto;margin-top:8px">
+          <table id="inventory-sold-table" class="table-modern">
+            <thead>
+              <tr>
+                <th>Produkt</th>
+                <th>Zakup</th>
+                <th>Sprzedaż</th>
+                <th>Przychód</th>
+                <th>PnL</th>
+                <th>ROI / czas</th>
+                <th>Uwagi</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid g-2 inventory-section">
+        <div class="card" id="inventory-brand-card">
+          <div class="title">Struktura marek (aktywny stock)</div>
+          <div class="chart-box">
+            <canvas id="inventory-brand-chart"></canvas>
+            <div class="chart-empty" id="inventory-brand-empty" style="display:none">Brak danych do wyświetlenia.</div>
+          </div>
+        </div>
+        <div class="card" id="inventory-sales-card">
+          <div class="title">Sprzedaż miesięczna i PnL</div>
+          <div class="chart-box">
+            <canvas id="inventory-sales-chart"></canvas>
+            <div class="chart-empty" id="inventory-sales-empty" style="display:none">Brak historii sprzedaży.</div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -733,6 +911,69 @@
     if(!Array.isArray(bud.recurringLog)) bud.recurringLog=[];
     // NEW: fixed expense templates
     if(!Array.isArray(bud.fixedTemplates)) bud.fixedTemplates=[];
+
+    const normalizeInventoryItem = (item, fallbackDate) => {
+      const id = typeof item?.id === 'string' ? item.id : 'inv_'+Math.random().toString(36).slice(2);
+      const purchasePrice = num(item?.purchasePrice);
+      const purchaseDate = typeof item?.purchaseDate === 'string' ? item.purchaseDate : '';
+      const createdAt = item?.createdAt || purchaseDate || fallbackDate;
+      return {
+        id,
+        brand: item?.brand ? String(item.brand) : '',
+        model: item?.model ? String(item.model) : '',
+        size: item?.size ? String(item.size) : '',
+        purchasePrice,
+        purchaseCurrency: 'PLN',
+        purchaseDate,
+        purchaseNote: item?.purchaseNote ? String(item.purchaseNote) : '',
+        createdAt
+      };
+    };
+    const normalizeSoldItem = (item, fallbackDate) => {
+      const id = typeof item?.id === 'string' ? item.id : 'inv_'+Math.random().toString(36).slice(2);
+      const purchasePrice = num(item?.purchasePrice);
+      const salePricePln = num(item?.salePricePln || item?.salePrice);
+      const saleFees = num(item?.saleFees);
+      const pnlCalculated = salePricePln - purchasePrice - saleFees;
+      return {
+        id,
+        brand: item?.brand ? String(item.brand) : '',
+        model: item?.model ? String(item.model) : '',
+        size: item?.size ? String(item.size) : '',
+        purchasePrice,
+        purchaseCurrency: 'PLN',
+        purchaseDate: typeof item?.purchaseDate === 'string' ? item.purchaseDate : '',
+        purchaseNote: item?.purchaseNote ? String(item.purchaseNote) : '',
+        salePrice: num(item?.salePrice),
+        saleCurrency: item?.saleCurrency ? String(item.saleCurrency) : 'PLN',
+        saleDate: typeof item?.saleDate === 'string' ? item.saleDate : '',
+        saleFees,
+        saleNote: item?.saleNote ? String(item.saleNote) : '',
+        salePricePln,
+        pnlPln: Number.isFinite(num(item?.pnlPln)) ? num(item.pnlPln) : pnlCalculated,
+        soldAt: item?.soldAt || item?.saleDate || fallbackDate
+      };
+    };
+
+    if(!bud.inventory || typeof bud.inventory!=='object') bud.inventory={};
+    if(!Array.isArray(bud.inventory.items)) bud.inventory.items=[];
+    if(!Array.isArray(bud.inventory.sold)) bud.inventory.sold=[];
+    const nowIso=new Date().toISOString();
+    bud.inventory.items=bud.inventory.items.map(item=>normalizeInventoryItem(item, nowIso));
+    bud.inventory.sold=bud.inventory.sold.map(item=>normalizeSoldItem(item, nowIso));
+    if(!bud.inventory.rates || typeof bud.inventory.rates!=='object') bud.inventory.rates={base:'PLN',fetchedAt:null,rates:{}};
+    bud.inventory.rates.base='PLN';
+    if(!bud.inventory.rates.rates || typeof bud.inventory.rates.rates!=='object') bud.inventory.rates.rates={};
+    bud.inventory.rates.rates.EUR = Number(bud.inventory.rates.rates.EUR)||null;
+    bud.inventory.rates.rates.USD = Number(bud.inventory.rates.rates.USD)||null;
+    if(!bud.inventory.ui || typeof bud.inventory.ui!=='object') bud.inventory.ui={};
+    const invUi=bud.inventory.ui;
+    if(!['PLN','EUR','USD'].includes(invUi.selectedCurrency)) invUi.selectedCurrency='PLN';
+    if(typeof invUi.searchTerm!=='string') invUi.searchTerm='';
+    if(typeof invUi.brandFilter!=='string') invUi.brandFilter='';
+    if(typeof invUi.sizeFilter!=='string') invUi.sizeFilter='';
+    if(typeof invUi.sortMode!=='string') invUi.sortMode='newest';
+    if(typeof invUi.showImport!=='boolean') invUi.showImport=false;
     return st;
   }
 
@@ -754,13 +995,20 @@
         workingMonth:monthKey(),
         createTxOnFixedPay:true,
         recurringTemplates:[],recurringLog:[],
-        fixedTemplates:[] // NEW
+        fixedTemplates:[],
+        inventory:{
+          items:[],
+          sold:[],
+          rates:{base:'PLN',fetchedAt:null,rates:{}},
+          ui:{selectedCurrency:'PLN',searchTerm:'',brandFilter:'',sizeFilter:'',sortMode:'newest',showImport:false}
+        }
       }}
     });
   }
 
   let state = migrateState(load()) || def();
   const b=()=>state.modules.budget;
+  const inv=()=>b().inventory;
 
   // --- Core Helpers ----------------------------------------------------------------
   function ensureMonth(ym){if(!b().monthly[ym]) b().monthly[ym]={ incomes:[], fixed:[] }}
@@ -797,7 +1045,7 @@
     });
   }
   const tabs=document.querySelectorAll('.tab');
-  const sections={dashboard:tab('dashboard'),overview:tab('overview'),incomes:tab('incomes'),fixed:tab('fixed'),variable:tab('variable'),categories:tab('categories'),eom:tab('eom'),goals:tab('goals'),analytics:tab('analytics')};
+  const sections={dashboard:tab('dashboard'),overview:tab('overview'),incomes:tab('incomes'),fixed:tab('fixed'),variable:tab('variable'),categories:tab('categories'),eom:tab('eom'),goals:tab('goals'),analytics:tab('analytics'),inventory:tab('inventory')};
   function tab(id){return document.getElementById('tab-'+id)}
   for(const t of tabs){
     t.addEventListener('click',()=>{
@@ -806,6 +1054,7 @@
       if(t.dataset.tab==='variable'){setDefaultDate()}
       if(t.dataset.tab==='analytics') renderAnalytics(); // Render analytics when tab is clicked
       if(t.dataset.tab==='eom') renderEOMHistory(); // Render history when tab is clicked
+      if(t.dataset.tab==='inventory') renderInventory();
       bindMoneyInputs();
     });
   }
@@ -2201,6 +2450,778 @@
     renderEomAccountsChart(ctx, monthsToShow);
   }
 
+  const DAY_MS = 1000*60*60*24;
+
+  function destroyInventoryChart(key){
+    if(inventoryCharts[key]){
+      inventoryCharts[key].destroy();
+      delete inventoryCharts[key];
+    }
+  }
+
+  function inventoryCurrencyLabel(currency){
+    return currency==='PLN' ? (state.currency || 'PLN') : currency;
+  }
+
+  function convertPlnToCurrency(amount, currency){
+    const value = Number(amount);
+    if(!Number.isFinite(value)) return null;
+    if((currency||'PLN').toUpperCase()==='PLN') return value;
+    const rate = inv().rates?.rates?.[currency];
+    if(!Number.isFinite(rate) || rate<=0) return null;
+    return value * rate;
+  }
+
+  function convertCurrencyToPln(amount, currency){
+    const value = Number(amount);
+    if(!Number.isFinite(value)) return null;
+    if((currency||'PLN').toUpperCase()==='PLN') return value;
+    const rate = inv().rates?.rates?.[currency];
+    if(!Number.isFinite(rate) || rate<=0) return null;
+    return value / rate;
+  }
+
+  function convertBetweenCurrencies(amount, fromCurrency, toCurrency){
+    const value = Number(amount);
+    if(!Number.isFinite(value)) return null;
+    const from = (fromCurrency || 'PLN').toUpperCase();
+    const to = (toCurrency || 'PLN').toUpperCase();
+    if(from === to) return value;
+    if(to === 'PLN') return convertCurrencyToPln(value, from);
+    if(from === 'PLN') return convertPlnToCurrency(value, to);
+    const plnValue = convertCurrencyToPln(value, from);
+    if(plnValue === null) return null;
+    return convertPlnToCurrency(plnValue, to);
+  }
+
+  function inventoryDaysBetween(startDate, endDate=new Date()){
+    if(!startDate) return null;
+    const start = startDate instanceof Date ? startDate : new Date(startDate);
+    const end = endDate instanceof Date ? endDate : new Date(endDate);
+    if(isNaN(start) || isNaN(end)) return null;
+    return Math.max(0,(end - start)/DAY_MS);
+  }
+
+  function renderInventoryBrandChart(items){
+    const canvas=document.getElementById('inventory-brand-chart');
+    const empty=document.getElementById('inventory-brand-empty');
+    if(!canvas) return;
+    const map=new Map();
+    for(const item of items){
+      const brand=(item.brand||'Bez marki').trim()||'Bez marki';
+      const value=num(item.purchasePrice);
+      map.set(brand,(map.get(brand)||0)+value);
+    }
+    const entries=Array.from(map.entries()).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    if(entries.length===0){
+      destroyInventoryChart('brand');
+      if(empty) empty.style.display='flex';
+      canvas.style.display='none';
+      return;
+    }
+    canvas.style.display='block';
+    if(empty) empty.style.display='none';
+    destroyInventoryChart('brand');
+    inventoryCharts.brand=new Chart(canvas.getContext('2d'),{
+      type:'bar',
+      data:{
+        labels:entries.map(e=>e[0]),
+        datasets:[{
+          label:'Koszt zakupu (PLN)',
+          data:entries.map(e=>e[1]),
+          backgroundColor:entries.map((_,idx)=>withAlpha(ANALYTICS_COLORS[idx % ANALYTICS_COLORS.length],0.55)),
+          borderColor:entries.map((_,idx)=>ANALYTICS_COLORS[idx % ANALYTICS_COLORS.length]),
+          borderWidth:1
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            callbacks:{
+              label:context=>{
+                const value=context.parsed.y;
+                const selected=inv().ui?.selectedCurrency || 'PLN';
+                const converted=convertBetweenCurrencies(value,'PLN',selected);
+                const base=`${fmt(value,state.currency)}`;
+                if(selected==='PLN' || converted===null) return base;
+                return `${base} (${fmt(converted, inventoryCurrencyLabel(selected))})`;
+              }
+            }
+          }
+        },
+        scales:{ y:{ ticks:{ callback: currencyTicks } } }
+      }
+    });
+  }
+
+  function renderInventorySalesChart(soldItems){
+    const canvas=document.getElementById('inventory-sales-chart');
+    const empty=document.getElementById('inventory-sales-empty');
+    if(!canvas) return;
+    const monthly={};
+    for(const item of soldItems){
+      const ym=(item.saleDate || item.soldAt || '').slice(0,7);
+      if(!ym) continue;
+      if(!monthly[ym]) monthly[ym]={revenue:0,pnl:0,count:0};
+      monthly[ym].revenue+=num(item.salePricePln);
+      monthly[ym].pnl+=num(item.pnlPln);
+      monthly[ym].count+=1;
+    }
+    const months=Object.keys(monthly).sort();
+    if(months.length===0){
+      destroyInventoryChart('sales');
+      if(empty) empty.style.display='flex';
+      canvas.style.display='none';
+      return;
+    }
+    canvas.style.display='block';
+    if(empty) empty.style.display='none';
+    destroyInventoryChart('sales');
+    const selected=inv().ui?.selectedCurrency || 'PLN';
+    inventoryCharts.sales=new Chart(canvas.getContext('2d'),{
+      data:{
+        labels:months,
+        datasets:[
+          {
+            type:'line',
+            label:'Przychód (PLN)',
+            data:months.map(m=>monthly[m].revenue),
+            borderColor:'#0f172a',
+            backgroundColor:'rgba(15,23,42,0.12)',
+            borderWidth:2,
+            fill:true,
+            tension:0.35,
+            yAxisID:'y'
+          },
+          {
+            type:'line',
+            label:'PnL (PLN)',
+            data:months.map(m=>monthly[m].pnl),
+            borderColor:'#16a34a',
+            backgroundColor:'rgba(22,163,74,0.12)',
+            borderWidth:2,
+            fill:true,
+            tension:0.35,
+            yAxisID:'y'
+          },
+          {
+            type:'bar',
+            label:'Liczba transakcji',
+            data:months.map(m=>monthly[m].count),
+            backgroundColor:withAlpha('#0ea5e9',0.35),
+            borderColor:'#0ea5e9',
+            borderWidth:1,
+            yAxisID:'y1'
+          }
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          tooltip:{
+            callbacks:{
+              afterLabel:context=>{
+                if(context.dataset.yAxisID!=='y') return '';
+                if(selected==='PLN') return '';
+                const converted=convertBetweenCurrencies(context.parsed.y,'PLN',selected);
+                if(converted===null) return '';
+                return ` (${fmt(converted, inventoryCurrencyLabel(selected))})`;
+              }
+            }
+          }
+        },
+        scales:{
+          y:{ position:'left', ticks:{ callback: currencyTicks } },
+          y1:{ position:'right', grid:{ drawOnChartArea:false }, ticks:{ precision:0 } }
+        }
+      }
+    });
+  }
+
+  function renderInventory(){
+    const section=tab('inventory');
+    if(!section) return;
+    const inventoryState=inv();
+    const ui=inventoryState.ui || (inventoryState.ui={selectedCurrency:'PLN',searchTerm:'',brandFilter:'',sizeFilter:'',sortMode:'newest',showImport:false});
+    let selectedCurrency=(ui.selectedCurrency||'PLN').toUpperCase();
+    if(!INVENTORY_SUPPORTED_CURRENCIES.includes(selectedCurrency)) selectedCurrency='PLN';
+    ui.selectedCurrency=selectedCurrency;
+    const displayCurrency=inventoryCurrencyLabel(selectedCurrency);
+    const items=Array.isArray(inventoryState.items)?inventoryState.items:[];
+    const sold=Array.isArray(inventoryState.sold)?inventoryState.sold:[];
+    const search=(ui.searchTerm||'').toLowerCase();
+    const brandOptions=Array.from(new Set(items.map(it=>(it.brand||'').trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'pl',{sensitivity:'base'}));
+    const sizeOptions=Array.from(new Set(items.map(it=>(it.size||'').trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'pl',{numeric:true,sensitivity:'base'}));
+    if(ui.brandFilter && !brandOptions.includes(ui.brandFilter)) ui.brandFilter='';
+    if(ui.sizeFilter && !sizeOptions.includes(ui.sizeFilter)) ui.sizeFilter='';
+    const brandFilter=ui.brandFilter||'';
+    const sizeFilter=ui.sizeFilter||'';
+    const sortMode=ui.sortMode||'newest';
+    const today=new Date();
+    const filtered=items.filter(item=>{
+      const combined=`${item.brand||''} ${item.model||''}`.toLowerCase();
+      if(search && !combined.includes(search)) return false;
+      if(brandFilter && (item.brand||'')!==brandFilter) return false;
+      if(sizeFilter && (item.size||'')!==sizeFilter) return false;
+      return true;
+    });
+    const visible=[...filtered];
+    const getCreated=it=>{
+      const d=it.purchaseDate?new Date(it.purchaseDate):(it.createdAt?new Date(it.createdAt):new Date(0));
+      return isNaN(d)?0:d.getTime();
+    };
+    const getAge=it=>{
+      const diff=inventoryDaysBetween(it.purchaseDate,today);
+      return diff===null?0:diff;
+    };
+    switch(sortMode){
+      case 'oldest':
+        visible.sort((a,b)=>getCreated(a)-getCreated(b));
+        break;
+      case 'priceDesc':
+        visible.sort((a,b)=>num(b.purchasePrice)-num(a.purchasePrice));
+        break;
+      case 'priceAsc':
+        visible.sort((a,b)=>num(a.purchasePrice)-num(b.purchasePrice));
+        break;
+      case 'brand':
+        visible.sort((a,b)=>`${a.brand||''} ${a.model||''}`.localeCompare(`${b.brand||''} ${b.model||''}`,'pl',{sensitivity:'base'}));
+        break;
+      case 'age':
+        visible.sort((a,b)=>getAge(b)-getAge(a));
+        break;
+      case 'newest':
+      default:
+        visible.sort((a,b)=>getCreated(b)-getCreated(a));
+    }
+
+    const totalStockCost=items.reduce((sum,it)=>sum+num(it.purchasePrice),0);
+    const totalStockConverted=convertBetweenCurrencies(totalStockCost,'PLN',selectedCurrency);
+    const avgStockCostPln=items.length?totalStockCost/items.length:0;
+    const avgStockConverted=items.length?convertBetweenCurrencies(avgStockCostPln,'PLN',selectedCurrency):null;
+    const avgStockAgeArr=items.map(it=>inventoryDaysBetween(it.purchaseDate,today)).filter(v=>v!==null);
+    const avgStockAge=avgStockAgeArr.length?avgStockAgeArr.reduce((a,b)=>a+b,0)/avgStockAgeArr.length:null;
+
+    const filteredCost=filtered.reduce((sum,it)=>sum+num(it.purchasePrice),0);
+    const filteredConverted=convertBetweenCurrencies(filteredCost,'PLN',selectedCurrency);
+    const filteredAgeArr=filtered.map(it=>inventoryDaysBetween(it.purchaseDate,today)).filter(v=>v!==null);
+    const filteredAvgAge=filteredAgeArr.length?filteredAgeArr.reduce((a,b)=>a+b,0)/filteredAgeArr.length:null;
+
+    const totalSoldPurchase=sold.reduce((sum,it)=>sum+num(it.purchasePrice),0);
+    const totalSoldRevenue=sold.reduce((sum,it)=>sum+num(it.salePricePln),0);
+    const totalSoldPnl=sold.reduce((sum,it)=>sum+num(it.pnlPln),0);
+    const soldRevenueConverted=convertBetweenCurrencies(totalSoldRevenue,'PLN',selectedCurrency);
+    const soldPnlConverted=convertBetweenCurrencies(totalSoldPnl,'PLN',selectedCurrency);
+    const soldHoldArr=sold.map(it=>inventoryDaysBetween(it.purchaseDate,it.saleDate||it.soldAt)).filter(v=>v!==null);
+    const avgSoldHold=soldHoldArr.length?soldHoldArr.reduce((a,b)=>a+b,0)/soldHoldArr.length:null;
+    const roi=totalSoldPurchase>0?((totalSoldRevenue/totalSoldPurchase)-1)*100:null;
+
+    const stockCountEl=document.getElementById('inv-kpi-stock-count');
+    if(stockCountEl) stockCountEl.textContent=items.length;
+    const stockExtra=document.getElementById('inv-kpi-stock-extra');
+    if(stockExtra) stockExtra.textContent=items.length?`Koszt zakupu: ${fmt(totalStockCost,state.currency)}`:'Koszt zakupu: —';
+    const stockWorth=document.getElementById('inv-kpi-stock-worth');
+    if(stockWorth){
+      if(!items.length) stockWorth.textContent='—';
+      else if(selectedCurrency==='PLN' || totalStockConverted!==null) stockWorth.textContent=fmt(selectedCurrency==='PLN'?totalStockCost:totalStockConverted, displayCurrency);
+      else stockWorth.textContent='Brak kursu';
+    }
+    const stockWorthSub=document.getElementById('inv-kpi-stock-worth-sub');
+    if(stockWorthSub){
+      let avgCostText='Śr. koszt: —';
+      if(items.length){
+        if(selectedCurrency==='PLN') avgCostText=`Śr. koszt: ${fmt(avgStockCostPln,state.currency)}`;
+        else if(avgStockConverted!==null) avgCostText=`Śr. koszt: ${fmt(avgStockConverted,displayCurrency)}`;
+        else avgCostText=`Śr. koszt: ${fmt(avgStockCostPln,state.currency)} (brak kursu ${selectedCurrency})`;
+      }
+      const avgAgeText=avgStockAge!==null?`${avgStockAge.toFixed(0)} dni`:'—';
+      stockWorthSub.textContent=`${avgCostText} • Śr. czas w magazynie: ${avgAgeText}`;
+    }
+    const soldCountEl=document.getElementById('inv-kpi-sold-count');
+    if(soldCountEl) soldCountEl.textContent=sold.length;
+    const soldRevenueEl=document.getElementById('inv-kpi-sold-revenue');
+    if(soldRevenueEl){
+      if(!sold.length) soldRevenueEl.textContent='Brak sprzedaży';
+      else if(selectedCurrency==='PLN' || soldRevenueConverted===null) soldRevenueEl.textContent=`Przychód: ${fmt(totalSoldRevenue,state.currency)}`;
+      else soldRevenueEl.textContent=`Przychód: ${fmt(soldRevenueConverted,displayCurrency)} (${fmt(totalSoldRevenue,state.currency)})`;
+    }
+    const soldPnlEl=document.getElementById('inv-kpi-sold-pnl');
+    if(soldPnlEl){
+      if(!sold.length) soldPnlEl.textContent='—';
+      else if(selectedCurrency==='PLN' || soldPnlConverted===null) soldPnlEl.textContent=fmt(totalSoldPnl,displayCurrency);
+      else soldPnlEl.textContent=fmt(soldPnlConverted,displayCurrency);
+    }
+    const soldRoiEl=document.getElementById('inv-kpi-sold-roi');
+    if(soldRoiEl){
+      if(!sold.length) soldRoiEl.textContent='Brak sprzedaży';
+      else{
+        const roiText=roi!==null?`${roi>=0?'+':''}${roi.toFixed(1)}%`:'—';
+        const pnlBase=fmt(totalSoldPnl,state.currency);
+        const pnlExtra=(selectedCurrency!=='PLN' && soldPnlConverted!==null)?` / ${fmt(soldPnlConverted,displayCurrency)}`:'';
+        const holdText=avgSoldHold!==null?`${avgSoldHold.toFixed(0)} dni`:'—';
+        soldRoiEl.textContent=`PnL: ${pnlBase}${pnlExtra} • ROI: ${roiText} • Śr. trzymanie: ${holdText}`;
+      }
+    }
+
+    const rateInfo=document.getElementById('inv-rate-info');
+    if(rateInfo){
+      const fetchedAt=inventoryState.rates?.fetchedAt;
+      const rates=inventoryState.rates?.rates||{};
+      if(fetchedAt){
+        const dt=new Date(fetchedAt);
+        const formatted=isNaN(dt)?fetchedAt:dt.toLocaleString('pl-PL');
+        const eur=rates.EUR?rates.EUR.toFixed(4):'—';
+        const usd=rates.USD?rates.USD.toFixed(4):'—';
+        rateInfo.textContent=`Kursy z ${formatted} | PLN→EUR ${eur} • PLN→USD ${usd}`;
+      }else{
+        rateInfo.textContent='Brak kursów – pobierz aktualne notowania.';
+      }
+    }
+
+    document.querySelectorAll('[data-inv-currency-label]').forEach(el=>{el.textContent=displayCurrency;});
+
+    const importForm=document.getElementById('inv-import-form');
+    if(importForm) importForm.style.display=ui.showImport?'block':'none';
+
+    const summaryEl=document.getElementById('inv-filter-summary');
+    if(summaryEl){
+      let text=`Widoczne: ${filtered.length} / ${items.length} pozycji`;
+      text+=` • Koszt: ${fmt(filteredCost,state.currency)}`;
+      if(selectedCurrency!=='PLN' && filteredConverted!==null) text+=` (${fmt(filteredConverted,displayCurrency)})`;
+      if(filteredAvgAge!==null) text+=` • Śr. czas: ${filteredAvgAge.toFixed(0)} dni`;
+      summaryEl.textContent=text;
+    }
+
+    const searchInput=document.getElementById('inv-search');
+    if(searchInput){
+      if(searchInput.value!==ui.searchTerm) searchInput.value=ui.searchTerm;
+      if(!searchInput.dataset.bound){
+        searchInput.dataset.bound='1';
+        searchInput.addEventListener('input',e=>{
+          inv().ui.searchTerm=e.target.value;
+          save(state);
+          renderInventory();
+        });
+      }
+    }
+
+    const brandSelect=document.getElementById('inv-filter-brand');
+    if(brandSelect){
+      brandSelect.innerHTML='<option value="">Wszystkie marki</option>'+brandOptions.map(b=>`<option value="${b}">${b}</option>`).join('');
+      brandSelect.value=brandFilter;
+      if(!brandSelect.dataset.bound){
+        brandSelect.dataset.bound='1';
+        brandSelect.onchange=e=>{
+          inv().ui.brandFilter=e.target.value;
+          save(state);
+          renderInventory();
+        };
+      }
+    }
+
+    const sizeSelect=document.getElementById('inv-filter-size');
+    if(sizeSelect){
+      sizeSelect.innerHTML='<option value="">Wszystkie rozmiary</option>'+sizeOptions.map(s=>`<option value="${s}">${s}</option>`).join('');
+      sizeSelect.value=sizeFilter;
+      if(!sizeSelect.dataset.bound){
+        sizeSelect.dataset.bound='1';
+        sizeSelect.onchange=e=>{
+          inv().ui.sizeFilter=e.target.value;
+          save(state);
+          renderInventory();
+        };
+      }
+    }
+
+    const sortSelect=document.getElementById('inv-sort');
+    if(sortSelect){
+      sortSelect.value=sortMode;
+      if(!sortSelect.dataset.bound){
+        sortSelect.dataset.bound='1';
+        sortSelect.onchange=e=>{
+          inv().ui.sortMode=e.target.value;
+          save(state);
+          renderInventory();
+        };
+      }
+    }
+
+    const resetBtn=document.getElementById('inv-reset-filters');
+    if(resetBtn && !resetBtn.dataset.bound){
+      resetBtn.dataset.bound='1';
+      resetBtn.onclick=()=>{
+        inv().ui.searchTerm='';
+        inv().ui.brandFilter='';
+        inv().ui.sizeFilter='';
+        inv().ui.sortMode='newest';
+        save(state);
+        renderInventory();
+      };
+    }
+
+    const currencySelect=document.getElementById('inv-currency-select');
+    if(currencySelect){
+      currencySelect.value=selectedCurrency;
+      if(!currencySelect.dataset.bound){
+        currencySelect.dataset.bound='1';
+        currencySelect.onchange=e=>{
+          inv().ui.selectedCurrency=e.target.value;
+          save(state);
+          renderInventory();
+        };
+      }
+    }
+
+    const toggleImport=document.getElementById('inv-toggle-import');
+    if(toggleImport && !toggleImport.dataset.bound){
+      toggleImport.dataset.bound='1';
+      toggleImport.onclick=()=>{
+        inv().ui.showImport=!inv().ui.showImport;
+        save(state);
+        renderInventory();
+      };
+    }
+
+    const cancelImport=document.getElementById('inv-import-cancel');
+    if(cancelImport && !cancelImport.dataset.bound){
+      cancelImport.dataset.bound='1';
+      cancelImport.onclick=()=>{
+        inv().ui.showImport=false;
+        save(state);
+        renderInventory();
+      };
+    }
+
+    const addForm=document.getElementById('inv-add-form');
+    if(addForm && !addForm.dataset.bound){
+      addForm.dataset.bound='1';
+      addForm.onsubmit=e=>{
+        e.preventDefault();
+        const data=new FormData(addForm);
+        const brand=String(data.get('brand')||'').trim();
+        const model=String(data.get('model')||'').trim();
+        const size=String(data.get('size')||'').trim();
+        const purchaseDate=String(data.get('purchaseDate')||'').trim();
+        const price=num(data.get('purchasePrice'));
+        const note=String(data.get('purchaseNote')||'').trim();
+        if(!brand || !model || !price){
+          alert('Podaj markę, model i kwotę zakupu.');
+          return;
+        }
+        inventoryState.items.unshift({
+          id:'inv_'+Math.random().toString(36).slice(2),
+          brand,
+          model,
+          size,
+          purchasePrice:price,
+          purchaseCurrency:'PLN',
+          purchaseDate:purchaseDate||'',
+          purchaseNote:note,
+          createdAt:purchaseDate||new Date().toISOString()
+        });
+        save(state);
+        addForm.reset();
+        renderInventory();
+      };
+    }
+
+    if(importForm && !importForm.dataset.bound){
+      importForm.dataset.bound='1';
+      importForm.onsubmit=e=>{
+        e.preventDefault();
+        const textarea=document.getElementById('inv-import-input');
+        const raw=(textarea.value||'').trim();
+        if(!raw){alert('Wklej dane do importu.');return;}
+        const lines=raw.split(/\n+/);
+        let added=0;
+        for(const line of lines){
+          const clean=line.trim();
+          if(!clean) continue;
+          const parts=clean.split(/[,;\t]/).map(p=>p.trim());
+          if(parts.length<4) continue;
+          const [brand,model,size,priceStr,...rest]=parts;
+          const price=num(priceStr);
+          if(!brand || !model || !price) continue;
+          const dateCandidate = rest[0] && /^\d{4}-\d{2}-\d{2}$/.test(rest[0]) ? rest[0] : '';
+          inventoryState.items.unshift({
+            id:'inv_'+Math.random().toString(36).slice(2),
+            brand,
+            model,
+            size:size||'',
+            purchasePrice:price,
+            purchaseCurrency:'PLN',
+            purchaseDate:dateCandidate,
+            purchaseNote:'',
+            createdAt:dateCandidate||new Date().toISOString()
+          });
+          added++;
+        }
+        if(added===0){alert('Nie udało się rozpoznać żadnej pozycji.');return;}
+        textarea.value='';
+        inv().ui.showImport=false;
+        save(state);
+        alert(`Dodano ${added} pozycji do magazynu.`);
+        renderInventory();
+      };
+    }
+
+    const refreshBtn=document.getElementById('inv-refresh-rates');
+    if(refreshBtn && !refreshBtn.dataset.bound){
+      refreshBtn.dataset.bound='1';
+      refreshBtn.onclick=async()=>{
+        const original=refreshBtn.textContent;
+        refreshBtn.disabled=true;
+        refreshBtn.textContent='Pobieranie...';
+        try{
+          const res=await fetch(INVENTORY_RATES_API);
+          if(!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data=await res.json();
+          if(!data?.rates) throw new Error('Brak danych');
+          inventoryState.rates={
+            base:'PLN',
+            fetchedAt:new Date().toISOString(),
+            rates:{
+              EUR:Number(data.rates.EUR)||null,
+              USD:Number(data.rates.USD)||null
+            }
+          };
+          save(state);
+          renderInventory();
+          alert('Kursy zostały zaktualizowane.');
+        }catch(err){
+          console.error('Inventory rates error',err);
+          alert('Nie udało się pobrać kursów. Spróbuj ponownie później.');
+        }finally{
+          refreshBtn.disabled=false;
+          refreshBtn.textContent=original;
+        }
+      };
+    }
+
+    const exportBtn=document.getElementById('inv-export-btn');
+    if(exportBtn && !exportBtn.dataset.bound){
+      exportBtn.dataset.bound='1';
+      exportBtn.onclick=()=>{
+        const rows=[['status','brand','model','size','purchasePricePLN','purchaseDate','salePrice','saleCurrency','saleDate','saleFees','pnlPLN']];
+        for(const item of items){
+          rows.push(['active', item.brand||'', item.model||'', item.size||'', num(item.purchasePrice), item.purchaseDate||'', '', '', '', '', '']);
+        }
+        for(const item of sold){
+          rows.push(['sold', item.brand||'', item.model||'', item.size||'', num(item.purchasePrice), item.purchaseDate||'', num(item.salePrice), item.saleCurrency||'PLN', item.saleDate||'', num(item.saleFees), num(item.pnlPln)]);
+        }
+        const csv=rows.map(row=>row.map(value=>`"${String(value??'').replace(/"/g,'""')}"`).join(';')).join('\n');
+        const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+        const url=URL.createObjectURL(blob);
+        const link=document.createElement('a');
+        link.href=url;
+        link.download=`inventory_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(()=>{URL.revokeObjectURL(url);link.remove();},0);
+      };
+    }
+
+    const activeBody=document.querySelector('#inventory-active-table tbody');
+    if(activeBody){
+      activeBody.innerHTML='';
+      if(!visible.length){
+        const tr=document.createElement('tr');
+        tr.innerHTML='<td colspan="6" class="inventory-empty">Brak pozycji spełniających warunki.</td>';
+        activeBody.appendChild(tr);
+      }else{
+        const todayStr=new Date().toISOString().slice(0,10);
+        for(const item of visible){
+          const converted=selectedCurrency==='PLN'?num(item.purchasePrice):convertBetweenCurrencies(item.purchasePrice,'PLN',selectedCurrency);
+          const age=inventoryDaysBetween(item.purchaseDate,today);
+          const noteHtml=item.purchaseNote?item.purchaseNote:'<span class="muted">—</span>';
+          const convertedHtml=selectedCurrency==='PLN'?fmt(item.purchasePrice,displayCurrency):(converted!==null?fmt(converted,displayCurrency):'<span class="muted">Brak kursu</span>');
+          const ageLabel=age!==null?`${Math.round(age)} dni`:'—';
+          const sizeLabel=item.size?` • Rozmiar: ${item.size}`:'';
+          const saleOptions=INVENTORY_SUPPORTED_CURRENCIES.map(cur=>`<option value="${cur}" ${cur===selectedCurrency?'selected':''}>${cur}</option>`).join('');
+          const tr=document.createElement('tr');
+          tr.dataset.id=item.id;
+          tr.innerHTML=`<td><div><b>${item.brand||'—'}</b></div><div class="muted">${item.model||'—'}${sizeLabel}</div></td>
+            <td><div>${fmt(item.purchasePrice,state.currency)}</div><div class="tiny">${item.purchaseDate||'—'}</div></td>
+            <td>${convertedHtml}</td>
+            <td>${ageLabel}</td>
+            <td>${noteHtml}</td>
+            <td>
+              <div class="inventory-table-actions">
+                <button class="btn soft" data-act="sell">Sprzedaj</button>
+                <button class="btn ghost" data-act="edit">Edytuj</button>
+                <button class="btn danger" data-act="remove">Usuń</button>
+              </div>
+              <div class="inventory-inline" data-inline="sell" style="display:none">
+                <div class="grid" style="gap:8px">
+                  <label class="tiny">Cena sprzedaży<input data-field="salePrice" inputmode="decimal" placeholder="0,00" /></label>
+                  <label class="tiny">Waluta<select data-field="saleCurrency">${saleOptions}</select></label>
+                  <label class="tiny">Data sprzedaży<input data-field="saleDate" type="date" value="${todayStr}" /></label>
+                  <label class="tiny">Koszty/fee (PLN)<input data-field="saleFees" inputmode="decimal" placeholder="0" /></label>
+                  <label class="tiny" style="grid-column:1 / -1;">Notatka<input data-field="saleNote" placeholder="np. platforma, klient" /></label>
+                </div>
+                <div class="row" style="justify-content:flex-end;gap:8px;margin-top:8px">
+                  <button class="btn ghost" data-act="cancel-sell">Anuluj</button>
+                  <button class="btn" data-act="confirm-sell">Zatwierdź sprzedaż</button>
+                </div>
+              </div>
+              <div class="inventory-inline" data-inline="edit" style="display:none">
+                <div class="grid" style="gap:8px">
+                  <label class="tiny">Marka<input data-field="brand" value="${item.brand||''}" /></label>
+                  <label class="tiny">Model<input data-field="model" value="${item.model||''}" /></label>
+                  <label class="tiny">Rozmiar<input data-field="size" value="${item.size||''}" /></label>
+                  <label class="tiny">Data zakupu<input data-field="purchaseDate" type="date" value="${item.purchaseDate||''}" /></label>
+                  <label class="tiny">Kwota (PLN)<input data-field="purchasePrice" inputmode="decimal" value="${String(item.purchasePrice??'').toString().replace('.',',')}" /></label>
+                  <label class="tiny" style="grid-column:1 / -1;">Notatka<input data-field="purchaseNote" value="${item.purchaseNote||''}" /></label>
+                </div>
+                <div class="row" style="justify-content:flex-end;gap:8px;margin-top:8px">
+                  <button class="btn ghost" data-act="cancel-edit">Anuluj</button>
+                  <button class="btn" data-act="confirm-edit">Zapisz</button>
+                </div>
+              </div>
+            </td>`;
+          activeBody.appendChild(tr);
+          const sellBox=tr.querySelector('.inventory-inline[data-inline="sell"]');
+          const editBox=tr.querySelector('.inventory-inline[data-inline="edit"]');
+          tr.querySelector('[data-act="sell"]').onclick=()=>{
+            sellBox.style.display=sellBox.style.display==='none'?'block':'none';
+            editBox.style.display='none';
+          };
+          tr.querySelector('[data-act="edit"]').onclick=()=>{
+            editBox.style.display=editBox.style.display==='none'?'block':'none';
+            sellBox.style.display='none';
+          };
+          tr.querySelector('[data-act="remove"]').onclick=()=>{
+            if(!confirm('Usunąć tę pozycję z magazynu?')) return;
+            inventoryState.items=inventoryState.items.filter(x=>x.id!==item.id);
+            save(state);
+            renderInventory();
+          };
+          sellBox.querySelector('[data-act="cancel-sell"]').onclick=()=>{sellBox.style.display='none';};
+          sellBox.querySelector('[data-act="confirm-sell"]').onclick=()=>{
+            const price=num(sellBox.querySelector('[data-field="salePrice"]').value);
+            const currency=sellBox.querySelector('[data-field="saleCurrency"]').value || 'PLN';
+            const saleDate=sellBox.querySelector('[data-field="saleDate"]').value || todayStr;
+            const fees=num(sellBox.querySelector('[data-field="saleFees"]').value);
+            const note=sellBox.querySelector('[data-field="saleNote"]').value || '';
+            if(!price){alert('Podaj cenę sprzedaży.');return;}
+            const salePricePln = convertBetweenCurrencies(price,currency,'PLN');
+            if(currency!=='PLN' && salePricePln===null){
+              alert(`Brak kursu dla ${currency}. Pobierz aktualne kursy.`);
+              return;
+            }
+            const saleValue = currency==='PLN'?price:salePricePln;
+            const pnl = saleValue - num(item.purchasePrice) - fees;
+            inventoryState.items=inventoryState.items.filter(x=>x.id!==item.id);
+            inventoryState.sold.unshift({
+              id:item.id,
+              brand:item.brand,
+              model:item.model,
+              size:item.size,
+              purchasePrice:num(item.purchasePrice),
+              purchaseCurrency:'PLN',
+              purchaseDate:item.purchaseDate,
+              purchaseNote:item.purchaseNote,
+              salePrice:price,
+              saleCurrency:currency,
+              saleDate,
+              saleFees:fees,
+              saleNote:note,
+              salePricePln:saleValue,
+              pnlPln:pnl,
+              soldAt:new Date().toISOString()
+            });
+            save(state);
+            renderInventory();
+          };
+          editBox.querySelector('[data-act="cancel-edit"]').onclick=()=>{editBox.style.display='none';};
+          editBox.querySelector('[data-act="confirm-edit"]').onclick=()=>{
+            const brand=editBox.querySelector('[data-field="brand"]').value.trim();
+            const model=editBox.querySelector('[data-field="model"]').value.trim();
+            const size=editBox.querySelector('[data-field="size"]').value.trim();
+            const purchaseDate=editBox.querySelector('[data-field="purchaseDate"]').value;
+            const purchasePrice=num(editBox.querySelector('[data-field="purchasePrice"]').value);
+            const note=editBox.querySelector('[data-field="purchaseNote"]').value.trim();
+            if(!brand || !model || !purchasePrice){alert('Podaj markę, model i kwotę zakupu.');return;}
+            item.brand=brand;
+            item.model=model;
+            item.size=size;
+            item.purchaseDate=purchaseDate||'';
+            item.purchasePrice=purchasePrice;
+            item.purchaseNote=note;
+            item.createdAt=item.createdAt || item.purchaseDate || new Date().toISOString();
+            save(state);
+            renderInventory();
+          };
+        }
+      }
+    }
+
+    const soldBody=document.querySelector('#inventory-sold-table tbody');
+    if(soldBody){
+      soldBody.innerHTML='';
+      if(!sold.length){
+        const tr=document.createElement('tr');
+        tr.innerHTML='<td colspan="7" class="inventory-empty">Brak zarejestrowanych sprzedaży.</td>';
+        soldBody.appendChild(tr);
+      }else{
+        const sortedSold=[...sold].sort((a,b)=>{
+          const dateA=new Date(a.saleDate || a.soldAt || 0).getTime();
+          const dateB=new Date(b.saleDate || b.soldAt || 0).getTime();
+          return dateB-dateA;
+        });
+        for(const item of sortedSold){
+          const saleConverted=selectedCurrency==='PLN'?null:convertBetweenCurrencies(item.salePricePln,'PLN',selectedCurrency);
+          const pnlConverted=selectedCurrency==='PLN'?null:convertBetweenCurrencies(item.pnlPln,'PLN',selectedCurrency);
+          const roiSingle=item.purchasePrice? (item.pnlPln/item.purchasePrice)*100 : null;
+          const holdDays=inventoryDaysBetween(item.purchaseDate,item.saleDate||item.soldAt);
+          const noteHtml=item.saleNote?item.saleNote:'<span class="muted">—</span>';
+          const tr=document.createElement('tr');
+          tr.dataset.id=item.id;
+          tr.innerHTML=`<td><div><b>${item.brand||'—'}</b></div><div class="muted">${item.model||'—'}${item.size?` • ${item.size}`:''}</div></td>
+            <td><div>${fmt(item.purchasePrice,state.currency)}</div><div class="tiny">${item.purchaseDate||'—'}</div></td>
+            <td><div>${item.saleDate||'—'}</div><div class="tiny">${fmt(item.salePrice,item.saleCurrency||'PLN')}</div>${item.saleFees?`<div class="tiny">Fee: ${fmt(item.saleFees,state.currency)}</div>`:''}</td>
+            <td><div>${fmt(item.salePricePln,state.currency)}</div>${saleConverted!==null?`<div class="tiny">${fmt(saleConverted, displayCurrency)}</div>`:''}</td>
+            <td><div class="${item.pnlPln>=0?'ok':'bad'}">${fmt(item.pnlPln,state.currency)}</div>${pnlConverted!==null?`<div class="tiny">${fmt(pnlConverted, displayCurrency)}</div>`:''}</td>
+            <td><div>${roiSingle!==null && Number.isFinite(roiSingle)?`${roiSingle>=0?'+':''}${roiSingle.toFixed(1)}%`:'—'}</div><div class="tiny">Czas: ${holdDays!==null?`${Math.round(holdDays)} dni`:'—'}</div></td>
+            <td>${noteHtml}<div class="inventory-table-actions" style="margin-top:6px"><button class="btn ghost" data-act="restore">Przywróć</button><button class="btn danger" data-act="delete-sold">Usuń</button></div></td>`;
+          soldBody.appendChild(tr);
+          tr.querySelector('[data-act="restore"]').onclick=()=>{
+            if(!confirm('Przywrócić tę pozycję do magazynu?')) return;
+            inventoryState.sold=inventoryState.sold.filter(x=>x.id!==item.id);
+            inventoryState.items.unshift({
+              id:item.id,
+              brand:item.brand,
+              model:item.model,
+              size:item.size,
+              purchasePrice:item.purchasePrice,
+              purchaseCurrency:'PLN',
+              purchaseDate:item.purchaseDate,
+              purchaseNote:item.purchaseNote||'',
+              createdAt:item.purchaseDate || new Date().toISOString()
+            });
+            save(state);
+            renderInventory();
+          };
+          tr.querySelector('[data-act="delete-sold"]').onclick=()=>{
+            if(!confirm('Usunąć zapis sprzedaży?')) return;
+            inventoryState.sold=inventoryState.sold.filter(x=>x.id!==item.id);
+            save(state);
+            renderInventory();
+          };
+        }
+      }
+    }
+
+    renderInventoryBrandChart(items);
+    renderInventorySalesChart(sold);
+    bindMoneyInputs(section);
+  }
+
+
   // --- Goals ------------------------------------------------------------------
   function renderGoals(){
     const list = document.getElementById('goal-list');
@@ -2527,6 +3548,9 @@
     monthlySort:{field:'ym',dir:'desc'}
   };
   const ANALYTICS_COLORS=['#0ea5e9','#ef4444','#16a34a','#f97316','#8b5cf6','#14b8a6','#facc15','#6366f1','#0f172a'];
+  const INVENTORY_SUPPORTED_CURRENCIES=['PLN','EUR','USD'];
+  const INVENTORY_RATES_API='https://api.exchangerate.host/latest?base=PLN&symbols=EUR,USD';
+  const inventoryCharts={};
 
   function loadAnalyticsUiState(){
     try{
@@ -3855,6 +4879,7 @@
     safeRender(renderFixed,'Fixed');
     safeRender(renderVariable,'Variable');
     safeRender(renderCategories,'Categories');
+    safeRender(renderInventory,'Inventory');
     safeRender(renderGoalsAndEOM,'Goals+EOM');
     bindMoneyInputs();
   }
