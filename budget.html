@@ -77,8 +77,16 @@
     .analytics-month-chip{padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:12px;transition:all .2s ease}
     .analytics-month-chip.active{background:#0f172a;color:#fff;border-color:#0f172a}
     .analytics-month-chip:hover{border-color:var(--blue)}
-    .table-sortable th{cursor:pointer;position:relative;white-space:nowrap}
-    .table-sortable th .sort-indicator{font-size:10px;margin-left:4px}
+    .table-sortable th{position:relative;white-space:nowrap}
+    .table-sortable th[data-sort]{cursor:pointer}
+    .table-sortable th .sort-indicator{font-size:10px;margin-left:4px;color:var(--muted)}
+    .table-sortable th.sorted-asc,.table-sortable th.sorted-desc{color:#0f172a}
+    .table-sortable th.sorted-asc .sort-indicator,.table-sortable th.sorted-desc .sort-indicator{color:#0f172a}
+    .th-label{display:inline-flex;align-items:center;gap:4px}
+    .inventory-table thead th,.inventory-table tbody td{padding:6px 8px;font-size:12px;line-height:1.3}
+    .inventory-table tbody td:first-child b{font-size:13px}
+    .inventory-table tbody td .muted{font-size:11px}
+    .inventory-table-actions .btn{padding:6px 10px;font-size:12px;border-radius:10px}
     .delta-up{color:var(--green);font-weight:600}
     .delta-down{color:var(--red);font-weight:600}
     .delta-neutral{color:var(--muted);font-weight:500}
@@ -758,10 +766,16 @@
           <select id="inv-sort">
             <option value="newest">Najnowsze</option>
             <option value="oldest">Najstarsze</option>
-            <option value="priceDesc">Najdroższe</option>
-            <option value="priceAsc">Najtańsze</option>
-            <option value="brand">Marka A→Z</option>
-            <option value="age">Najdłużej na stanie</option>
+            <option value="priceDesc">Najdroższe (zakup)</option>
+            <option value="priceAsc">Najtańsze (zakup)</option>
+            <option value="convertedDesc">Najwyższa wycena</option>
+            <option value="convertedAsc">Najniższa wycena</option>
+            <option value="brandAsc">Marka A→Z</option>
+            <option value="brandDesc">Marka Z→A</option>
+            <option value="ageDesc">Najdłużej na stanie</option>
+            <option value="ageAsc">Najkrócej na stanie</option>
+            <option value="noteAsc">Notatka A→Z</option>
+            <option value="noteDesc">Notatka Z→A</option>
           </select>
         </div>
         <div class="row" style="justify-content:space-between;align-items:center;gap:8px;margin-top:8px">
@@ -776,15 +790,15 @@
           <span class="muted">Kwoty w PLN oraz w wybranej walucie (<span data-inv-currency-label>PLN</span>)</span>
         </div>
         <div style="overflow-x:auto;margin-top:8px">
-          <table id="inventory-active-table" class="table-modern">
+          <table id="inventory-active-table" class="table-modern table-sortable inventory-table">
             <thead>
               <tr>
-                <th>Produkt</th>
-                <th>Zakup (PLN)</th>
-                <th>Wycena (<span data-inv-currency-label>PLN</span>)</th>
-                <th>Dni w magazynie</th>
-                <th>Notatki</th>
-                <th>Akcje</th>
+                <th data-sort="product"><span class="th-label">Produkt<span class="sort-indicator"></span></span></th>
+                <th data-sort="purchase"><span class="th-label">Zakup (PLN)<span class="sort-indicator"></span></span></th>
+                <th data-sort="converted"><span class="th-label">Wycena (<span data-inv-currency-label>PLN</span>)<span class="sort-indicator"></span></span></th>
+                <th data-sort="age"><span class="th-label">Dni w magazynie<span class="sort-indicator"></span></span></th>
+                <th data-sort="note"><span class="th-label">Notatki<span class="sort-indicator"></span></span></th>
+                <th><span class="th-label">Akcje</span></th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -798,7 +812,7 @@
           <span class="muted">Wszystkie wartości w PLN oraz w walucie <span data-inv-currency-label>PLN</span></span>
         </div>
         <div style="overflow-x:auto;margin-top:8px">
-          <table id="inventory-sold-table" class="table-modern">
+          <table id="inventory-sold-table" class="table-modern inventory-table">
             <thead>
               <tr>
                 <th>Produkt</th>
@@ -2674,7 +2688,13 @@
     if(ui.sizeFilter && !sizeOptions.includes(ui.sizeFilter)) ui.sizeFilter='';
     const brandFilter=ui.brandFilter||'';
     const sizeFilter=ui.sizeFilter||'';
-    const sortMode=ui.sortMode||'newest';
+    const allowedSortModes=new Set(['newest','oldest','priceDesc','priceAsc','brandAsc','brandDesc','convertedDesc','convertedAsc','ageDesc','ageAsc','noteDesc','noteAsc']);
+    let sortMode=ui.sortMode||'newest';
+    if(sortMode==='brand') sortMode='brandAsc';
+    if(sortMode==='age') sortMode='ageDesc';
+    if(sortMode==='converted') sortMode='convertedDesc';
+    if(!allowedSortModes.has(sortMode)) sortMode='newest';
+    ui.sortMode=sortMode;
     const today=new Date();
     const filtered=items.filter(item=>{
       const combined=`${item.brand||''} ${item.model||''}`.toLowerCase();
@@ -2688,30 +2708,125 @@
       const d=it.purchaseDate?new Date(it.purchaseDate):(it.createdAt?new Date(it.createdAt):new Date(0));
       return isNaN(d)?0:d.getTime();
     };
-    const getAge=it=>{
-      const diff=inventoryDaysBetween(it.purchaseDate,today);
-      return diff===null?0:diff;
+    const computeCache=new Map();
+    const getMeta=item=>{
+      if(!computeCache.has(item.id)){
+        const purchase=num(item.purchasePrice);
+        const rawConverted=selectedCurrency==='PLN'?purchase:convertBetweenCurrencies(purchase,'PLN',selectedCurrency);
+        computeCache.set(item.id,{
+          purchase:Number.isFinite(purchase)?purchase:null,
+          converted:Number.isFinite(rawConverted)?rawConverted:null,
+          age:inventoryDaysBetween(item.purchaseDate,today),
+          product:`${item.brand||''} ${item.model||''}`.trim(),
+          note:(item.purchaseNote||'').trim()
+        });
+      }
+      return computeCache.get(item.id);
+    };
+    const compareNumeric=(a,b,dir=1)=>{
+      const aVal=Number.isFinite(a)?a:null;
+      const bVal=Number.isFinite(b)?b:null;
+      if(aVal===null && bVal===null) return 0;
+      if(aVal===null) return 1;
+      if(bVal===null) return -1;
+      return dir*(aVal-bVal);
+    };
+    const compareString=(a,b,dir=1)=>{
+      const textA=(a||'').toString().trim();
+      const textB=(b||'').toString().trim();
+      const emptyA=textA.length===0;
+      const emptyB=textB.length===0;
+      if(emptyA && emptyB) return 0;
+      if(emptyA) return 1;
+      if(emptyB) return -1;
+      return dir*textA.localeCompare(textB,'pl',{sensitivity:'base'});
+    };
+    const fallbackCompare=(a,b)=>getCreated(b)-getCreated(a);
+    const withFallback=cmp=>(a,b)=>{
+      const result=cmp(a,b);
+      if(result!==0) return result;
+      return fallbackCompare(a,b);
     };
     switch(sortMode){
       case 'oldest':
         visible.sort((a,b)=>getCreated(a)-getCreated(b));
         break;
       case 'priceDesc':
-        visible.sort((a,b)=>num(b.purchasePrice)-num(a.purchasePrice));
+        visible.sort(withFallback((a,b)=>compareNumeric(getMeta(a).purchase,getMeta(b).purchase,-1)));
         break;
       case 'priceAsc':
-        visible.sort((a,b)=>num(a.purchasePrice)-num(b.purchasePrice));
+        visible.sort(withFallback((a,b)=>compareNumeric(getMeta(a).purchase,getMeta(b).purchase,1)));
         break;
-      case 'brand':
-        visible.sort((a,b)=>`${a.brand||''} ${a.model||''}`.localeCompare(`${b.brand||''} ${b.model||''}`,'pl',{sensitivity:'base'}));
+      case 'brandAsc':
+        visible.sort(withFallback((a,b)=>compareString(getMeta(a).product,getMeta(b).product,1)));
         break;
-      case 'age':
-        visible.sort((a,b)=>getAge(b)-getAge(a));
+      case 'brandDesc':
+        visible.sort(withFallback((a,b)=>compareString(getMeta(a).product,getMeta(b).product,-1)));
+        break;
+      case 'convertedDesc':
+        visible.sort(withFallback((a,b)=>compareNumeric(getMeta(a).converted,getMeta(b).converted,-1)));
+        break;
+      case 'convertedAsc':
+        visible.sort(withFallback((a,b)=>compareNumeric(getMeta(a).converted,getMeta(b).converted,1)));
+        break;
+      case 'ageDesc':
+        visible.sort(withFallback((a,b)=>compareNumeric(getMeta(a).age,getMeta(b).age,-1)));
+        break;
+      case 'ageAsc':
+        visible.sort(withFallback((a,b)=>compareNumeric(getMeta(a).age,getMeta(b).age,1)));
+        break;
+      case 'noteDesc':
+        visible.sort(withFallback((a,b)=>compareString(getMeta(a).note,getMeta(b).note,-1)));
+        break;
+      case 'noteAsc':
+        visible.sort(withFallback((a,b)=>compareString(getMeta(a).note,getMeta(b).note,1)));
         break;
       case 'newest':
       default:
         visible.sort((a,b)=>getCreated(b)-getCreated(a));
     }
+
+    const headerSortOrders={
+      product:['brandAsc','brandDesc'],
+      purchase:['priceAsc','priceDesc'],
+      converted:['convertedAsc','convertedDesc'],
+      age:['ageAsc','ageDesc'],
+      note:['noteAsc','noteDesc']
+    };
+    const headerCells=document.querySelectorAll('#inventory-active-table thead th[data-sort]');
+    headerCells.forEach(th=>{
+      if(!th.dataset.bound){
+        th.dataset.bound='1';
+        th.addEventListener('click',()=>{
+          const key=th.dataset.sort;
+          const order=headerSortOrders[key];
+          if(!order || !order.length) return;
+          const current=inv().ui.sortMode||'newest';
+          let next=order[0];
+          if(order.includes(current)){
+            const idx=order.indexOf(current);
+            next=order[(idx+1)%order.length];
+          }
+          inv().ui.sortMode=next;
+          save(state);
+          renderInventory();
+        });
+      }
+    });
+    headerCells.forEach(th=>{
+      const indicator=th.querySelector('.sort-indicator');
+      if(indicator) indicator.textContent='';
+      th.classList.remove('sorted-asc','sorted-desc');
+      th.removeAttribute('aria-sort');
+      const key=th.dataset.sort;
+      const order=headerSortOrders[key];
+      if(order && order.includes(sortMode)){
+        const index=order.indexOf(sortMode);
+        if(indicator) indicator.textContent=index===0?'▲':'▼';
+        th.classList.add(index===0?'sorted-asc':'sorted-desc');
+        th.setAttribute('aria-sort',index===0?'ascending':'descending');
+      }
+    });
 
     const totalStockCost=items.reduce((sum,it)=>sum+num(it.purchasePrice),0);
     const totalStockConverted=convertBetweenCurrencies(totalStockCost,'PLN',selectedCurrency);
@@ -3098,11 +3213,16 @@
       }else{
         const todayStr=new Date().toISOString().slice(0,10);
         for(const item of visible){
-          const converted=selectedCurrency==='PLN'?num(item.purchasePrice):convertBetweenCurrencies(item.purchasePrice,'PLN',selectedCurrency);
-          const age=inventoryDaysBetween(item.purchaseDate,today);
-          const noteHtml=item.purchaseNote?item.purchaseNote:'<span class="muted">—</span>';
-          const convertedHtml=selectedCurrency==='PLN'?fmt(item.purchasePrice,displayCurrency):(converted!==null?fmt(converted,displayCurrency):'<span class="muted">Brak kursu</span>');
-          const ageLabel=age!==null?`${Math.round(age)} dni`:'—';
+          const meta=getMeta(item);
+          const purchaseValue=meta.purchase ?? num(item.purchasePrice);
+          const convertedValue=meta.converted;
+          const ageValue=meta.age;
+          const noteText=meta.note || item.purchaseNote || '';
+          const noteHtml=noteText?noteText:'<span class="muted">—</span>';
+          const convertedHtml=selectedCurrency==='PLN'
+            ? fmt(purchaseValue,displayCurrency)
+            : (convertedValue!==null?fmt(convertedValue,displayCurrency):'<span class="muted">Brak kursu</span>');
+          const ageLabel=ageValue!==null?`${Math.round(ageValue)} dni`:'—';
           const sizeLabel=item.size?` • Rozmiar: ${item.size}`:'';
           const saleOptions=INVENTORY_SUPPORTED_CURRENCIES.map(cur=>`<option value="${cur}" ${cur===selectedCurrency?'selected':''}>${cur}</option>`).join('');
           const tr=document.createElement('tr');
