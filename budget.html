@@ -27,6 +27,8 @@
     .tab.active{background:#0f172a;color:#fff;border-color:#0f172a}
     table{width:100%;border-collapse:collapse}
     th,td{padding:8px;border-top:1px solid var(--line);text-align:left;vertical-align:middle}
+    th.sortable{cursor:pointer;user-select:none;white-space:nowrap}
+    th.sortable:hover{background:#f8fafc}
     input,select,textarea{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;color:#0f172a;width:100%}
     input::placeholder{color:#94a3b8}
     .grid{display:grid;gap:12px}
@@ -64,6 +66,10 @@
     .timeline-bar .bar-label { font-weight: 500; }
     .timeline-bar .bar-progress { opacity: 0.7; }
     .analytics-cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .toggle-group{display:flex;gap:6px;flex-wrap:wrap}
+    .toggle-btn{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:#f8fafc;color:var(--ink);font-size:12px;cursor:pointer;transition:.2s all}
+    .toggle-btn.active{background:#0f172a;color:#fff;border-color:#0f172a}
+    .empty-state{color:var(--muted);text-align:center;padding-top:40px;font-size:13px}
   </style>
 </head>
 <body>
@@ -454,43 +460,167 @@
       
       <div id="analytics-kpis" class="grid g-4" style="margin-top:12px"></div>
 
+      <div class="card" style="margin-top:12px;">
+        <div class="row" style="align-items:flex-start; gap:16px; flex-wrap:wrap;">
+          <div>
+            <div class="title">Ustawienia analizy</div>
+            <p class="tiny">Zaznacz kategorie oraz wybierz metryki, aby dopasować wykresy i tabele poniżej.</p>
+          </div>
+          <div id="analytics-cat-filter-container" class="row" style="position:relative; gap:8px;">
+            <button class="btn ghost" id="analytics-cat-filter-btn">Wszystkie kategorie</button>
+            <div id="analytics-cat-filter-dropdown" style="display:none; position:absolute; right:0; top:100%; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px; z-index:20; box-shadow:0 4px 6px rgba(0,0,0,.1); min-width:500px;">
+              <input type="search" id="analytics-cat-filter-search" placeholder="Szukaj kategorii..." style="width:100%; margin-bottom:8px;" />
+              <div id="analytics-cat-filter-options" class="analytics-cat-grid" style="max-height:250px; overflow-y:auto;"></div>
+              <div class="row" style="margin-top:8px; border-top:1px solid var(--line); padding-top:8px;">
+                <button class="btn soft" id="analytics-cat-filter-all">Wszystkie</button>
+                <button class="btn soft" id="analytics-cat-filter-none">Żadne</button>
+                <button class="btn soft" id="analytics-cat-filter-invert">Odwróć</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px; gap:12px; flex-wrap:wrap;">
+          <div class="row" style="gap:8px; align-items:center;">
+            <span class="tiny muted">Metryka wykresu trendów:</span>
+            <div class="toggle-group" id="analytics-metric-toggles">
+              <button class="toggle-btn active" data-analytics-metric="total">Kwota</button>
+              <button class="toggle-btn" data-analytics-metric="count">Liczba transakcji</button>
+              <button class="toggle-btn" data-analytics-metric="avg">Średnia wartość</button>
+            </div>
+          </div>
+          <div class="row" style="gap:8px; align-items:center;">
+            <span class="tiny muted">Liczba kategorii na wykresie:</span>
+            <select id="analytics-topn-select" style="width:auto">
+              <option value="3">Top 3</option>
+              <option value="5" selected>Top 5</option>
+              <option value="8">Top 8</option>
+              <option value="12">Top 12</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <div class="grid g-2" style="margin-top:12px">
         <div class="card">
           <div class="title">Przychody vs Wydatki</div>
           <div class="chart-box"><canvas id="analytics-income-expense-chart"></canvas></div>
         </div>
         <div class="card">
-          <div class="title">Struktura Wydatków (bez stałych)</div>
+          <div class="title">Struktura Wydatków (wybrane)</div>
           <div class="chart-box"><canvas id="analytics-category-chart"></canvas></div>
         </div>
       </div>
-      
+
+      <div class="grid g-2" style="margin-top:12px">
+        <div class="card">
+          <div class="title">Dynamika kategorii w czasie</div>
+          <p class="tiny">Wykres pokazuje zmiany w wybranych kategoriach w ujęciu miesięcznym (metryka zgodna z wyborem powyżej).</p>
+          <div class="chart-box" style="height:280px; position:relative;">
+            <canvas id="analytics-category-series"></canvas>
+            <div id="analytics-category-series-empty" class="empty-state" style="display:none;">Wybierz kategorie, aby zobaczyć przebieg.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="title">Podsumowanie kategorii (wybrane)</div>
+          <p class="tiny">Łączna kwota, udział w wydatkach, liczba i średnia wartość transakcji oraz dynamika miesiąc do miesiąca.</p>
+          <div style="max-height:300px; overflow:auto;">
+            <table id="analytics-category-breakdown"></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:12px">
+        <div class="card">
+          <div class="title">Czy rośnie liczba czy wartość?</div>
+          <p class="tiny">Bąbelki przedstawiają ostatni miesiąc analizowanego okresu: oś X to liczba transakcji, oś Y to średnia kwota, a rozmiar bąbelka to łączna wartość.</p>
+          <div class="chart-box" style="height:280px; position:relative;">
+            <canvas id="analytics-volume-avg-chart"></canvas>
+            <div id="analytics-volume-avg-empty" class="empty-state" style="display:none;">Brak danych dla wybranych kategorii w ostatnim miesiącu.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="title">Insights i anomalie</div>
+          <p class="tiny">Największe zmiany miesiąc do miesiąca — łatwo sprawdzisz, czy wzrost wynika z częstszych zakupów czy wyższych kwot.</p>
+          <div style="max-height:280px; overflow:auto;">
+            <table id="analytics-insights-table"></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="title">Podsumowanie miesięczne (wybrane kategorie)</div>
+        <p class="tiny">Porównanie udziału, wolumenu i średniej wartości transakcji w każdym miesiącu analizowanego okresu.</p>
+        <div style="overflow-x:auto;">
+          <table id="analytics-monthly-summary"></table>
+        </div>
+      </div>
+
       <div class="card" style="margin-top:12px">
         <h4 class="title">Trendy w Kategoriach</h4>
-        <p class="tiny">Zobacz, jak zmieniały się Twoje wydatki w poszczególnych kategoriach na przestrzeni wybranego okresu.</p>
+        <p class="tiny">Zobacz, jak zmieniały się Twoje wydatki w poszczególnych kategoriach na przestrzeni wybranego okresu. Intensywność koloru wskazuje relatywną wartość.</p>
         <div style="overflow-x:auto;">
           <table id="analytics-category-trends"></table>
         </div>
       </div>
 
-      <div class="card" style="margin-top:12px; position: relative;">
-        <div class="row">
-         <h4 class="title">Największe Pojedyncze Wydatki</h4>
-         <div id="analytics-cat-filter-container" style="position: relative;">
-           <button class="btn ghost" id="analytics-cat-filter-btn">Wszystkie kategorie</button>
-            <div id="analytics-cat-filter-dropdown" style="display:none; position: absolute; right:0; top: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,.1); min-width: 500px;">
-             <div id="analytics-cat-filter-options" class="analytics-cat-grid" style="max-height: 250px; overflow-y: auto;"></div>
-             <div class="row" style="margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px;">
-               <button class="btn soft" id="analytics-cat-filter-all">Wszystkie</button>
-               <button class="btn soft" id="analytics-cat-filter-none">Żadne</button>
-               <button class="btn soft" id="analytics-cat-filter-invert">Odwróć</button>
-             </div>
-           </div>
-         </div>
-       </div>
-       <p class="tiny">Twoje 10 największych transakcji w wybranym okresie. To dobre miejsce do szukania oszczędności.</p>
-       <table id="analytics-top-transactions"></table>
-     </div>
+      <div class="card" style="margin-top:12px;">
+        <h4 class="title">Największe Pojedyncze Wydatki</h4>
+        <p class="tiny">Twoje 10 największych transakcji w wybranym okresie. Filtrowanie kategorii wpływa na tę listę.</p>
+        <table id="analytics-top-transactions"></table>
+      </div>
+
+      <div class="grid g-2" style="margin-top:12px;">
+        <div class="card">
+          <div class="title">Co napędza wzrost wydatków?</div>
+          <p class="tiny">Porównanie łącznych wydatków, liczby transakcji oraz średniej wartości w czasie dla wybranych kategorii.</p>
+          <div class="chart-box" style="height:280px; position:relative;">
+            <canvas id="analytics-drivers-chart"></canvas>
+            <div id="analytics-drivers-empty" class="empty-state" style="display:none;">Brak danych do wyświetlenia.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="title">Rozkład tygodniowy</div>
+          <p class="tiny">Które dni tygodnia generują największe wydatki oraz najwyższe średnie rachunki?</p>
+          <div class="chart-box" style="height:280px; position:relative;">
+            <canvas id="analytics-weekday-chart"></canvas>
+            <div id="analytics-weekday-empty" class="empty-state" style="display:none;">Brak danych dla wybranego filtra.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:12px;">
+        <div class="card">
+          <div class="title">Dekompozycja zmian m/m</div>
+          <p class="tiny">Sprawdź, czy zmiany wartości wynikają z liczby transakcji czy z większych rachunków.</p>
+          <div style="max-height:300px; overflow:auto;">
+            <table id="analytics-driver-table"></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="title">Statystyki kwot w kategoriach</div>
+          <p class="tiny">Min/max, mediana, percentyle i zmienność transakcji w analizowanym okresie.</p>
+          <div style="max-height:300px; overflow:auto;">
+            <table id="analytics-category-depth"></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:12px;">
+        <div class="card">
+          <div class="title">Konta a wydatki</div>
+          <p class="tiny">Jak rozkładają się wybrane wydatki pomiędzy kontami oraz które kategorie dominują.</p>
+          <div style="max-height:300px; overflow:auto;">
+            <table id="analytics-accounts-summary"></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="title">Najgorętsze i najspokojniejsze dni</div>
+          <p class="tiny">Dni z najwyższą i najniższą aktywnością w wybranych kategoriach — pomocne przy wyłapywaniu anomalii.</p>
+          <div style="max-height:300px; overflow:auto;">
+            <table id="analytics-daily-extremes"></table>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -604,6 +734,7 @@
   function ensureMonth(ym){if(!b().monthly[ym]) b().monthly[ym]={ incomes:[], fixed:[] }}
   function setDefaultDate(){const i=document.querySelector('#var-form input[name="date"]'); if(i && !i.value){i.value=new Date().toISOString().slice(0,10)}}
   const catsById=()=>Object.fromEntries((b().categories||[]).map(c=>[c.id,c]));
+  const accountsById = () => Object.fromEntries((b().accounts || []).map(a => [a.id, a]));
   function catType(id){const c=catsById()[id];return c?c.type:undefined}
   function signFor(catId, amt){const t=catType(catId); return t==='expense'?-Math.abs(amt):Math.abs(amt)}
   function txTotalSigned(tx){
@@ -1754,6 +1885,19 @@
   }
 
   // --- Analytics Helpers ---
+  let analyticsCategoryMetric = "total";
+  let analyticsCategoryLimit = 5;
+  let analyticsCurrentContext = null;
+  let analyticsDocClickHandler = null;
+  let analyticsCategoryBreakdownSort = { column: 'total', direction: 'desc' };
+
+  function fmtSigned(n) {
+    const base = fmt(Math.abs(n), state.currency);
+    if (n > 0) return "+" + base;
+    if (n < 0) return "-" + base;
+    return base;
+  }
+
   function getVisibleTotal(chart) {
     if (!chart || !chart.getDatasetMeta) return 0;
     const meta = chart.getDatasetMeta(0);
@@ -1767,74 +1911,175 @@
     return visibleTotal;
   }
 
-  // --- Analytics --------------------------------------------------------------
-  function setupAnalyticsCategoryFilter(allEntriesInPeriod) {
-    const container = document.getElementById('analytics-cat-filter-container');
-    const btn = document.getElementById('analytics-cat-filter-btn');
-    const dropdown = document.getElementById('analytics-cat-filter-dropdown');
-    const optionsDiv = document.getElementById('analytics-cat-filter-options');
-    const selectAllBtn = document.getElementById('analytics-cat-filter-all');
-    const selectNoneBtn = document.getElementById('analytics-cat-filter-none');
-    const selectInvertBtn = document.getElementById('analytics-cat-filter-invert');
+  function quantile(sortedValues, q) {
+    if (!sortedValues || sortedValues.length === 0) return 0;
+    if (q <= 0) return sortedValues[0];
+    if (q >= 1) return sortedValues[sortedValues.length - 1];
+    const pos = (sortedValues.length - 1) * q;
+    const base = Math.floor(pos);
+    const rest = pos - base;
+    const baseValue = sortedValues[base];
+    const nextValue = sortedValues[base + 1];
+    return baseValue + (nextValue !== undefined ? rest * (nextValue - baseValue) : 0);
+  }
 
-    btn.onclick = () => {
-      dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+  function computeStats(values = []) {
+    if (!Array.isArray(values) || values.length === 0) return null;
+    const sorted = [...values].sort((a, b) => a - b);
+    const count = sorted.length;
+    const sum = sorted.reduce((s, v) => s + v, 0);
+    const mean = sum / count;
+    const variance = sorted.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / count;
+    const stddev = Math.sqrt(variance);
+    return {
+      count,
+      sum,
+      mean,
+      min: sorted[0],
+      max: sorted[count - 1],
+      median: quantile(sorted, 0.5),
+      q1: quantile(sorted, 0.25),
+      q3: quantile(sorted, 0.75),
+      p90: quantile(sorted, 0.9),
+      stddev,
+      cv: mean ? stddev / mean : 0
     };
+  }
 
-    document.addEventListener('click', (e) => {
-      if (!container.contains(e.target)) {
-        dropdown.style.display = 'none';
+  // --- Analytics --------------------------------------------------------------
+  function setupAnalyticsCategoryFilter(onChange) {
+    const container = document.getElementById("analytics-cat-filter-container");
+    if (!container) return;
+    const btn = document.getElementById("analytics-cat-filter-btn");
+    const dropdown = document.getElementById("analytics-cat-filter-dropdown");
+    const optionsDiv = document.getElementById("analytics-cat-filter-options");
+    const searchInput = document.getElementById("analytics-cat-filter-search");
+    const selectAllBtn = document.getElementById("analytics-cat-filter-all");
+    const selectNoneBtn = document.getElementById("analytics-cat-filter-none");
+    const selectInvertBtn = document.getElementById("analytics-cat-filter-invert");
+
+    if (btn) {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+      };
+    }
+
+    if (analyticsDocClickHandler) {
+      document.removeEventListener("click", analyticsDocClickHandler);
+    }
+    analyticsDocClickHandler = (e) => {
+      if (container && !container.contains(e.target)) {
+        dropdown.style.display = "none";
       }
-    });
-    
-    optionsDiv.innerHTML = '';
-    const expenseCats = b().categories.filter(c => c.type === 'expense' || c.type === 'saving');
+    };
+    document.addEventListener("click", analyticsDocClickHandler);
+
+    optionsDiv.innerHTML = "";
+    if (searchInput) searchInput.value = "";
+    const expenseCats = b().categories.filter(c => c.type === "expense" || c.type === "saving");
     expenseCats.forEach(c => {
-      const label = document.createElement('label');
-      label.className = 'tiny';
-      label.style = "display:flex; align-items:center; gap:6px; padding: 4px; border-radius: 4px; cursor:pointer; hover:background: var(--bg);"
+      const label = document.createElement("label");
+      label.className = "tiny";
+      label.style = "display:flex; align-items:center; gap:6px; padding:4px; border-radius:4px; cursor:pointer;";
+      label.dataset.filterValue = `${c.emoji || ''} ${c.name}`.toLowerCase();
       label.innerHTML = `<input type="checkbox" class="analytics-cat-filter-cb" value="${c.id}" checked> ${c.emoji || ''} ${c.name}`;
       optionsDiv.appendChild(label);
     });
 
-    const checkboxes = optionsDiv.querySelectorAll('.analytics-cat-filter-cb');
-    
-    function updateAndRender() {
-        renderAnalyticsTopTransactions(allEntriesInPeriod);
-        updateFilterButtonText();
+    const checkboxes = optionsDiv.querySelectorAll(".analytics-cat-filter-cb");
+
+    if (searchInput) {
+      searchInput.oninput = () => {
+        const query = searchInput.value.trim().toLowerCase();
+        optionsDiv.querySelectorAll('label').forEach(label => {
+          if (!query) {
+            label.style.display = 'flex';
+          } else {
+            label.style.display = label.dataset.filterValue?.includes(query) ? 'flex' : 'none';
+          }
+        });
+      };
     }
 
-    checkboxes.forEach(cb => cb.onchange = updateAndRender);
-    selectAllBtn.onclick = () => {
-      checkboxes.forEach(cb => cb.checked = true);
-      updateAndRender();
-    };
-    selectNoneBtn.onclick = () => {
-      checkboxes.forEach(cb => cb.checked = false);
-      updateAndRender();
-    };
-    selectInvertBtn.onclick = () => {
-      checkboxes.forEach(cb => cb.checked = !cb.checked);
-      updateAndRender();
-    };
-
-
-    function updateFilterButtonText() {
-        const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-        if (selectedCount === checkboxes.length) {
-            btn.textContent = 'Wszystkie kategorie';
-        } else if (selectedCount === 0) {
-            btn.textContent = 'Żadne kategorie';
-        } else {
-            btn.textContent = `Wybrano: ${selectedCount}`;
-        }
+    function triggerUpdate() {
+      if (typeof onChange === "function") onChange();
+      updateAnalyticsFilterButtonLabel();
     }
-    updateFilterButtonText();
+
+    checkboxes.forEach(cb => cb.onchange = triggerUpdate);
+
+    if (selectAllBtn) {
+      selectAllBtn.onclick = (e) => {
+        e.preventDefault();
+        checkboxes.forEach(cb => cb.checked = true);
+        triggerUpdate();
+      };
+    }
+    if (selectNoneBtn) {
+      selectNoneBtn.onclick = (e) => {
+        e.preventDefault();
+        checkboxes.forEach(cb => cb.checked = false);
+        triggerUpdate();
+      };
+    }
+    if (selectInvertBtn) {
+      selectInvertBtn.onclick = (e) => {
+        e.preventDefault();
+        checkboxes.forEach(cb => cb.checked = !cb.checked);
+        triggerUpdate();
+      };
+    }
+
+    updateAnalyticsFilterButtonLabel();
+  }
+
+  function getSelectedAnalyticsCategoryIds() {
+    return Array.from(document.querySelectorAll(".analytics-cat-filter-cb")).filter(cb => cb.checked).map(cb => cb.value);
+  }
+
+  function updateAnalyticsFilterButtonLabel() {
+    const btn = document.getElementById("analytics-cat-filter-btn");
+    const checkboxes = document.querySelectorAll(".analytics-cat-filter-cb");
+    if (!btn) return;
+    if (!checkboxes.length) {
+      btn.textContent = "Brak kategorii";
+      return;
+    }
+    const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    if (selectedCount === 0) btn.textContent = "Żadne kategorie";
+    else if (selectedCount === checkboxes.length) btn.textContent = "Wszystkie kategorie";
+    else btn.textContent = `Wybrano: ${selectedCount}`;
+  }
+
+  function runAnalyticsFilterUpdates() {
+    if (!analyticsCurrentContext) return;
+    const selectedCatIds = getSelectedAnalyticsCategoryIds();
+    renderAnalyticsCategoryChart(analyticsCurrentContext.expenseByCategory, selectedCatIds);
+    renderAnalyticsCategorySeriesChart(selectedCatIds);
+    renderAnalyticsCategoryBreakdown(selectedCatIds);
+    renderAnalyticsVolumeAvgChart(selectedCatIds);
+    renderAnalyticsInsightsTable(selectedCatIds);
+    renderAnalyticsMonthlySummary(selectedCatIds);
+    renderAnalyticsCategoryTrends(analyticsCurrentContext, selectedCatIds);
+    renderAnalyticsTopTransactions(analyticsCurrentContext.allEntries, selectedCatIds);
+    renderAnalyticsDriversChart(selectedCatIds);
+    renderAnalyticsWeekdayChart(selectedCatIds);
+    renderAnalyticsDriverTable(selectedCatIds);
+    renderAnalyticsCategoryDepthTable(selectedCatIds);
+    renderAnalyticsAccountsSummary(selectedCatIds);
+    renderAnalyticsDailyExtremes(selectedCatIds);
   }
 
   function renderAnalytics(){
     document.getElementById('analytics-period').onchange = renderAnalytics;
-    
+    initAnalyticsControls();
+
+    const existingCheckboxes = Array.from(document.querySelectorAll('.analytics-cat-filter-cb'));
+    const hadPreviousState = existingCheckboxes.length > 0;
+    const prevSelected = new Set(existingCheckboxes.filter(cb => cb.checked).map(cb => cb.value));
+    const previousAllUnchecked = hadPreviousState && prevSelected.size === 0;
+
     const period = document.getElementById('analytics-period').value;
     const allMonthsRaw = [...new Set(b().transactions.map(t => t.date.slice(0, 7)))];
     if (b().monthly) {
@@ -1843,7 +2088,7 @@
         });
     }
     const allMonths = [...new Set(allMonthsRaw)].sort();
-    
+
     let monthsToAnalyze;
     if (period === 'all') {
         monthsToAnalyze = allMonths;
@@ -1868,16 +2113,26 @@
 
     const firstMonth = monthsToAnalyze[0];
     const lastMonth = monthsToAnalyze[monthsToAnalyze.length - 1];
+    const prevMonth = monthsToAnalyze.length > 1 ? monthsToAnalyze[monthsToAnalyze.length - 2] : null;
 
     const allEntriesInPeriod = b().transactions.filter(t => {
         const ym = t.date.slice(0, 7);
         return ym >= firstMonth && ym <= lastMonth;
     });
-    
+
     let totalIncome = 0;
     let totalExpense = 0;
+    let totalExpenseTransactions = 0;
     const expenseByCategory = {};
     const expenseByCategoryByMonth = {};
+    const categoryPeriodStats = {};
+    const monthlyTotals = {};
+    const monthlyCounts = {};
+    const expenseDetails = [];
+    const weekdayByCategory = {};
+    const categoryDayTotals = {};
+    const categoryDistributions = {};
+    const accountAggregates = {};
 
     monthsToAnalyze.forEach(ym => {
         ensureMonth(ym);
@@ -1885,40 +2140,127 @@
         totalIncome += monthIncome;
 
         const monthEntries = entriesForMonth(ym);
+        let monthExpenseTotal = 0;
+        let monthExpenseCount = 0;
+
         monthEntries.forEach(e => {
             const cat = catsById()[e.categoryId];
             if(cat && (cat.type === 'expense' || cat.type === 'saving')) {
                 const amount = Math.abs(e.amount);
                 totalExpense += amount;
+                monthExpenseTotal += amount;
+                monthExpenseCount += 1;
+                totalExpenseTransactions += 1;
                 expenseByCategory[cat.id] = (expenseByCategory[cat.id] || 0) + amount;
-                
+
                 if (!expenseByCategoryByMonth[cat.id]) expenseByCategoryByMonth[cat.id] = {};
-                 if (!expenseByCategoryByMonth[cat.id][ym]) {
+                if (!expenseByCategoryByMonth[cat.id][ym]) {
                     expenseByCategoryByMonth[cat.id][ym] = { total: 0, count: 0 };
                 }
                 expenseByCategoryByMonth[cat.id][ym].total += amount;
                 expenseByCategoryByMonth[cat.id][ym].count += 1;
+
+                let stat = categoryPeriodStats[cat.id];
+                if (!stat) {
+                    stat = { total: 0, count: 0, months: {} };
+                    categoryPeriodStats[cat.id] = stat;
+                }
+                stat.total += amount;
+                stat.count += 1;
+                stat.months[ym] = expenseByCategoryByMonth[cat.id][ym];
+
+                const dateKey = e.date ? e.date.slice(0, 10) : `${ym}-01`;
+                const entryAccount = e.accountId || 'unknown';
+                const dt = new Date(`${dateKey}T00:00:00`);
+                const weekdayIndex = Number.isNaN(dt.getDay()) ? 0 : (dt.getDay() + 6) % 7;
+
+                if (!weekdayByCategory[cat.id]) {
+                    weekdayByCategory[cat.id] = Array.from({ length: 7 }, () => ({ total: 0, count: 0 }));
+                }
+                weekdayByCategory[cat.id][weekdayIndex].total += amount;
+                weekdayByCategory[cat.id][weekdayIndex].count += 1;
+
+                if (!categoryDayTotals[cat.id]) categoryDayTotals[cat.id] = {};
+                if (!categoryDayTotals[cat.id][dateKey]) categoryDayTotals[cat.id][dateKey] = { total: 0, count: 0 };
+                categoryDayTotals[cat.id][dateKey].total += amount;
+                categoryDayTotals[cat.id][dateKey].count += 1;
+
+                if (!categoryDistributions[cat.id]) categoryDistributions[cat.id] = [];
+                categoryDistributions[cat.id].push(amount);
+
+                if (!accountAggregates[entryAccount]) accountAggregates[entryAccount] = { total: 0, count: 0, categories: {}, counts: {} };
+                accountAggregates[entryAccount].total += amount;
+                accountAggregates[entryAccount].count += 1;
+                accountAggregates[entryAccount].categories[cat.id] = (accountAggregates[entryAccount].categories[cat.id] || 0) + amount;
+                accountAggregates[entryAccount].counts[cat.id] = (accountAggregates[entryAccount].counts[cat.id] || 0) + 1;
+
+                expenseDetails.push({ date: dateKey, categoryId: cat.id, accountId: entryAccount, amount });
             }
         });
+
+        monthlyTotals[ym] = monthExpenseTotal;
+        monthlyCounts[ym] = monthExpenseCount;
     });
 
     const netChange = totalIncome - totalExpense;
     const avgSavingsRate = totalIncome > 0 ? (netChange / totalIncome) * 100 : 0;
+    const monthsCount = monthsToAnalyze.length;
+    const avgMonthlyExpense = monthsCount ? totalExpense / monthsCount : 0;
+    const avgTransactionValue = totalExpenseTransactions ? totalExpense / totalExpenseTransactions : 0;
+    const totalDays = monthsToAnalyze.reduce((sum, ym) => sum + daysInYm(ym), 0);
+    const avgDailyExpense = totalDays ? totalExpense / totalDays : 0;
+    const topCategoryEntry = Object.entries(expenseByCategory).sort(([,a],[,b]) => b-a)[0];
+    const topCategoryAmount = topCategoryEntry ? topCategoryEntry[1] : 0;
+    const topCategoryShare = totalExpense > 0 ? (topCategoryAmount / totalExpense) * 100 : 0;
+    const topCategoryLabel = topCategoryEntry ? `${catsById()[topCategoryEntry[0]]?.emoji || ''} ${catsById()[topCategoryEntry[0]]?.name || ''}`.trim() : '—';
 
     const kpisContainer = document.getElementById('analytics-kpis');
     kpisContainer.innerHTML = `
         <div class="stat-card"><div class="muted">Całkowity przychód</div><div class="big-number ok">${fmt(totalIncome, state.currency)}</div></div>
-        <div class="stat-card"><div class="muted">Całkowite wydatki</div><div class="big-number bad">${fmt(totalExpense, state.currency)}</div></div>
-        <div class="stat-card"><div class="muted">Bilans (Netto)</div><div class="big-number ${netChange >= 0 ? 'ok' : 'bad'}">${fmt(netChange, state.currency)}</div></div>
-        <div class="stat-card"><div class="muted">Śr. stopa oszczędności</div><div class="big-number">${avgSavingsRate.toFixed(0)}%</div></div>
+        <div class="stat-card"><div class="muted">Całkowite wydatki</div><div class="big-number bad">${fmt(totalExpense, state.currency)}</div><div class="trend">Śr. dziennie ${fmt(avgDailyExpense, state.currency)}</div></div>
+        <div class="stat-card"><div class="muted">Bilans (Netto)</div><div class="big-number ${netChange >= 0 ? 'ok' : 'bad'}">${fmt(netChange, state.currency)}</div><div class="trend">Stopa oszczędności ${avgSavingsRate.toFixed(1)}%</div></div>
+        <div class="stat-card"><div class="muted">Śr. miesięczne wydatki</div><div class="big-number">${fmt(avgMonthlyExpense, state.currency)}</div><div class="trend">Okres: ${monthsCount} mies.</div></div>
+        <div class="stat-card"><div class="muted">Transakcji (wydatki)</div><div class="big-number">${totalExpenseTransactions}</div><div class="trend">Śr. kwota ${fmt(avgTransactionValue, state.currency)}</div></div>
+        <div class="stat-card"><div class="muted">Największa kategoria</div><div class="big-number">${fmt(topCategoryAmount, state.currency)}</div><div class="trend">${topCategoryEntry ? `${topCategoryLabel} • ${topCategoryShare.toFixed(1)}%` : 'Brak danych'}</div></div>
     `;
 
+    analyticsCurrentContext = {
+      months: monthsToAnalyze,
+      expenseByCategory,
+      expenseByCategoryByMonth,
+      categoryStats: categoryPeriodStats,
+      totalExpense,
+      totalIncome,
+      totalExpenseTransactions,
+      monthlyTotals,
+      monthlyCounts,
+      allEntries: allEntriesInPeriod,
+      lastMonth,
+      prevMonth,
+      expenseDetails,
+      weekdayByCategory,
+      categoryDayTotals,
+      categoryDistributions,
+      accountAggregates
+    };
+
+    setupAnalyticsCategoryFilter(runAnalyticsFilterUpdates);
+
+    if (hadPreviousState) {
+      const checkboxes = document.querySelectorAll('.analytics-cat-filter-cb');
+      if (previousAllUnchecked) {
+        checkboxes.forEach(cb => cb.checked = false);
+      } else if (prevSelected.size > 0) {
+        checkboxes.forEach(cb => cb.checked = prevSelected.has(cb.value));
+      }
+    }
+
+    updateAnalyticsFilterButtonLabel();
     renderAnalyticsIncomeExpenseChart(monthsToAnalyze);
-    renderAnalyticsCategoryChart(expenseByCategory);
-    renderAnalyticsCategoryTrends(monthsToAnalyze, expenseByCategoryByMonth);
-    setupAnalyticsCategoryFilter(allEntriesInPeriod);
-    renderAnalyticsTopTransactions(allEntriesInPeriod);
+    runAnalyticsFilterUpdates();
   }
+
+
 
   function renderAnalyticsIncomeExpenseChart(months) {
     const ctx = document.getElementById('analytics-income-expense-chart').getContext('2d');
@@ -1949,20 +2291,35 @@
     });
   }
 
-  function renderAnalyticsCategoryChart(expenseByCategory) {
-      const ctx = document.getElementById('analytics-category-chart').getContext('2d');
+  function renderAnalyticsCategoryChart(expenseByCategory, selectedCatIds = []) {
+      const canvas = document.getElementById('analytics-category-chart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
       if(window.analyticsCategory) window.analyticsCategory.destroy();
 
-      const expenseForChart = { ...expenseByCategory };
-      delete expenseForChart['c_fixed'];
+      const filteredEntries = Object.entries(expenseByCategory || {})
+        .filter(([id, amount]) => id !== 'c_fixed' && amount > 0 && (selectedCatIds.length === 0 || selectedCatIds.includes(id)));
 
-      const sortedCategories = Object.entries(expenseForChart).sort(([,a],[,b]) => b-a);
-      const labels = sortedCategories.map(([id]) => catsById()[id]?.name || 'Brak kategorii');
+      if (filteredEntries.length === 0) {
+          window.analyticsCategory = new Chart(ctx, {
+              type: 'doughnut',
+              data: { labels: ['Brak danych'], datasets: [{ data: [1], backgroundColor: ['#e2e8f0'] }] },
+              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+          });
+          return;
+      }
+
+      const sortedCategories = filteredEntries.sort(([,a],[,b]) => b-a);
+      const palette = ['#0ea5e9','#ef4444','#f59e0b','#10b981','#8b5cf6','#06b6d4','#f97316','#64748b','#22d3ee','#94a3b8','#38bdf8','#fb7185','#14b8a6','#facc15','#6366f1'];
+      const labels = sortedCategories.map(([id]) => {
+          const cat = catsById()[id];
+          return cat ? `${cat.emoji || ''} ${cat.name}`.trim() : 'Brak kategorii';
+      });
       const data = sortedCategories.map(([,amount]) => amount);
-      
+
       window.analyticsCategory=new Chart(ctx,{
           type:'doughnut',
-          data:{labels, datasets:[{data, backgroundColor:['#0ea5e9','#ef4444','#f59e0b','#10b981','#8b5cf6','#06b6d4','#f97316', '#64748b']}]},
+          data:{labels, datasets:[{data, backgroundColor:labels.map((_,i)=>palette[i%palette.length])}]},
           options:{
               responsive:true,
               maintainAspectRatio:false,
@@ -1970,21 +2327,16 @@
                   tooltip: {
                       callbacks: {
                           label: function(context) {
-                              const chart = context.chart;
-                              const visibleTotal = getVisibleTotal(chart);
+                              const dataset = context.dataset?.data || [];
+                              const total = dataset.reduce((s,v)=>s+v,0);
                               const value = context.raw;
-                              const percentage = visibleTotal > 0 ? ((value / visibleTotal) * 100).toFixed(1) + '%' : '0%';
+                              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
                               return `${context.label}: ${fmt(value, state.currency)} (${percentage})`;
                           }
                       }
                   },
                   legend: {
                       position: 'top',
-                      onClick: (e, legendItem, legend) => {
-                          const ci = legend.chart;
-                          Chart.defaults.plugins.legend.onClick(e, legendItem, legend);
-                          ci.update();
-                      },
                       labels: {
                           generateLabels: function(chart) {
                               const data = chart.data;
@@ -2016,57 +2368,926 @@
           }
       });
   }
+
+
+  function renderAnalyticsCategorySeriesChart(selectedCatIds = []) {
+      const canvas = document.getElementById('analytics-category-series');
+      const emptyState = document.getElementById('analytics-category-series-empty');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (window.analyticsCategorySeries) window.analyticsCategorySeries.destroy();
+      const context = analyticsCurrentContext;
+      if (!context) return;
+      const months = context.months || [];
+      const stats = context.categoryStats || {};
+      const sourceIds = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(stats);
+      const sorted = sourceIds
+        .filter(id => (stats[id]?.total || 0) > 0)
+        .sort((a,b) => (stats[b]?.total || 0) - (stats[a]?.total || 0))
+        .slice(0, analyticsCategoryLimit);
+
+      if (sorted.length === 0) {
+          canvas.style.display = 'none';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+      }
+      canvas.style.display = 'block';
+      if (emptyState) emptyState.style.display = 'none';
+
+      const palette = ['#0284c7','#22c55e','#ef4444','#a855f7','#f97316','#14b8a6','#eab308','#f472b6','#94a3b8','#1e3a8a','#7c3aed','#16a34a'];
+      const datasets = sorted.map((id, idx) => {
+          const cat = catsById()[id];
+          const color = palette[idx % palette.length];
+          const dataPoints = months.map(ym => {
+              const monthData = stats[id]?.months?.[ym] || { total: 0, count: 0 };
+              if (analyticsCategoryMetric === 'count') return monthData.count || 0;
+              if (analyticsCategoryMetric === 'avg') return monthData.count ? monthData.total / monthData.count : 0;
+              return monthData.total || 0;
+          });
+          return {
+              label: cat ? `${cat.emoji || ''} ${cat.name}`.trim() : id,
+              data: dataPoints,
+              borderColor: color,
+              backgroundColor: color,
+              tension: 0.25,
+              fill: false
+          };
+      });
+
+      const yScale = analyticsCategoryMetric === 'count'
+        ? { beginAtZero: true, ticks: { precision: 0 } }
+        : { beginAtZero: true, ticks: { callback: v => fmt(v, state.currency) } };
+
+      window.analyticsCategorySeries = new Chart(ctx, {
+          type: 'line',
+          data: { labels: months, datasets },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              scales: { y: yScale },
+              plugins: {
+                  legend: { position: 'top' },
+                  tooltip: {
+                      callbacks: {
+                          label: function(context) {
+                              const value = context.parsed.y;
+                              if (analyticsCategoryMetric === 'count') return `${context.dataset.label}: ${value} trans.`;
+                              return `${context.dataset.label}: ${fmt(value, state.currency)}`;
+                          }
+                      }
+                  }
+              }
+          }
+      });
+  }
+
+  function renderAnalyticsCategoryBreakdown(selectedCatIds = []) {
+      const table = document.getElementById('analytics-category-breakdown');
+      if (!table) return;
+      const context = analyticsCurrentContext;
+      if (!context) { table.innerHTML = ''; return; }
+      const ids = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(context.categoryStats || {});
+      const rows = ids.map(id => {
+          const stats = context.categoryStats?.[id];
+          if (!stats || !stats.total) return null;
+          const last = stats.months?.[context.lastMonth] || { total: 0, count: 0 };
+          const prev = context.prevMonth ? (stats.months?.[context.prevMonth] || { total: 0, count: 0 }) : { total: 0, count: 0 };
+          const diff = last.total - (prev.total || 0);
+          const diffPct = prev.total ? (diff / (prev.total || 1)) * 100 : (last.total ? 100 : 0);
+          const countDiff = (last.count || 0) - (prev.count || 0);
+          const avgLast = last.count ? last.total / last.count : 0;
+          const avgPrev = prev.count ? prev.total / prev.count : 0;
+          const avgDiff = avgLast - avgPrev;
+          const share = context.totalExpense > 0 ? (stats.total / context.totalExpense) * 100 : 0;
+          const avg = stats.count ? stats.total / stats.count : 0;
+          return { id, stats, last, prev, diff, diffPct, countDiff, avgDiff, share, avg };
+      }).filter(Boolean);
+
+      if (rows.length === 0) {
+          table.innerHTML = `<tbody><tr><td class="muted" style="text-align:center;">Wybierz kategorie, aby zobaczyć szczegóły.</td></tr></tbody>`;
+          return;
+      }
+
+      const sort = analyticsCategoryBreakdownSort || { column: 'total', direction: 'desc' };
+      rows.sort((a, b) => {
+          const direction = sort.direction === 'asc' ? 1 : -1;
+          let valA = 0;
+          let valB = 0;
+          switch (sort.column) {
+              case 'share':
+                  valA = a.share || 0;
+                  valB = b.share || 0;
+                  break;
+              case 'count':
+                  valA = a.stats.count || 0;
+                  valB = b.stats.count || 0;
+                  break;
+              case 'avg':
+                  valA = a.avg || 0;
+                  valB = b.avg || 0;
+                  break;
+              case 'last':
+                  valA = a.last.total || 0;
+                  valB = b.last.total || 0;
+                  break;
+              default:
+                  valA = a.stats.total || 0;
+                  valB = b.stats.total || 0;
+          }
+          if (valA === valB) return 0;
+          return direction === 1 ? valA - valB : valB - valA;
+      });
+      const monthsCount = context.months?.length || 1;
+      const body = rows.map(row => {
+          const cat = catsById()[row.id];
+          const share = row.share;
+          const avg = row.avg;
+          const lastTotal = row.last.total || 0;
+          const diffClass = row.diff > 0 ? 'bad' : (row.diff < 0 ? 'ok' : 'muted');
+          const lastCountDiff = row.countDiff;
+          const avgChangeClass = row.avgDiff > 0 ? 'bad' : (row.avgDiff < 0 ? 'ok' : 'muted');
+          const avgChangeText = row.avgDiff ? `${row.avgDiff >= 0 ? '+' : ''}${fmt(row.avgDiff, state.currency)}` : fmt(0, state.currency);
+          return `<tr>
+              <td>${cat ? (cat.emoji || '') + ' ' + cat.name : row.id}</td>
+              <td>${fmt(row.stats.total, state.currency)}<br><span class="tiny muted">${fmt(row.stats.total / monthsCount, state.currency)} / mies.</span></td>
+              <td>${share.toFixed(1)}%</td>
+              <td>${row.stats.count}<br><span class="tiny muted">${lastCountDiff >= 0 ? '+' : ''}${lastCountDiff} trans.</span></td>
+              <td>${fmt(avg, state.currency)}<br><span class="tiny ${avgChangeClass}">${avgChangeText}</span></td>
+              <td>${fmt(lastTotal, state.currency)}<br><span class="tiny ${diffClass}">${row.diff >= 0 ? '+' : ''}${fmt(row.diff, state.currency)}${row.prev.total ? ` (${row.diffPct.toFixed(1)}%)` : ''}</span></td>
+          </tr>`;
+      }).join('');
+
+      const headers = [
+          { key: 'category', label: 'Kategoria', sortable: false },
+          { key: 'total', label: 'Łącznie (okres)', sortable: true },
+          { key: 'share', label: 'Udział', sortable: true },
+          { key: 'count', label: 'Transakcji', sortable: true },
+          { key: 'avg', label: 'Średnia kwota', sortable: true },
+          { key: 'last', label: 'Ostatni miesiąc', sortable: true }
+      ];
+      const headerHtml = `<thead><tr>${headers.map(h => {
+          const isActive = h.sortable && sort.column === h.key;
+          const indicator = isActive ? (sort.direction === 'desc' ? ' ↓' : ' ↑') : '';
+          const cls = h.sortable ? ' class="sortable"' : '';
+          const dataAttr = h.sortable ? ` data-sort="${h.key}"` : '';
+          return `<th${cls}${dataAttr}>${h.label}${indicator}</th>`;
+      }).join('')}</tr></thead>`;
+
+      table.innerHTML = `${headerHtml}<tbody>${body}</tbody>`;
+
+      table.querySelectorAll('th[data-sort]').forEach(th => {
+          th.onclick = () => {
+              const key = th.dataset.sort;
+              if (analyticsCategoryBreakdownSort.column === key) {
+                  analyticsCategoryBreakdownSort.direction = analyticsCategoryBreakdownSort.direction === 'desc' ? 'asc' : 'desc';
+              } else {
+                  analyticsCategoryBreakdownSort = { column: key, direction: 'desc' };
+              }
+              renderAnalyticsCategoryBreakdown(getSelectedAnalyticsCategoryIds());
+          };
+      });
+  }
+
+  function renderAnalyticsVolumeAvgChart(selectedCatIds = []) {
+      const canvas = document.getElementById('analytics-volume-avg-chart');
+      const emptyState = document.getElementById('analytics-volume-avg-empty');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (window.analyticsVolumeAvg) window.analyticsVolumeAvg.destroy();
+      const context = analyticsCurrentContext;
+      if (!context) return;
+      const lastMonth = context.lastMonth;
+      if (!lastMonth) {
+          canvas.style.display = 'none';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+      }
+      const prevMonth = context.prevMonth;
+      const ids = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(context.categoryStats || {});
+      const points = ids.map(id => {
+          const stats = context.categoryStats?.[id];
+          if (!stats) return null;
+          const last = stats.months?.[lastMonth] || { total: 0, count: 0 };
+          if (!last.total) return null;
+          const prev = prevMonth ? (stats.months?.[prevMonth] || { total: 0, count: 0 }) : { total: 0, count: 0 };
+          const avg = last.count ? last.total / last.count : 0;
+          const cat = catsById()[id];
+          return {
+              label: cat ? `${cat.emoji || ''} ${cat.name}`.trim() : id,
+              data: {
+                  x: last.count || 0,
+                  y: avg,
+                  r: Math.max(6, Math.sqrt(last.total) / 2.5),
+                  total: last.total,
+                  prevTotal: prev.total || 0
+              }
+          };
+      }).filter(Boolean);
+
+      if (points.length === 0) {
+          canvas.style.display = 'none';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+      }
+      canvas.style.display = 'block';
+      if (emptyState) emptyState.style.display = 'none';
+
+      window.analyticsVolumeAvg = new Chart(ctx, {
+          type: 'bubble',
+          data: { datasets: points.map(p => ({
+              label: p.label,
+              data: [p.data],
+              backgroundColor: 'rgba(14, 165, 233, 0.4)',
+              borderColor: 'rgba(14, 165, 233, 0.9)'
+          })) },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                  x: { beginAtZero: true, title: { display: true, text: 'Liczba transakcji (ostatni miesiąc)' }, ticks: { precision: 0 } },
+                  y: { beginAtZero: true, title: { display: true, text: `Średnia kwota (${state.currency})` }, ticks: { callback: v => fmt(v, state.currency) } }
+              },
+              plugins: {
+                  tooltip: {
+                      callbacks: {
+                          label: function(context) {
+                              const raw = context.raw || {};
+                              const total = raw.total || 0;
+                              const prev = raw.prevTotal || 0;
+                              const diff = total - prev;
+                              const pct = prev > 0 ? (diff / prev) * 100 : (total ? 100 : 0);
+                              return [
+                                  context.dataset.label,
+                                  `Łącznie: ${fmt(total, state.currency)}`,
+                                  `Średnia: ${fmt(raw.y || 0, state.currency)}`,
+                                  `Transakcji: ${raw.x || 0}`,
+                                  prevMonth ? `Δ m/m: ${diff >= 0 ? '+' : ''}${fmt(diff, state.currency)} (${pct.toFixed(1)}%)` : ''
+                              ].filter(Boolean);
+                          }
+                      }
+                  },
+                  legend: { position: 'bottom' }
+              }
+          }
+      });
+  }
+
+  function renderAnalyticsDriversChart(selectedCatIds = []) {
+      const canvas = document.getElementById('analytics-drivers-chart');
+      const emptyState = document.getElementById('analytics-drivers-empty');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (window.analyticsDriversChart) window.analyticsDriversChart.destroy();
+      const context = analyticsCurrentContext;
+      if (!context) return;
+      const months = context.months || [];
+      const ids = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(context.categoryStats || {});
+      if (months.length === 0 || ids.length === 0) {
+          canvas.style.display = 'none';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+      }
+
+      const totals = [];
+      const counts = [];
+      const averages = [];
+      months.forEach(ym => {
+          let total = 0;
+          let count = 0;
+          ids.forEach(id => {
+              const monthData = context.categoryStats?.[id]?.months?.[ym];
+              if (monthData) {
+                  total += monthData.total || 0;
+                  count += monthData.count || 0;
+              }
+          });
+          totals.push(total);
+          counts.push(count);
+          averages.push(count ? total / count : 0);
+      });
+
+      const hasData = totals.some(v => v > 0) || counts.some(v => v > 0);
+      if (!hasData) {
+          canvas.style.display = 'none';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+      }
+
+      canvas.style.display = 'block';
+      if (emptyState) emptyState.style.display = 'none';
+
+      window.analyticsDriversChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: months,
+              datasets: [
+                  {
+                      type: 'bar',
+                      label: `Łączna kwota (${state.currency})`,
+                      data: totals,
+                      backgroundColor: 'rgba(6, 182, 212, 0.35)',
+                      borderColor: 'rgba(6, 182, 212, 0.8)',
+                      borderWidth: 1.5,
+                      yAxisID: 'amount'
+                  },
+                  {
+                      type: 'line',
+                      label: 'Liczba transakcji',
+                      data: counts,
+                      borderColor: 'rgba(99, 102, 241, 0.9)',
+                      backgroundColor: 'rgba(99, 102, 241, 0.25)',
+                      tension: 0.3,
+                      yAxisID: 'count'
+                  },
+                  {
+                      type: 'line',
+                      label: `Średnia kwota (${state.currency})`,
+                      data: averages,
+                      borderColor: 'rgba(236, 72, 153, 0.9)',
+                      backgroundColor: 'rgba(236, 72, 153, 0.2)',
+                      tension: 0.3,
+                      yAxisID: 'avg'
+                  }
+              ]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              scales: {
+                  amount: { type: 'linear', position: 'left', beginAtZero: true, ticks: { callback: v => fmt(v, state.currency) } },
+                  count: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { precision: 0 } },
+                  avg: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, offset: true, ticks: { callback: v => fmt(v, state.currency) } }
+              },
+              plugins: {
+                  legend: { position: 'bottom' },
+                  tooltip: {
+                      callbacks: {
+                          label: function(context) {
+                              if (context.dataset.yAxisID === 'count') {
+                                  return `${context.dataset.label}: ${context.parsed.y}`;
+                              }
+                              const value = context.parsed.y || 0;
+                              return `${context.dataset.label}: ${fmt(value, state.currency)}`;
+                          }
+                      }
+                  }
+              }
+          }
+      });
+  }
+
+  function renderAnalyticsWeekdayChart(selectedCatIds = []) {
+      const canvas = document.getElementById('analytics-weekday-chart');
+      const emptyState = document.getElementById('analytics-weekday-empty');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (window.analyticsWeekdayChart) window.analyticsWeekdayChart.destroy();
+      const context = analyticsCurrentContext;
+      if (!context) return;
+      const labels = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Niedz'];
+      const ids = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(context.weekdayByCategory || {});
+      if (ids.length === 0) {
+          canvas.style.display = 'none';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+      }
+
+      const aggregated = Array.from({ length: 7 }, () => ({ total: 0, count: 0 }));
+      ids.forEach(id => {
+          const buckets = context.weekdayByCategory?.[id] || [];
+          buckets.forEach((bucket, idx) => {
+              aggregated[idx].total += bucket.total || 0;
+              aggregated[idx].count += bucket.count || 0;
+          });
+      });
+
+      const totals = aggregated.map(b => b.total);
+      const counts = aggregated.map(b => b.count);
+      const averages = aggregated.map(b => b.count ? b.total / b.count : 0);
+
+      if (!totals.some(v => v > 0) && !counts.some(v => v > 0)) {
+          canvas.style.display = 'none';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+      }
+
+      canvas.style.display = 'block';
+      if (emptyState) emptyState.style.display = 'none';
+
+      window.analyticsWeekdayChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels,
+              datasets: [
+                  {
+                      type: 'bar',
+                      label: `Wydatki (${state.currency})`,
+                      data: totals,
+                      backgroundColor: 'rgba(14, 165, 233, 0.5)',
+                      borderColor: 'rgba(14, 165, 233, 0.9)',
+                      borderWidth: 1.5,
+                      yAxisID: 'amount'
+                  },
+                  {
+                      type: 'line',
+                      label: 'Transakcje',
+                      data: counts,
+                      borderColor: 'rgba(34, 197, 94, 0.9)',
+                      backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                      tension: 0.3,
+                      yAxisID: 'count'
+                  },
+                  {
+                      type: 'line',
+                      label: `Średnia (${state.currency})`,
+                      data: averages,
+                      borderColor: 'rgba(249, 115, 22, 0.9)',
+                      backgroundColor: 'rgba(249, 115, 22, 0.2)',
+                      tension: 0.3,
+                      yAxisID: 'avg'
+                  }
+              ]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              scales: {
+                  amount: { type: 'linear', position: 'left', beginAtZero: true, ticks: { callback: v => fmt(v, state.currency) } },
+                  count: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { precision: 0 } },
+                  avg: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, offset: true, ticks: { callback: v => fmt(v, state.currency) } }
+              },
+              plugins: {
+                  legend: { position: 'bottom' },
+                  tooltip: {
+                      callbacks: {
+                          label: function(context) {
+                              if (context.dataset.yAxisID === 'count') {
+                                  return `${context.dataset.label}: ${context.parsed.y}`;
+                              }
+                              const value = context.parsed.y || 0;
+                              return `${context.dataset.label}: ${fmt(value, state.currency)}`;
+                          }
+                      }
+                  }
+              }
+          }
+      });
+  }
+
+  function renderAnalyticsDriverTable(selectedCatIds = []) {
+      const table = document.getElementById('analytics-driver-table');
+      if (!table) return;
+      const context = analyticsCurrentContext;
+      if (!context) { table.innerHTML = ''; return; }
+      if (!context.prevMonth) {
+          table.innerHTML = `<tbody><tr><td class="muted" style="text-align:center;">Potrzebujesz co najmniej dwóch miesięcy danych, aby zobaczyć dekompozycję.</td></tr></tbody>`;
+          return;
+      }
+      const ids = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(context.categoryStats || {});
+      const rows = ids.map(id => {
+          const stats = context.categoryStats?.[id];
+          if (!stats) return null;
+          const last = stats.months?.[context.lastMonth] || { total: 0, count: 0 };
+          const prev = stats.months?.[context.prevMonth] || { total: 0, count: 0 };
+          const lastTotal = last.total || 0;
+          const prevTotal = prev.total || 0;
+          const totalDiff = lastTotal - prevTotal;
+          const lastCount = last.count || 0;
+          const prevCount = prev.count || 0;
+          const countDiff = lastCount - prevCount;
+          const avgLast = lastCount ? lastTotal / lastCount : 0;
+          const avgPrev = prevCount ? prevTotal / prevCount : 0;
+          const avgDiff = avgLast - avgPrev;
+          if (!totalDiff && !countDiff && !avgDiff) return null;
+          const countContribution = avgPrev * countDiff;
+          const baseCount = (lastCount + prevCount) / 2 || (lastCount || prevCount || 0);
+          const avgContribution = avgDiff * baseCount;
+          const interaction = totalDiff - countContribution - avgContribution;
+          return { id, totalDiff, countDiff, avgDiff, countContribution, avgContribution, interaction, prevTotal };
+      }).filter(Boolean).sort((a, b) => Math.abs(b.totalDiff) - Math.abs(a.totalDiff)).slice(0, 10);
+
+      if (rows.length === 0) {
+          table.innerHTML = `<tbody><tr><td class="muted" style="text-align:center;">Brak zauważalnych zmian w wybranych kategoriach.</td></tr></tbody>`;
+          return;
+      }
+
+      const body = rows.map(row => {
+          const cat = catsById()[row.id];
+          const label = cat ? `${cat.emoji || ''} ${cat.name}` : row.id;
+          const diffClass = row.totalDiff > 0 ? 'bad' : (row.totalDiff < 0 ? 'ok' : 'muted');
+          const freqClass = row.countDiff > 0 ? 'bad' : (row.countDiff < 0 ? 'ok' : 'muted');
+          const avgClass = row.avgDiff > 0 ? 'bad' : (row.avgDiff < 0 ? 'ok' : 'muted');
+          const countClass = row.countContribution > 0 ? 'bad' : (row.countContribution < 0 ? 'ok' : 'muted');
+          const avgContrClass = row.avgContribution > 0 ? 'bad' : (row.avgContribution < 0 ? 'ok' : 'muted');
+          const interactionClass = row.interaction > 0 ? 'bad' : (row.interaction < 0 ? 'ok' : 'muted');
+          const diffPct = row.prevTotal ? (row.totalDiff / row.prevTotal) * 100 : (row.totalDiff ? 100 : 0);
+          let note;
+          if (Math.abs(row.totalDiff) < 1) note = 'Stabilnie';
+          else if (Math.abs(row.countContribution) > Math.abs(row.avgContribution) * 1.2) {
+              note = row.countContribution >= 0 ? 'Wzrost przez częstsze zakupy' : 'Mniej transakcji zmniejsza wydatki';
+          } else if (Math.abs(row.avgContribution) > Math.abs(row.countContribution) * 1.2) {
+              note = row.avgContribution >= 0 ? 'Droższe rachunki napędzają wzrost' : 'Tańsze zakupy redukują koszty';
+          } else {
+              note = row.interaction >= 0 ? 'Efekt mieszany — pilnuj kombinacji ilości i kwoty' : 'Spadek dzięki synergii ilości i kwoty';
+          }
+          return `<tr>
+              <td>${label}</td>
+              <td class="${diffClass}">${row.totalDiff >= 0 ? '+' : ''}${fmt(row.totalDiff, state.currency)}<br><span class="tiny muted">${diffPct.toFixed(1)}%</span></td>
+              <td class="${freqClass}">${row.countDiff >= 0 ? '+' : ''}${row.countDiff}</td>
+              <td class="${avgClass}">${row.avgDiff >= 0 ? '+' : ''}${fmt(row.avgDiff, state.currency)}</td>
+              <td class="${countClass}">${row.countContribution >= 0 ? '+' : ''}${fmt(row.countContribution, state.currency)}</td>
+              <td class="${avgContrClass}">${row.avgContribution >= 0 ? '+' : ''}${fmt(row.avgContribution, state.currency)}</td>
+              <td class="${interactionClass}">${row.interaction >= 0 ? '+' : ''}${fmt(row.interaction, state.currency)}</td>
+              <td>${note}</td>
+          </tr>`;
+      }).join('');
+
+      table.innerHTML = `<thead><tr><th>Kategoria</th><th>Δ kwoty</th><th>Δ trans.</th><th>Δ średniej</th><th>Wkład wolumen</th><th>Wkład średnia</th><th>Interakcja</th><th>Interpretacja</th></tr></thead><tbody>${body}</tbody>`;
+  }
+
+  function renderAnalyticsCategoryDepthTable(selectedCatIds = []) {
+      const table = document.getElementById('analytics-category-depth');
+      if (!table) return;
+      const context = analyticsCurrentContext;
+      if (!context) { table.innerHTML = ''; return; }
+      const distributions = context.categoryDistributions || {};
+      const ids = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(distributions);
+      const rows = ids.map(id => {
+          const values = distributions[id];
+          if (!values || values.length === 0) return null;
+          const stats = computeStats(values);
+          return stats ? { id, stats } : null;
+      }).filter(Boolean);
+
+      if (rows.length === 0) {
+          table.innerHTML = `<tbody><tr><td class="muted" style="text-align:center;">Brak pojedynczych transakcji do analizy.</td></tr></tbody>`;
+          return;
+      }
+
+      rows.sort((a, b) => (b.stats.mean || 0) - (a.stats.mean || 0));
+      const body = rows.map(row => {
+          const cat = catsById()[row.id];
+          const label = cat ? `${cat.emoji || ''} ${cat.name}` : row.id;
+          const cvPct = (row.stats.cv || 0) * 100;
+          const cvClass = cvPct > 80 ? 'bad' : (cvPct > 40 ? 'warn' : 'ok');
+          return `<tr>
+              <td>${label}</td>
+              <td>${fmt(row.stats.min, state.currency)}</td>
+              <td>${fmt(row.stats.median, state.currency)}</td>
+              <td>${fmt(row.stats.mean, state.currency)}</td>
+              <td>${fmt(row.stats.p90, state.currency)}</td>
+              <td>${fmt(row.stats.max, state.currency)}</td>
+              <td>${fmt(row.stats.stddev, state.currency)}</td>
+              <td class="${cvClass}">${cvPct.toFixed(0)}%</td>
+              <td>${row.stats.count}</td>
+          </tr>`;
+      }).join('');
+
+      table.innerHTML = `<thead><tr><th>Kategoria</th><th>Min</th><th>Mediana</th><th>Średnia</th><th>P90</th><th>Max</th><th>Odch. std.</th><th>CV</th><th>Transakcji</th></tr></thead><tbody>${body}</tbody>`;
+  }
+
+  function renderAnalyticsAccountsSummary(selectedCatIds = []) {
+      const table = document.getElementById('analytics-accounts-summary');
+      if (!table) return;
+      const context = analyticsCurrentContext;
+      if (!context) { table.innerHTML = ''; return; }
+      const selection = (selectedCatIds && selectedCatIds.length) ? new Set(selectedCatIds) : null;
+      const rows = [];
+      let grandTotal = 0;
+
+      Object.entries(context.accountAggregates || {}).forEach(([accountId, data]) => {
+          const categories = data.categories || {};
+          const countsMap = data.counts || {};
+          let total = 0;
+          let count = 0;
+          let topCatId = null;
+          let topAmount = 0;
+          Object.entries(categories).forEach(([catId, amount]) => {
+              if (selection && !selection.has(catId)) return;
+              total += amount;
+              count += countsMap[catId] || 0;
+              if (amount > topAmount) {
+                  topAmount = amount;
+                  topCatId = catId;
+              }
+          });
+          if (!selection) count = data.count;
+          if (total > 0) {
+              grandTotal += total;
+              rows.push({ accountId, total, count, topCatId, topAmount });
+          }
+      });
+
+      if (rows.length === 0) {
+          table.innerHTML = `<tbody><tr><td class="muted" style="text-align:center;">Brak danych dla wybranych kategorii.</td></tr></tbody>`;
+          return;
+      }
+
+      rows.sort((a, b) => b.total - a.total);
+      const accMap = accountsById();
+      const body = rows.map(row => {
+          const acc = accMap[row.accountId];
+          const label = acc ? acc.name : (row.accountId === 'unknown' ? 'Nieokreślone' : row.accountId);
+          const avg = row.count ? row.total / row.count : 0;
+          const topCat = catsById()[row.topCatId];
+          const topLabel = topCat ? `${topCat.emoji || ''} ${topCat.name}` : '—';
+          const topShare = row.total ? (row.topAmount / row.total) * 100 : 0;
+          const share = grandTotal ? (row.total / grandTotal) * 100 : 0;
+          return `<tr>
+              <td>${label}</td>
+              <td>${fmt(row.total, state.currency)}<br><span class="tiny muted">${share.toFixed(1)}% udziału</span></td>
+              <td>${row.count || 0}</td>
+              <td>${fmt(avg, state.currency)}</td>
+              <td>${topLabel}${row.topAmount ? `<br><span class="tiny muted">${fmt(row.topAmount, state.currency)} • ${topShare.toFixed(1)}%</span>` : ''}</td>
+          </tr>`;
+      }).join('');
+
+      table.innerHTML = `<thead><tr><th>Konto</th><th>Wydatki (wybrane)</th><th>Transakcji</th><th>Średnia kwota</th><th>Dominująca kategoria</th></tr></thead><tbody>${body}</tbody>`;
+  }
+
+  function renderAnalyticsDailyExtremes(selectedCatIds = []) {
+      const table = document.getElementById('analytics-daily-extremes');
+      if (!table) return;
+      const context = analyticsCurrentContext;
+      if (!context) { table.innerHTML = ''; return; }
+      const dayTotals = context.categoryDayTotals || {};
+      const ids = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(dayTotals);
+      const combinedTotals = {};
+
+      ids.forEach(id => {
+          const perDay = dayTotals[id] || {};
+          Object.entries(perDay).forEach(([date, stats]) => {
+              if (!combinedTotals[date]) combinedTotals[date] = { total: 0, count: 0, breakdown: {} };
+              combinedTotals[date].total += stats.total || 0;
+              combinedTotals[date].count += stats.count || 0;
+              combinedTotals[date].breakdown[id] = (combinedTotals[date].breakdown[id] || 0) + (stats.total || 0);
+          });
+      });
+
+      const days = Object.entries(combinedTotals).map(([date, stats]) => {
+          const breakdownEntries = Object.entries(stats.breakdown || {}).sort(([, a], [, b]) => b - a);
+          const topEntry = breakdownEntries[0] || null;
+          return {
+              date,
+              total: stats.total || 0,
+              count: stats.count || 0,
+              topCatId: topEntry ? topEntry[0] : null,
+              topAmount: topEntry ? topEntry[1] : 0
+          };
+      }).filter(day => day.total > 0 || day.count > 0);
+
+      if (days.length === 0) {
+          table.innerHTML = `<tbody><tr><td class="muted" style="text-align:center;">Brak aktywności w wybranym okresie.</td></tr></tbody>`;
+          return;
+      }
+
+      const topDays = [...days].sort((a, b) => b.total - a.total).slice(0, 5);
+      const quietDays = [...days].sort((a, b) => a.total - b.total).slice(0, 5);
+      const used = new Set();
+      const summaryRows = [];
+      topDays.forEach(day => {
+          if (!used.has(day.date)) {
+              summaryRows.push({ ...day, type: 'Najwyższe' });
+              used.add(day.date);
+          }
+      });
+      quietDays.forEach(day => {
+          if (!used.has(day.date)) {
+              summaryRows.push({ ...day, type: 'Najniższe' });
+              used.add(day.date);
+          }
+      });
+
+      if (summaryRows.length === 0) {
+          table.innerHTML = `<tbody><tr><td class="muted" style="text-align:center;">Brak dni spełniających kryteria.</td></tr></tbody>`;
+          return;
+      }
+
+      summaryRows.sort((a, b) => {
+          if (a.type === b.type) {
+              return a.type === 'Najwyższe' ? b.total - a.total : a.total - b.total;
+          }
+          return a.type === 'Najwyższe' ? -1 : 1;
+      });
+
+      const body = summaryRows.map(row => {
+          const cat = catsById()[row.topCatId];
+          const topLabel = cat ? `${cat.emoji || ''} ${cat.name}` : '—';
+          const topShare = row.total ? (row.topAmount / row.total) * 100 : 0;
+          const amountClass = row.type === 'Najwyższe' ? 'bad' : 'ok';
+          return `<tr>
+              <td>${row.type}</td>
+              <td>${row.date}</td>
+              <td class="${amountClass}">${fmt(row.total, state.currency)}</td>
+              <td>${row.count}</td>
+              <td>${topLabel}${row.topAmount ? `<br><span class="tiny muted">${fmt(row.topAmount, state.currency)} • ${topShare.toFixed(1)}%</span>` : ''}</td>
+          </tr>`;
+      }).join('');
+
+      table.innerHTML = `<thead><tr><th>Typ</th><th>Data</th><th>Kwota</th><th>Transakcji</th><th>Dominująca kategoria</th></tr></thead><tbody>${body}</tbody>`;
+  }
+
+  function renderAnalyticsInsightsTable(selectedCatIds = []) {
+      const table = document.getElementById('analytics-insights-table');
+      if (!table) return;
+      const context = analyticsCurrentContext;
+      if (!context) { table.innerHTML = ''; return; }
+      if (!context.prevMonth) {
+          table.innerHTML = `<tbody><tr><td class="muted" style="text-align:center;">Za krótki okres, aby obliczyć zmiany m/m.</td></tr></tbody>`;
+          return;
+      }
+      const ids = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(context.categoryStats || {});
+      const rows = ids.map(id => {
+          const stats = context.categoryStats?.[id];
+          if (!stats) return null;
+          const last = stats.months?.[context.lastMonth] || { total: 0, count: 0 };
+          const prev = stats.months?.[context.prevMonth] || { total: 0, count: 0 };
+          const diff = last.total - (prev.total || 0);
+          const diffPct = prev.total ? (diff / prev.total) * 100 : (last.total ? 100 : 0);
+          const countDiff = (last.count || 0) - (prev.count || 0);
+          const avgLast = last.count ? last.total / last.count : 0;
+          const avgPrev = prev.count ? prev.total / prev.count : 0;
+          const avgDiff = avgLast - avgPrev;
+          return { id, diff, diffPct, countDiff, avgDiff };
+      }).filter(Boolean).sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff)).slice(0, 6);
+
+      if (rows.length === 0) {
+          table.innerHTML = `<tbody><tr><td class="muted" style="text-align:center;">Brak porównywalnych danych.</td></tr></tbody>`;
+          return;
+      }
+
+      const body = rows.map(row => {
+          const cat = catsById()[row.id];
+          const diffClass = row.diff > 0 ? 'bad' : (row.diff < 0 ? 'ok' : 'muted');
+          const freqClass = row.countDiff > 0 ? 'bad' : (row.countDiff < 0 ? 'ok' : 'muted');
+          const avgClass = row.avgDiff > 0 ? 'bad' : (row.avgDiff < 0 ? 'ok' : 'muted');
+          return `<tr>
+              <td>${cat ? (cat.emoji || '') + ' ' + cat.name : row.id}</td>
+              <td class="${diffClass}">${row.diff >= 0 ? '+' : ''}${fmt(row.diff, state.currency)} (${row.diffPct.toFixed(1)}%)</td>
+              <td class="${freqClass}">${row.countDiff >= 0 ? '+' : ''}${row.countDiff}</td>
+              <td class="${avgClass}">${row.avgDiff >= 0 ? '+' : ''}${fmt(row.avgDiff, state.currency)}</td>
+          </tr>`;
+      }).join('');
+
+      table.innerHTML = `<thead><tr><th>Kategoria</th><th>Zmiana kwoty m/m</th><th>Zmiana liczby transakcji</th><th>Zmiana średniej kwoty</th></tr></thead><tbody>${body}</tbody>`;
+  }
+
+  function renderAnalyticsMonthlySummary(selectedCatIds = []) {
+      const table = document.getElementById('analytics-monthly-summary');
+      if (!table) return;
+      const context = analyticsCurrentContext;
+      if (!context) { table.innerHTML = ''; return; }
+      const months = context.months || [];
+      const ids = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(context.categoryStats || {});
+      const rows = months.map((ym, idx) => {
+          let selectedTotal = 0;
+          let selectedCount = 0;
+          let topCat = null;
+          ids.forEach(id => {
+              const stats = context.categoryStats?.[id];
+              if (!stats) return;
+              const monthData = stats.months?.[ym];
+              if (monthData && monthData.total) {
+                  selectedTotal += monthData.total;
+                  selectedCount += monthData.count || 0;
+                  if (!topCat || monthData.total > topCat.total) {
+                      topCat = { id, total: monthData.total, count: monthData.count || 0 };
+                  }
+              }
+          });
+          const prevMonth = idx > 0 ? months[idx - 1] : null;
+          let prevTotal = 0;
+          if (prevMonth) {
+              ids.forEach(id => {
+                  const stats = context.categoryStats?.[id];
+                  const prevData = stats?.months?.[prevMonth];
+                  if (prevData && prevData.total) prevTotal += prevData.total;
+              });
+          }
+          const diff = selectedTotal - prevTotal;
+          const diffClass = diff > 0 ? 'bad' : (diff < 0 ? 'ok' : 'muted');
+          const share = context.monthlyTotals?.[ym] > 0 ? (selectedTotal / context.monthlyTotals[ym]) * 100 : 0;
+          const avg = selectedCount ? selectedTotal / selectedCount : 0;
+          const catInfo = topCat ? catsById()[topCat.id] : null;
+          return `<tr>
+              <td>${ym}</td>
+              <td>${fmt(context.monthlyTotals?.[ym] || 0, state.currency)}</td>
+              <td>${fmt(selectedTotal, state.currency)}</td>
+              <td>${share.toFixed(1)}%</td>
+              <td>${selectedCount}<br><span class="tiny muted">${selectedCount ? fmt(avg, state.currency) : fmt(0, state.currency)} / trans.</span></td>
+              <td>${topCat ? fmt(topCat.total, state.currency) : '—'}<br><span class="tiny muted">${catInfo ? `${catInfo.emoji || ''} ${catInfo.name}` : '—'}</span></td>
+              <td class="${diffClass}">${diff ? `${diff > 0 ? '+' : ''}${fmt(diff, state.currency)}` : '—'}</td>
+          </tr>`;
+      }).join('');
+
+      table.innerHTML = `<thead><tr><th>Miesiąc</th><th>Wydatki ogółem</th><th>Wydatki (wybrane)</th><th>Udział</th><th>Transakcji / Średnia</th><th>Top kategoria</th><th>Δ m/m (wybrane)</th></tr></thead><tbody>${rows}</tbody>`;
+  }
+
+  function initAnalyticsControls() {
+      const buttons = document.querySelectorAll('[data-analytics-metric]');
+      if (buttons.length) {
+          buttons.forEach(btn => {
+              btn.onclick = () => {
+                  analyticsCategoryMetric = btn.dataset.analyticsMetric || 'total';
+                  buttons.forEach(b => b.classList.toggle('active', b === btn));
+                  runAnalyticsFilterUpdates();
+              };
+              btn.classList.toggle('active', (btn.dataset.analyticsMetric || 'total') === analyticsCategoryMetric);
+          });
+      }
+      const topSelect = document.getElementById('analytics-topn-select');
+      if (topSelect) {
+          if (topSelect.value !== String(analyticsCategoryLimit)) {
+              topSelect.value = String(analyticsCategoryLimit);
+          }
+          topSelect.onchange = () => {
+              analyticsCategoryLimit = Number(topSelect.value) || analyticsCategoryLimit;
+              runAnalyticsFilterUpdates();
+          };
+      }
+  }
+
+
   
-  function renderAnalyticsCategoryTrends(months, data) {
+  function renderAnalyticsCategoryTrends(context, selectedCatIds = []) {
     const table = document.getElementById('analytics-category-trends');
-    const categories = Object.keys(data).map(id => catsById()[id]).filter(Boolean);
+    if (!table) return;
+    const months = context?.months || [];
+    const data = context?.expenseByCategoryByMonth || {};
+    const ids = (selectedCatIds && selectedCatIds.length) ? selectedCatIds : Object.keys(data);
+    const categories = ids.map(id => catsById()[id]).filter(cat => cat && months.some(ym => (data[cat.id]?.[ym]?.total || 0) > 0));
+
+    if (categories.length === 0) {
+        table.innerHTML = `<tbody><tr><td class="muted" style="text-align:center;">Brak danych dla wybranych kategorii.</td></tr></tbody>`;
+        return;
+    }
+
+    let maxValue = 0;
+    categories.forEach(cat => {
+        months.forEach(ym => {
+            const val = data[cat.id]?.[ym]?.total || 0;
+            if (val > maxValue) maxValue = val;
+        });
+    });
 
     let header = `<thead><tr><th>Kategoria</th>`;
     months.forEach(ym => header += `<th>${ym}</th>`);
     header += `</tr></thead>`;
-    
-    let body = `<tbody>`;
+
+    let body = '<tbody>';
     categories.forEach(cat => {
-        body += `<tr><td>${cat.emoji||''} ${cat.name}</td>`;
-        months.forEach(ym => {
-            const monthData = data[cat.id]?.[ym];
-            if (monthData && monthData.total > 0) {
-                const avg = monthData.total / monthData.count;
-                body += `<td>
-                    ${fmt(monthData.total, state.currency)}
-                    <br>
-                    <span class="tiny muted">(${monthData.count} / ${fmt(avg, state.currency)})</span>
-                </td>`;
-            } else {
-                body += `<td>${fmt(0, state.currency)}</td>`;
-            }
+        body += `<tr><td>${cat.emoji || ''} ${cat.name}</td>`;
+        months.forEach((ym, idx) => {
+            const monthData = data[cat.id]?.[ym] || { total: 0, count: 0 };
+            const val = monthData.total || 0;
+            const cnt = monthData.count || 0;
+            const avg = cnt ? val / cnt : 0;
+            const prevMonthKey = idx > 0 ? months[idx - 1] : null;
+            const prevData = prevMonthKey ? data[cat.id]?.[prevMonthKey] : null;
+            const diff = prevData ? val - (prevData.total || 0) : 0;
+            const intensity = maxValue > 0 ? val / maxValue : 0;
+            const bg = val > 0 ? `background: rgba(14, 165, 233, ${0.12 + intensity * 0.35});` : '';
+            const trendClass = diff > 0 ? 'bad' : (diff < 0 ? 'ok' : 'muted');
+            const diffText = prevData ? `${diff >= 0 ? '+' : ''}${fmt(diff, state.currency)}` : '';
+            body += `<td style="${bg}">
+                ${fmt(val, state.currency)}<br>
+                <span class="tiny muted">${cnt} trans. · ${cnt ? fmt(avg, state.currency) : fmt(0, state.currency)}</span>
+                ${prevData ? `<br><span class="tiny ${trendClass}">${diffText}</span>` : ''}
+            </td>`;
         });
-        body += `</tr>`;
+        body += '</tr>';
     });
-    body += `</tbody>`;
+    body += '</tbody>';
 
     table.innerHTML = header + body;
   }
+
+
   
-  function renderAnalyticsTopTransactions(allEntries) {
+  function renderAnalyticsTopTransactions(allEntries, selectedCatIds = []) {
       const table = document.getElementById('analytics-top-transactions');
       const tbody = table.querySelector('tbody') || document.createElement('tbody');
       table.innerHTML = `<thead><tr><th>Data</th><th>Kategoria</th><th>Kwota</th><th>Notatka</th></tr></thead>`;
       table.appendChild(tbody);
-      
-      const selectedCatIds = Array.from(document.querySelectorAll('.analytics-cat-filter-cb:checked')).map(cb => cb.value);
-    
+
+      const activeCatIds = Array.isArray(selectedCatIds) && selectedCatIds.length
+        ? selectedCatIds
+        : Array.from(document.querySelectorAll('.analytics-cat-filter-cb:checked')).map(cb => cb.value);
+
       const flattenedExpenses = [];
-      allEntries.forEach(tx => {
+      (allEntries || []).forEach(tx => {
         const processEntry = (entry, categoryId, amount, note) => {
-            if (selectedCatIds.length > 0 && !selectedCatIds.includes(categoryId)) return;
+            if (activeCatIds.length > 0 && !activeCatIds.includes(categoryId)) return;
             const cat = catsById()[categoryId];
             if(cat && (cat.type === 'expense' || cat.type === 'saving')){
                 flattenedExpenses.push({ date: entry.date, categoryId, amount: -Math.abs(num(amount)), note });
             }
         };
 
-        if(tx.splits && tx.splits.length > 0) {
+        if(tx?.splits && tx.splits.length > 0) {
             tx.splits.forEach(split => {
                 processEntry(tx, split.categoryId, split.amount, tx.note);
             });
@@ -2076,12 +3297,12 @@
       });
 
       const top10 = flattenedExpenses.sort((a,b) => a.amount - b.amount).slice(0, 10);
-      
+
       if (top10.length === 0) {
           tbody.innerHTML = `<tr><td colspan="4" class="muted" style="text-align:center;">Brak wydatków w wybranych kategoriach w tym okresie.</td></tr>`;
           return;
       }
-      
+
       tbody.innerHTML = top10.map(e => {
           const cat = catsById()[e.categoryId];
           return `
@@ -2094,6 +3315,8 @@
           `;
       }).join('');
   }
+
+
 
   // --- Recurring templates (variable expenses) --------------------------------
   function scheduledDateFor(tpl, ym){
