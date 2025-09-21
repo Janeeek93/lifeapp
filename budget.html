@@ -85,6 +85,21 @@
     .chart-box.tall{height:320px}
     .chart-box.wide{height:280px}
     .insight-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);font-size:12px;background:#f8fafc;margin-right:6px;margin-top:4px}
+    .insight-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .eom-panel{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:16px}
+    .eom-panel .title{font-size:18px;margin:0 0 6px 0}
+    .table-modern thead th{background:#f1f5f9;font-weight:600;font-size:13px;color:#475569;border-bottom:1px solid var(--line)}
+    .table-modern tbody tr:nth-child(even){background:#f8fafc}
+    .table-modern td{vertical-align:top}
+    .kpi-card{background:#0f172a;color:#fff;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px;min-height:120px}
+    .kpi-card.light{background:#f8fafc;color:#0f172a;border:1px solid var(--line)}
+    .kpi-card .label{font-size:12px;text-transform:uppercase;letter-spacing:0.08em;opacity:0.7}
+    .kpi-card .value{font-size:26px;font-weight:700}
+    .kpi-card .sub{font-size:12px;opacity:0.8}
+    .kpi-trend{font-size:12px;font-weight:600}
+    .kpi-trend.trend-up{color:var(--green)}
+    .kpi-trend.trend-down{color:var(--red)}
+    .kpi-trend.trend-flat{color:var(--muted)}
   </style>
 </head>
 <body>
@@ -358,35 +373,92 @@
 
     <!-- EOM -->
     <section id="tab-eom" class="card" style="margin-top:12px;display:none">
-      <h3 class="title">Salda kont (EOM)</h3>
-      <p id="eom-prompt" class="tiny"></p>
-      <form id="acct-form" class="grid g-3" style="gap:8px;margin-bottom:8px">
-        <input name="name" placeholder="Dodaj konto (np. Oszczędności, Dług na karcie)" style="grid-column: span 2;"/>
-        <button class="btn soft" type="submit">Dodaj konto</button>
-      </form>
-      <table id="eom-table">
-        <thead></thead>
-        <tbody id="eom-rows"></tbody>
-      </table>
-      <div class="row" style="margin-top:8px">
-        <div class="muted">Suma sald (Majątek Netto): <b id="eom-total">0</b></div>
-        <button id="eom-save" class="btn">Zapisz salda</button>
+      <div class="row" style="align-items:flex-start;gap:12px">
+        <div>
+          <h3 class="title" style="margin-bottom:4px">Salda i majątek netto</h3>
+          <p id="eom-prompt" class="tiny"></p>
+        </div>
+        <div class="row" style="gap:8px;align-items:center">
+          <div class="tiny muted" style="display:flex;align-items:center;gap:6px">Aktywny miesiąc <span class="pill" id="eom-active-month"></span></div>
+          <button class="btn soft" type="button" id="eom-copy-last">Skopiuj poprzedni zapis</button>
+        </div>
       </div>
 
-      <div style="margin-top:24px">
-        <h4 class="title">Historia sald i majątku netto</h4>
-        <p class="tiny">Zobacz, jak zmieniały się salda Twoich kont oraz całkowity majątek netto na przestrzeni ostatnich miesięcy.</p>
-        <div class="row" style="gap:8px; margin-bottom:8px; justify-content: flex-start;">
-           <label for="eom-history-months" style="width: auto;">Pokaż ostatnie:</label>
-           <select id="eom-history-months" style="width: auto;">
+      <div id="eom-kpis" class="grid g-4" style="margin-top:16px"></div>
+      <div id="eom-insights" class="insight-row"></div>
+
+      <div class="grid g-2" style="margin-top:16px;gap:16px">
+        <div class="eom-panel">
+          <div class="row" style="align-items:flex-end;gap:12px">
+            <div>
+              <div class="title" style="margin-bottom:4px">Rejestr sald</div>
+              <p class="tiny">Dodaj konta i uzupełnij ich stany na koniec miesiąca. Dane są przechowywane lokalnie w przeglądarce.</p>
+            </div>
+            <label class="tiny" style="display:flex;flex-direction:column;gap:4px;align-items:flex-start">
+              Filtr kont
+              <select id="eom-account-filter" style="min-width:180px">
+                <option value="all">Wszystkie konta</option>
+                <option value="positive">Saldo dodatnie</option>
+                <option value="negative">Saldo ujemne</option>
+              </select>
+            </label>
+          </div>
+          <form id="acct-form" class="grid g-3" style="gap:8px;margin:12px 0">
+            <input name="name" placeholder="Dodaj konto (np. Oszczędności, Dług na karcie)" style="grid-column: span 2;"/>
+            <button class="btn soft" type="submit">Dodaj konto</button>
+          </form>
+          <div style="overflow-x:auto">
+            <table id="eom-table" class="table-modern">
+              <thead></thead>
+              <tbody id="eom-rows"></tbody>
+            </table>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <div class="muted">Suma sald (Majątek Netto): <b id="eom-total">0</b></div>
+            <div class="row" style="gap:8px">
+              <button class="btn ghost" type="button" id="eom-reset-inputs">Wyczyść pola</button>
+              <button id="eom-save" class="btn" type="button">Zapisz salda</button>
+            </div>
+          </div>
+        </div>
+        <div class="eom-panel">
+          <div class="title" style="margin-bottom:4px">Trendy majątku</div>
+          <p class="tiny">Zobacz, jak zmienia się łączny majątek netto oraz które konta odpowiadają za największe ruchy.</p>
+          <div class="chart-box tall"><canvas id="eom-networth-chart"></canvas></div>
+          <div class="chart-box tall" style="margin-top:16px"><canvas id="eom-accounts-chart"></canvas></div>
+          <div style="margin-top:16px;overflow-x:auto">
+            <table id="eom-change-table" class="table-modern table-sortable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="eom-panel" style="margin-top:16px">
+        <div class="row" style="align-items:flex-end;gap:12px">
+          <div>
+            <div class="title" style="margin-bottom:4px">Historia sald i majątku netto</div>
+            <p class="tiny">Analizuj zmiany w czasie, aby wychwycić trendy, rekordy i anomalie.</p>
+          </div>
+          <label class="tiny" style="display:flex;flex-direction:column;gap:4px;align-items:flex-start">
+            Zakres miesięcy
+            <select id="eom-history-months" style="min-width:160px">
               <option value="3">3 miesiące</option>
               <option value="6" selected>6 miesięcy</option>
               <option value="12">12 miesięcy</option>
               <option value="all">Wszystkie</option>
-           </select>
+            </select>
+          </label>
         </div>
-        <div style="overflow-x: auto;">
-          <table id="eom-accounts-history">
+        <div style="overflow-x:auto;margin-top:12px">
+          <table id="eom-accounts-history" class="table-modern">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div style="overflow-x:auto;margin-top:16px">
+          <table id="eom-monthly-summary" class="table-modern table-sortable">
             <thead></thead>
             <tbody></tbody>
           </table>
@@ -1401,130 +1473,732 @@
   }
 
   // --- EOM --------------------------------------------------------------------
-  function renderEOM(){
-    const ym = b().workingMonth;
-    document.getElementById('eom-prompt').innerHTML = `Wprowadź salda swoich kont na koniec <b>bieżącego</b> miesiąca (${ym}).`;
-    
-    const tableHeader = document.getElementById('eom-table').querySelector('thead');
-    tableHeader.innerHTML = `<tr><th>Konto</th><th>Saldo na koniec miesiąca (${ym})</th><th></th></tr>`;
-
-    const tbody=document.getElementById('eom-rows'); tbody.innerHTML='';
-    const rows=(b().accounts||[]).map(a=>({accountId:a.id,name:a.name,balance:(b().eom||[]).find(e=>e.ym===ym && e.accountId===a.id)?.balance||''}));
-    
-    for(const r of rows){
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${r.name}</td><td><input inputmode="decimal" data-id="${r.accountId}" value="${String(r.balance).replace('.',',')}" placeholder="0,00"/></td><td><button class="btn danger" data-del="${r.accountId}">Usuń</button></td>`;
-      tr.querySelector('button[data-del]').onclick=()=>{
-        const used = (b().transactions||[]).some(t=>t.accountId===r.accountId);
-        if(used){alert('Nie można usunąć: konto ma powiązane transakcje.'); return;}
-        if(!confirm('Usunąć konto i powiązane salda EOM?')) return;
-        state.modules.budget.accounts = (b().accounts||[]).filter(x=>x.id!==r.accountId);
-        state.modules.budget.eom = (b().eom||[]).filter(e=>e.accountId!==r.accountId);
-        save(state); renderAll();
-      };
-      tbody.appendChild(tr);
+  function destroyEomChart(key){
+    if(eomCharts[key]){
+      eomCharts[key].destroy();
+      delete eomCharts[key];
     }
-    const total=()=>Array.from(tbody.querySelectorAll('input')).reduce((s,i)=>s+num(i.value),0);
-    document.getElementById('eom-total').textContent=fmt(total(),state.currency);
-    tbody.oninput=()=> document.getElementById('eom-total').textContent=fmt(total(),state.currency);
-    document.getElementById('eom-save').onclick=()=>{
-      const inputs=Array.from(tbody.querySelectorAll('input'));
-      for(const inp of inputs){
-        const accountId=inp.dataset.id; const bal=num(inp.value)||0;
-        state.modules.budget.eom = (b().eom||[]).filter(e=>!(e.ym===ym && e.accountId===accountId));
-        state.modules.budget.eom.push({ym:ym,accountId,balance:bal});
-      }
-      save(state); renderEOM(); renderEOMHistory();
+  }
+
+  function sumBalances(map){
+    return Object.values(map || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+  }
+
+  function buildEomContext(){
+    const accounts = b().accounts || [];
+    const entries = (b().eom || []).map(entry => ({
+      ym: String(entry.ym),
+      accountId: entry.accountId,
+      balance: num(entry.balance)
+    })).filter(entry => entry.ym && entry.accountId);
+
+    const monthBalances = {};
+    const accountHistory = {};
+
+    for(const entry of entries){
+      if(!monthBalances[entry.ym]) monthBalances[entry.ym] = {};
+      monthBalances[entry.ym][entry.accountId] = entry.balance;
+      if(!accountHistory[entry.accountId]) accountHistory[entry.accountId] = [];
+      accountHistory[entry.accountId].push({ ym: entry.ym, balance: entry.balance });
+    }
+
+    Object.values(accountHistory).forEach(hist => hist.sort((a,b) => a.ym.localeCompare(b.ym)));
+
+    const months = Object.keys(monthBalances).sort();
+    const workingYm = b().workingMonth;
+    const workingBalances = monthBalances[workingYm] || {};
+    const hasWorking = Object.keys(workingBalances).length > 0;
+    const latestMonth = months.length ? months[months.length - 1] : null;
+    const focusMonth = hasWorking ? workingYm : latestMonth;
+    const focusPrevMonth = focusMonth ? months.filter(m => m < focusMonth).pop() || null : null;
+    const focusBalances = focusMonth ? (monthBalances[focusMonth] || {}) : {};
+    const focusPrevBalances = focusPrevMonth ? (monthBalances[focusPrevMonth] || {}) : {};
+    const netWorthByMonth = months.map(ym => ({ ym, total: sumBalances(monthBalances[ym]) }));
+
+    return {
+      accounts,
+      accountHistory,
+      monthBalances,
+      months,
+      workingYm,
+      workingBalances,
+      hasWorking,
+      latestMonth,
+      focusMonth,
+      focusPrevMonth,
+      focusBalances,
+      focusPrevBalances,
+      netWorthByMonth
     };
-    renderEOMHistory(); 
+  }
+
+  function entryForMonth(history, ym){
+    if(!history) return null;
+    return history.find(item => item.ym === ym) || null;
+  }
+
+  function lastEntryBefore(history, ym){
+    if(!history) return null;
+    let prev = null;
+    for(const item of history){
+      if(item.ym < ym){
+        prev = item;
+      } else if(item.ym >= ym){
+        break;
+      }
+    }
+    return prev;
+  }
+
+  function computeAccountStatsForMonth(ctx, targetMonth){
+    if(!targetMonth) return [];
+    const { accounts, accountHistory } = ctx;
+    return accounts.map(acc => {
+      const history = accountHistory[acc.id] || [];
+      const historyUpTo = history.filter(item => item.ym <= targetMonth);
+      if(historyUpTo.length === 0) return null;
+      const currentEntry = entryForMonth(history, targetMonth);
+      const prevEntry = lastEntryBefore(history, targetMonth);
+      const delta = (currentEntry || prevEntry) ? ((currentEntry?.balance ?? 0) - (prevEntry?.balance ?? 0)) : null;
+      const deltaPct = prevEntry && prevEntry.balance ? (delta / Math.abs(prevEntry.balance)) * 100 : null;
+      const lastThree = historyUpTo.slice(-3);
+      const avg3 = lastThree.length ? lastThree.reduce((sum, item) => sum + item.balance, 0) / lastThree.length : null;
+      const trendVsAvg = currentEntry && avg3 !== null ? currentEntry.balance - avg3 : null;
+      const maxEntry = historyUpTo.reduce((max, item) => !max || item.balance > max.balance ? item : max, null);
+      const minEntry = historyUpTo.reduce((min, item) => !min || item.balance < min.balance ? item : min, null);
+      return {
+        account: acc,
+        current: currentEntry ? currentEntry.balance : null,
+        currentYm: currentEntry?.ym || targetMonth,
+        previous: prevEntry ? prevEntry.balance : null,
+        previousYm: prevEntry?.ym || null,
+        delta,
+        deltaPct,
+        avg3,
+        trendVsAvg,
+        maxEntry,
+        minEntry
+      };
+    }).filter(Boolean);
+  }
+
+  function computeMonthlySummary(ctx){
+    const { months, monthBalances, accounts, accountHistory } = ctx;
+    return months.map(ym => {
+      const balances = monthBalances[ym] || {};
+      const netWorth = sumBalances(balances);
+      const prevMonth = months.filter(m => m < ym).pop() || null;
+      const prevBalances = prevMonth ? (monthBalances[prevMonth] || {}) : {};
+      const prevNetWorth = prevMonth !== null ? sumBalances(prevBalances) : null;
+      const delta = prevNetWorth !== null ? netWorth - prevNetWorth : null;
+      let positive = 0;
+      let negative = 0;
+      for(const value of Object.values(balances)){
+        const val = Number(value) || 0;
+        if(val >= 0) positive += val;
+        else negative += val;
+      }
+      const base = positive + Math.abs(negative);
+      const debtShare = base ? (Math.abs(negative) / base) * 100 : 0;
+      let best = null;
+      let worst = null;
+      for(const acc of accounts){
+        const history = accountHistory[acc.id] || [];
+        if(history.length === 0) continue;
+        const current = entryForMonth(history, ym)?.balance ?? null;
+        const prevEntry = lastEntryBefore(history, ym);
+        if(current === null && !prevEntry) continue;
+        const deltaAcc = (current ?? 0) - (prevEntry?.balance ?? 0);
+        if(!best || deltaAcc > best.delta) best = { account: acc, delta: deltaAcc };
+        if(!worst || deltaAcc < worst.delta) worst = { account: acc, delta: deltaAcc };
+      }
+      return { ym, netWorth, delta, positive, negative, debtShare, best, worst };
+    });
+  }
+
+  function renderDeltaBadge(delta){
+    if(delta === null || delta === undefined) return '<span class="delta-neutral">—</span>';
+    if(Math.abs(delta) < 0.005) return '<span class="delta-neutral">—</span>';
+    const cls = delta > 0 ? 'delta-up' : 'delta-down';
+    const sign = delta > 0 ? '+' : '';
+    return `<span class="${cls}">${sign}${fmt(delta, state.currency)}</span>`;
+  }
+
+  function renderEomKpis(ctx, accountStats){
+    const container = document.getElementById('eom-kpis');
+    if(!container) return;
+    if(!ctx.months.length){
+      container.innerHTML = `<p class="muted" style="grid-column:1 / -1;text-align:center;">Dodaj pierwsze salda, aby zobaczyć wskaźniki.</p>`;
+      return;
+    }
+    const netWorth = sumBalances(ctx.focusBalances);
+    const prevNetWorth = ctx.focusPrevMonth ? sumBalances(ctx.focusPrevBalances) : null;
+    const delta = prevNetWorth !== null ? netWorth - prevNetWorth : null;
+    const deltaExists = delta !== null && Math.abs(delta) >= 0.005;
+    const deltaValue = deltaExists ? `${delta > 0 ? '+' : ''}${fmt(delta, state.currency)}` : '—';
+    let changeInfo = '<span class="kpi-trend trend-flat">Brak danych do porównania</span>';
+    if(deltaExists){
+      const deltaPct = prevNetWorth ? (delta / prevNetWorth) * 100 : null;
+      const pctText = deltaPct !== null ? ` (${delta > 0 ? '+' : ''}${deltaPct.toFixed(1)}%)` : '';
+      changeInfo = `<span class="kpi-trend ${delta > 0 ? 'trend-up' : 'trend-down'}">${delta > 0 ? 'Wzrost' : 'Spadek'} ${delta > 0 ? '+' : ''}${fmt(delta, state.currency)}${pctText}</span>`;
+    }
+    const positive = Object.values(ctx.focusBalances).reduce((sum, val) => sum + (Number(val) >= 0 ? Number(val) : 0), 0);
+    const liabilities = Object.values(ctx.focusBalances).reduce((sum, val) => sum + (Number(val) < 0 ? Number(val) : 0), 0);
+    const base = positive + Math.abs(liabilities);
+    const debtShare = base ? (Math.abs(liabilities) / base) * 100 : 0;
+    const bestAccount = accountStats.filter(row => Number.isFinite(row.delta)).sort((a,b) => (b.delta || 0) - (a.delta || 0))[0];
+    const worstAccount = accountStats.filter(row => Number.isFinite(row.delta)).sort((a,b) => (a.delta || 0) - (b.delta || 0))[0];
+    const bestLine = bestAccount && Math.abs(bestAccount.delta || 0) >= 0.005
+      ? `<div><span class="ok">▲ ${bestAccount.account.name}</span> ${fmt(bestAccount.delta, state.currency)}</div>`
+      : '<div class="muted">Brak wzrostów</div>';
+    const worstLine = worstAccount && Math.abs(worstAccount.delta || 0) >= 0.005
+      ? `<div><span class="bad">▼ ${worstAccount.account.name}</span> ${fmt(worstAccount.delta, state.currency)}</div>`
+      : '<div class="muted">Brak spadków</div>';
+    const focusLabel = ctx.focusMonth
+      ? (ctx.focusMonth === ctx.workingYm ? `Dane z ${ctx.focusMonth}` : `Ostatni zapis: ${ctx.focusMonth}`)
+      : 'Brak zapisów';
+
+    container.innerHTML = `
+      <div class="kpi-card">
+        <div class="label">Majątek netto</div>
+        <div class="value">${fmt(netWorth, state.currency)}</div>
+        <div class="sub">${focusLabel}</div>
+      </div>
+      <div class="kpi-card light">
+        <div class="label">Zmiana m/m</div>
+        <div class="value">${deltaValue}</div>
+        ${changeInfo}
+      </div>
+      <div class="kpi-card light">
+        <div class="label">Największe ruchy</div>
+        ${bestLine}
+        ${worstLine}
+      </div>
+      <div class="kpi-card light">
+        <div class="label">Struktura</div>
+        <div>Płynne aktywa: <b>${fmt(positive, state.currency)}</b></div>
+        <div>Zobowiązania: <b>${fmt(Math.abs(liabilities), state.currency)}</b></div>
+        <div class="sub">Dług to ${debtShare.toFixed(1)}% portfela</div>
+      </div>
+    `;
+  }
+
+  function renderEomInsights(ctx, summaryRows){
+    const container = document.getElementById('eom-insights');
+    if(!container) return;
+    if(!ctx.months.length){
+      container.innerHTML = '';
+      return;
+    }
+    const insights = [];
+    if(ctx.netWorthByMonth.length){
+      const record = ctx.netWorthByMonth.reduce((max, item) => item.total > (max?.total ?? -Infinity) ? item : max, null);
+      if(record){
+        insights.push(`<span class="insight-pill">📈 Rekord: ${record.ym} — ${fmt(record.total, state.currency)}</span>`);
+      }
+      const low = ctx.netWorthByMonth.reduce((min, item) => item.total < (min?.total ?? Infinity) ? item : min, null);
+      if(low && low.ym !== record?.ym){
+        insights.push(`<span class="insight-pill">📉 Najniższy poziom: ${low.ym} — ${fmt(low.total, state.currency)}</span>`);
+      }
+    }
+    const swing = summaryRows.filter(row => row.delta !== null && Math.abs(row.delta) >= 0.005)
+      .sort((a,b) => Math.abs((b.delta || 0)) - Math.abs((a.delta || 0)))[0];
+    if(swing){
+      insights.push(`<span class="insight-pill">${swing.delta > 0 ? '🟢' : '🔻'} Największa zmiana: ${swing.ym} ${swing.delta > 0 ? '+' : ''}${fmt(swing.delta, state.currency)}</span>`);
+    }
+    const total = sumBalances(ctx.focusBalances);
+    if(total){
+      let top = null;
+      for(const acc of ctx.accounts){
+        const value = ctx.focusBalances[acc.id];
+        if(value === undefined) continue;
+        const share = (value / total) * 100;
+        if(!top || Math.abs(share) > Math.abs(top.share)){
+          top = { account: acc, value, share };
+        }
+      }
+      if(top){
+        insights.push(`<span class="insight-pill">${top.value >= 0 ? '🏦' : '💳'} ${top.account.name}: ${fmt(top.value, state.currency)} (${top.share.toFixed(1)}%)</span>`);
+      }
+    }
+    const liabilities = Object.values(ctx.focusBalances).filter(v => Number(v) < 0).reduce((sum, val) => sum + Number(val), 0);
+    if(liabilities){
+      const base = Object.values(ctx.focusBalances).reduce((sum, val) => sum + Math.abs(Number(val) || 0), 0);
+      const ratio = base ? (Math.abs(liabilities) / base) * 100 : 0;
+      insights.push(`<span class="insight-pill">⚠️ Długi: ${fmt(Math.abs(liabilities), state.currency)} (${ratio.toFixed(1)}% aktywów)</span>`);
+    }
+    container.innerHTML = insights.join('');
+  }
+
+  function renderEomHistoryTable(ctx, monthsToShow){
+    const table = document.getElementById('eom-accounts-history');
+    if(!table) return;
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    if(thead) thead.innerHTML = '';
+    if(tbody) tbody.innerHTML = '';
+    if(!monthsToShow.length){
+      if(tbody) tbody.innerHTML = `<tr><td class="muted" style="text-align:center;padding:16px;">Brak danych historycznych do wyświetlenia.</td></tr>`;
+      return;
+    }
+    if(!thead || !tbody) return;
+    let header = '<tr><th>Miesiąc</th>';
+    for(const acc of ctx.accounts){ header += `<th>${acc.name}</th>`; }
+    header += '<th>Majątek netto</th><th>Zmiana m/m</th></tr>';
+    thead.innerHTML = header;
+    let prevNetWorth = null;
+    for(const ym of monthsToShow){
+      const balances = ctx.monthBalances[ym] || {};
+      const prevMonth = ctx.months.filter(m => m < ym).pop() || null;
+      const prevBalances = prevMonth ? (ctx.monthBalances[prevMonth] || {}) : {};
+      let row = `<td><b>${ym}</b></td>`;
+      for(const acc of ctx.accounts){
+        const value = balances[acc.id];
+        if(value === undefined){
+          row += '<td class="muted">—</td>';
+        } else {
+          const prevVal = prevBalances[acc.id];
+          let change = '';
+          if(prevVal !== undefined){
+            const diff = value - prevVal;
+            if(Math.abs(diff) >= 0.005){
+              change = `<br><span class="tiny ${diff >= 0 ? 'ok' : 'bad'}">${diff >= 0 ? '+' : ''}${fmt(diff, state.currency)}</span>`;
+            }
+          }
+          row += `<td>${fmt(value, state.currency)}${change}</td>`;
+        }
+      }
+      const netWorth = sumBalances(balances);
+      const deltaTotal = prevNetWorth !== null ? netWorth - prevNetWorth : null;
+      row += `<td><b>${fmt(netWorth, state.currency)}</b></td>`;
+      row += `<td>${deltaTotal === null ? '<span class="muted">—</span>' : renderDeltaBadge(deltaTotal)}</td>`;
+      const tr = document.createElement('tr');
+      tr.innerHTML = row;
+      tbody.appendChild(tr);
+      prevNetWorth = netWorth;
+    }
+  }
+
+  function renderEomChangeTable(ctx, accountStats){
+    const table = document.getElementById('eom-change-table');
+    if(!table) return;
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    if(thead) thead.innerHTML = '';
+    if(tbody) tbody.innerHTML = '';
+    if(!accountStats.length){
+      if(tbody) tbody.innerHTML = `<tr><td colspan="7" class="muted" style="text-align:center;padding:16px;">Brak historii kont do analizy.</td></tr>`;
+      return;
+    }
+    if(!thead || !tbody) return;
+    const sortState = eomUiState.changeSort;
+    const cols = [
+      { label:'Konto', key:'name' },
+      { label:`Saldo (${ctx.focusMonth || ctx.workingYm})`, key:'current' },
+      { label:ctx.focusPrevMonth ? `Poprzednio (${ctx.focusPrevMonth})` : 'Poprzednio', key:'previous' },
+      { label:'Zmiana m/m', key:'delta' },
+      { label:'Zmiana %', key:'deltaPct' },
+      { label:'vs średnia 3m', key:'trendVsAvg' },
+      { label:'Rekord', key:'max' }
+    ];
+    thead.innerHTML = '<tr>' + cols.map(col => {
+      const active = sortState.field === col.key;
+      const indicator = active ? `<span class="sort-indicator">${sortState.dir === 'asc' ? '▲' : '▼'}</span>` : '';
+      return `<th data-sort="${col.key}">${col.label}${indicator}</th>`;
+    }).join('') + '</tr>';
+
+    const rows = accountStats.map(stat => ({
+      ...stat,
+      name: stat.account.name,
+      max: stat.maxEntry?.balance ?? null
+    }));
+
+    rows.sort((a,b) => {
+      const dir = sortState.dir === 'asc' ? 1 : -1;
+      const key = sortState.field;
+      if(key === 'name') return a.name.localeCompare(b.name, 'pl', { sensitivity:'base' }) * dir;
+      const mapValue = (row) => {
+        switch(key){
+          case 'current': return row.current ?? -Infinity;
+          case 'previous': return row.previous ?? -Infinity;
+          case 'delta': return row.delta ?? 0;
+          case 'deltaPct': return row.deltaPct ?? -Infinity;
+          case 'trendVsAvg': return row.trendVsAvg ?? -Infinity;
+          case 'max': return row.maxEntry?.balance ?? -Infinity;
+          default: return row[key] ?? 0;
+        }
+      };
+      const av = mapValue(a);
+      const bv = mapValue(b);
+      if(av === bv) return a.name.localeCompare(b.name, 'pl', { sensitivity:'base' }) * dir;
+      return (av - bv) * dir;
+    });
+
+    tbody.innerHTML = rows.map(row => {
+      const currentHtml = row.current === null
+        ? '<span class="muted">—</span>'
+        : `${fmt(row.current, state.currency)}${row.currentYm && row.currentYm !== ctx.focusMonth ? `<br><span class="tiny muted">${row.currentYm}</span>` : ''}`;
+      const previousHtml = row.previous === null
+        ? '<span class="muted">—</span>'
+        : `${fmt(row.previous, state.currency)}${row.previousYm ? `<br><span class="tiny muted">${row.previousYm}</span>` : ''}`;
+      const deltaHtml = row.delta === null ? '<span class="muted">—</span>' : renderDeltaBadge(row.delta);
+      const pctHtml = row.deltaPct === null ? '<span class="muted">—</span>' : `<span class="${row.deltaPct >= 0 ? 'ok' : 'bad'}">${row.deltaPct >= 0 ? '+' : ''}${row.deltaPct.toFixed(1)}%</span>`;
+      const avgHtml = row.trendVsAvg === null ? '<span class="muted">—</span>' : renderDeltaBadge(row.trendVsAvg);
+      const maxHtml = row.maxEntry
+        ? `${fmt(row.maxEntry.balance, state.currency)}<br><span class="tiny muted">${row.maxEntry.ym}</span>`
+        : '<span class="muted">—</span>';
+      return `<tr><td>${row.name}</td><td>${currentHtml}</td><td>${previousHtml}</td><td>${deltaHtml}</td><td>${pctHtml}</td><td>${avgHtml}</td><td>${maxHtml}</td></tr>`;
+    }).join('');
+
+    thead.querySelectorAll('th[data-sort]').forEach(th => {
+      const key = th.dataset.sort;
+      th.onclick = () => {
+        if(eomUiState.changeSort.field === key){
+          eomUiState.changeSort.dir = eomUiState.changeSort.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          eomUiState.changeSort.field = key;
+          eomUiState.changeSort.dir = key === 'name' ? 'asc' : 'desc';
+        }
+        renderEOMHistory();
+      };
+    });
+  }
+
+  function renderEomMonthlySummary(summaryRows){
+    const table = document.getElementById('eom-monthly-summary');
+    if(!table) return;
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    if(thead) thead.innerHTML = '';
+    if(tbody) tbody.innerHTML = '';
+    if(!summaryRows.length){
+      if(tbody) tbody.innerHTML = `<tr><td colspan="8" class="muted" style="text-align:center;padding:16px;">Brak danych historycznych do zestawienia.</td></tr>`;
+      return;
+    }
+    if(!thead || !tbody) return;
+    const sortState = eomUiState.monthlySort;
+    const cols = [
+      { label:'Miesiąc', key:'ym' },
+      { label:'Majątek netto', key:'netWorth' },
+      { label:'Zmiana m/m', key:'delta' },
+      { label:'Największy wzrost', key:'best' },
+      { label:'Największy spadek', key:'worst' },
+      { label:'Saldo dodatnie', key:'positive' },
+      { label:'Saldo ujemne', key:'negative' },
+      { label:'Udział długu', key:'debtShare' }
+    ];
+    thead.innerHTML = '<tr>' + cols.map(col => {
+      const active = sortState.field === col.key;
+      const indicator = active ? `<span class="sort-indicator">${sortState.dir === 'asc' ? '▲' : '▼'}</span>` : '';
+      return `<th data-sort="${col.key}">${col.label}${indicator}</th>`;
+    }).join('') + '</tr>';
+
+    const rows = [...summaryRows];
+    rows.sort((a,b) => {
+      const dir = sortState.dir === 'asc' ? 1 : -1;
+      const key = sortState.field;
+      if(key === 'ym') return a.ym.localeCompare(b.ym) * dir;
+      if(key === 'best'){
+        const av = a.best ? a.best.delta : -Infinity;
+        const bv = b.best ? b.best.delta : -Infinity;
+        if(av === bv) return a.ym.localeCompare(b.ym) * dir;
+        return (av - bv) * dir;
+      }
+      if(key === 'worst'){
+        const av = a.worst ? a.worst.delta : Infinity;
+        const bv = b.worst ? b.worst.delta : Infinity;
+        if(av === bv) return a.ym.localeCompare(b.ym) * dir;
+        return (av - bv) * dir;
+      }
+      const av = Number(a[key] ?? 0);
+      const bv = Number(b[key] ?? 0);
+      if(av === bv) return a.ym.localeCompare(b.ym) * dir;
+      return (av - bv) * dir;
+    });
+
+    tbody.innerHTML = rows.map(row => {
+      const deltaHtml = row.delta === null ? '<span class="muted">—</span>' : renderDeltaBadge(row.delta);
+      const bestHtml = row.best
+        ? `<div>${row.best.account.name}</div><div class="tiny ok">${row.best.delta > 0 ? '+' : ''}${fmt(row.best.delta, state.currency)}</div>`
+        : '<span class="muted">—</span>';
+      const worstHtml = row.worst
+        ? `<div>${row.worst.account.name}</div><div class="tiny bad">${row.worst.delta > 0 ? '+' : ''}${fmt(row.worst.delta, state.currency)}</div>`
+        : '<span class="muted">—</span>';
+      return `<tr><td><b>${row.ym}</b></td><td>${fmt(row.netWorth, state.currency)}</td><td>${deltaHtml}</td><td>${bestHtml}</td><td>${worstHtml}</td><td>${fmt(row.positive, state.currency)}</td><td>${fmt(Math.abs(row.negative), state.currency)}</td><td>${row.debtShare.toFixed(1)}%</td></tr>`;
+    }).join('');
+
+    thead.querySelectorAll('th[data-sort]').forEach(th => {
+      const key = th.dataset.sort;
+      th.onclick = () => {
+        if(eomUiState.monthlySort.field === key){
+          eomUiState.monthlySort.dir = eomUiState.monthlySort.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          eomUiState.monthlySort.field = key;
+          eomUiState.monthlySort.dir = key === 'ym' ? 'desc' : 'desc';
+        }
+        renderEOMHistory();
+      };
+    });
+  }
+
+  function renderEomNetWorthChart(ctx, monthsToShow){
+    const canvas = document.getElementById('eom-networth-chart');
+    if(!canvas) return;
+    destroyEomChart('netWorth');
+    if(!monthsToShow.length) return;
+    const labels = monthsToShow;
+    const data = labels.map(ym => sumBalances(ctx.monthBalances[ym] || {}));
+    eomCharts.netWorth = new Chart(canvas.getContext('2d'), {
+      type:'line',
+      data:{
+        labels,
+        datasets:[{
+          label:'Majątek netto',
+          data,
+          borderColor:'#0f172a',
+          backgroundColor:'rgba(15,23,42,0.12)',
+          borderWidth:2,
+          tension:0.35,
+          fill:true
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{ display:false },
+          tooltip:{ callbacks:{ label: context => `${fmt(context.parsed.y, state.currency)}` } }
+        },
+        scales:{
+          y:{ ticks:{ callback: currencyTicks } }
+        }
+      }
+    });
+  }
+
+  function renderEomAccountsChart(ctx, monthsToShow){
+    const canvas = document.getElementById('eom-accounts-chart');
+    if(!canvas) return;
+    destroyEomChart('accounts');
+    if(!monthsToShow.length) return;
+    const ranked = ctx.accounts.map(acc => ({
+      acc,
+      value: Math.abs(ctx.focusBalances[acc.id] ?? 0)
+    })).sort((a,b) => b.value - a.value).slice(0, 6);
+    if(!ranked.length) return;
+    const datasets = ranked.map((item, idx) => {
+      const history = ctx.accountHistory[item.acc.id] || [];
+      return {
+        label: item.acc.name,
+        data: monthsToShow.map(ym => {
+          const entry = entryForMonth(history, ym);
+          return entry ? entry.balance : null;
+        }),
+        borderColor: ANALYTICS_COLORS[idx % ANALYTICS_COLORS.length],
+        backgroundColor: withAlpha(ANALYTICS_COLORS[idx % ANALYTICS_COLORS.length], 0.14),
+        borderWidth:2,
+        tension:0.35,
+        fill:false,
+        spanGaps:true
+      };
+    });
+    eomCharts.accounts = new Chart(canvas.getContext('2d'), {
+      type:'line',
+      data:{ labels: monthsToShow, datasets },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{ position:'bottom' },
+          tooltip:{ callbacks:{ label: context => `${context.dataset.label}: ${fmt(context.parsed.y, state.currency)}` } }
+        },
+        scales:{
+          y:{ ticks:{ callback: currencyTicks } }
+        }
+      }
+    });
+  }
+
+  function renderEOM(){
+    const ctx = buildEomContext();
+    const ym = ctx.workingYm;
+    const prompt = document.getElementById('eom-prompt');
+    if(prompt){
+      const lastInfo = ctx.hasWorking
+        ? 'Masz już zapisane salda dla tego miesiąca — możesz je zaktualizować.'
+        : ctx.latestMonth ? `Ostatnio zapisano dane dla ${ctx.latestMonth}.` : 'To będzie Twój pierwszy zapis sald.';
+      prompt.innerHTML = `Wprowadź salda swoich kont na koniec miesiąca <b>${ym}</b>. <span class="muted">${lastInfo}</span>`;
+    }
+    const badge = document.getElementById('eom-active-month');
+    if(badge) badge.textContent = ym;
+
+    const tableHeader = document.getElementById('eom-table')?.querySelector('thead');
+    if(tableHeader){
+      tableHeader.innerHTML = `<tr><th>Konto</th><th>Ostatni zapis</th><th>Saldo ${ym}</th><th>Zmiana</th><th></th></tr>`;
+    }
+
+    const tbody = document.getElementById('eom-rows');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+
+    const updateTotal = () => {
+      const total = Array.from(tbody.querySelectorAll('input')).reduce((sum, input) => sum + (input.value.trim() ? num(input.value) : 0), 0);
+      const totalEl = document.getElementById('eom-total');
+      if(totalEl) totalEl.textContent = fmt(total, state.currency);
+    };
+
+    const filterSel = document.getElementById('eom-account-filter');
+    const filterValue = filterSel ? filterSel.value : 'all';
+    if(filterSel && !filterSel.dataset.bound){
+      filterSel.dataset.bound = '1';
+      filterSel.addEventListener('change', renderEOM);
+    }
+
+    const rows = ctx.accounts.map(acc => {
+      const history = ctx.accountHistory[acc.id] || [];
+      const currentEntry = entryForMonth(history, ym);
+      const prevEntry = lastEntryBefore(history, ym);
+      const referenceValue = currentEntry ? currentEntry.balance : (prevEntry ? prevEntry.balance : 0);
+      if(filterValue === 'positive' && referenceValue <= 0) return null;
+      if(filterValue === 'negative' && referenceValue >= 0) return null;
+      return { acc, currentEntry, prevEntry };
+    }).filter(Boolean);
+
+    const updateFns = [];
+
+    if(rows.length === 0){
+      tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align:center;padding:16px;">Brak kont do wyświetlenia. Dodaj konto lub zmień filtr.</td></tr>`;
+    } else {
+      for(const row of rows){
+        const acc = row.acc;
+        const prevEntry = row.prevEntry;
+        const previousBalance = prevEntry ? prevEntry.balance : null;
+        const previousLabel = prevEntry
+          ? `${fmt(prevEntry.balance, state.currency)}<br><span class="tiny muted">${prevEntry.ym}</span>`
+          : '<span class="muted">Brak danych</span>';
+        const currentValue = row.currentEntry ? String(row.currentEntry.balance).replace('.',',') : '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><div><b>${acc.name}</b></div></td>
+          <td>${previousLabel}</td>
+          <td><input inputmode="decimal" data-id="${acc.id}" value="${currentValue}" placeholder="0,00"/></td>
+          <td data-delta="${acc.id}"><span class="muted">—</span></td>
+          <td><button class="btn danger" data-del="${acc.id}">Usuń</button></td>
+        `;
+        const input = tr.querySelector('input');
+        const deltaCell = tr.querySelector('[data-delta]');
+        const updateRow = () => {
+          const raw = input.value.trim() === '' ? null : num(input.value);
+          if(raw === null){
+            deltaCell.innerHTML = '<span class="muted">—</span>';
+          } else {
+            const baseline = previousBalance ?? 0;
+            deltaCell.innerHTML = renderDeltaBadge(raw - baseline);
+          }
+          updateTotal();
+        };
+        updateFns.push(updateRow);
+        input.addEventListener('input', updateRow);
+        tr.querySelector('button[data-del]').onclick = () => {
+          const used = (b().transactions || []).some(t => t.accountId === acc.id);
+          if(used){ alert('Nie można usunąć: konto ma powiązane transakcje.'); return; }
+          if(!confirm('Usunąć konto i powiązane salda EOM?')) return;
+          state.modules.budget.accounts = (b().accounts || []).filter(x => x.id !== acc.id);
+          state.modules.budget.eom = (b().eom || []).filter(e => e.accountId !== acc.id);
+          save(state);
+          renderAll();
+        };
+        tbody.appendChild(tr);
+      }
+    }
+
+    updateFns.forEach(fn => fn());
+    updateTotal();
     bindMoneyInputs(tbody);
-    document.getElementById('eom-history-months').onchange = renderEOMHistory;
+
+    const saveBtn = document.getElementById('eom-save');
+    if(saveBtn){
+      saveBtn.onclick = () => {
+        const inputs = Array.from(tbody.querySelectorAll('input'));
+        for(const inp of inputs){
+          const accountId = inp.dataset.id;
+          const raw = inp.value.trim();
+          state.modules.budget.eom = (b().eom || []).filter(e => !(e.ym === ym && e.accountId === accountId));
+          if(raw !== ''){
+            const bal = num(inp.value) || 0;
+            state.modules.budget.eom.push({ ym, accountId, balance: bal });
+          }
+        }
+        save(state);
+        renderEOM();
+        renderEOMHistory();
+      };
+    }
+
+    const copyBtn = document.getElementById('eom-copy-last');
+    if(copyBtn){
+      copyBtn.onclick = () => {
+        for(const row of rows){
+          const history = ctx.accountHistory[row.acc.id] || [];
+          const source = lastEntryBefore(history, ym) || history[history.length - 1];
+          if(!source) continue;
+          const input = tbody.querySelector(`input[data-id="${row.acc.id}"]`);
+          if(input){
+            input.value = String(source.balance).replace('.',',');
+            input.dispatchEvent(new Event('input', { bubbles:true }));
+          }
+        }
+      };
+    }
+
+    const resetBtn = document.getElementById('eom-reset-inputs');
+    if(resetBtn){
+      resetBtn.onclick = () => {
+        tbody.querySelectorAll('input').forEach(inp => {
+          inp.value = '';
+          inp.dispatchEvent(new Event('input', { bubbles:true }));
+        });
+      };
+    }
+
+    renderEOMHistory();
   }
 
   function renderEOMHistory(){
-    const historyTable = document.getElementById('eom-accounts-history');
-    const thead = historyTable.querySelector('thead');
-    const tbody = historyTable.querySelector('tbody');
-    thead.innerHTML = '';
-    tbody.innerHTML = '';
-
-    const accounts = b().accounts || [];
-    const eomData = b().eom || [];
-
-    if (accounts.length === 0 || eomData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="100%" style="text-align:center; padding: 16px;" class="muted">Brak zdefiniowanych kont lub historii sald. Dodaj konto i zapisz saldo, aby zobaczyć historię.</td></tr>`;
-        return;
+    const ctx = buildEomContext();
+    const select = document.getElementById('eom-history-months');
+    let limitValue = select ? select.value : '6';
+    if(select && !select.dataset.bound){
+      select.dataset.bound = '1';
+      select.addEventListener('change', renderEOMHistory);
     }
-    
-    const dataByMonth = eomData.reduce((acc, entry) => {
-        if (!acc[entry.ym]) acc[entry.ym] = {};
-        acc[entry.ym][entry.accountId] = entry.balance;
-        return acc;
-    }, {});
+    const months = ctx.months;
+    const monthsToShow = !months.length
+      ? []
+      : (limitValue === 'all' ? months : months.slice(-Number(limitValue || 6)));
 
-    const allMonths = Object.keys(dataByMonth).sort();
-    
-    let monthLimit = document.getElementById('eom-history-months').value;
-    const monthsToShow = monthLimit === 'all' ? allMonths : allMonths.slice(-monthLimit);
-
-    if (monthsToShow.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${accounts.length + 3}" style="text-align:center; padding: 16px;" class="muted">Brak danych historycznych do wyświetlenia dla wybranego okresu.</td></tr>`;
-        return;
+    if(!months.length){
+      renderEomKpis(ctx, []);
+      renderEomInsights(ctx, []);
+      renderEomHistoryTable(ctx, []);
+      renderEomChangeTable(ctx, []);
+      renderEomMonthlySummary([]);
+      destroyEomChart('netWorth');
+      destroyEomChart('accounts');
+      return;
     }
 
-    let headerHtml = '<tr><th>Miesiąc</th>';
-    accounts.forEach(acc => headerHtml += `<th>${acc.name}</th>`);
-    headerHtml += '<th>Majątek Netto</th><th>Zmiana m/m</th></tr>';
-    thead.innerHTML = headerHtml;
+    const focusTarget = ctx.focusMonth || ctx.latestMonth || months[months.length - 1];
+    const accountStats = computeAccountStatsForMonth(ctx, focusTarget);
+    const monthlySummary = computeMonthlySummary(ctx);
 
-    let previousNetWorth = null;
-    const firstMonthIndex = allMonths.indexOf(monthsToShow[0]);
-    if (firstMonthIndex > 0) {
-        const prevMonthYm = allMonths[firstMonthIndex - 1];
-        previousNetWorth = accounts.reduce((sum, acc) => sum + (num(dataByMonth[prevMonthYm]?.[acc.id]) || 0), 0);
-    }
-    
-    for (const ym of monthsToShow) {
-        const tr = document.createElement('tr');
-        let rowHtml = `<td><b>${ym}</b></td>`;
-        let currentNetWorth = 0;
-        const prevYm = ymAdd(ym, -1);
-
-        accounts.forEach(acc => {
-            const balance = dataByMonth[ym]?.[acc.id];
-            const prevBalance = dataByMonth[prevYm]?.[acc.id];
-            
-            if (typeof balance === 'number') {
-                let changeHtml = '';
-                if (typeof prevBalance === 'number') {
-                    const change = balance - prevBalance;
-                    if (change !== 0) {
-                       const changeClass = change > 0 ? 'ok' : 'bad';
-                       changeHtml = ` <span class="tiny ${changeClass}">(${change > 0 ? '+' : ''}${fmt(change, state.currency)})</span>`;
-                    }
-                }
-                rowHtml += `<td>${fmt(balance, state.currency)}${changeHtml}</td>`;
-                currentNetWorth += balance;
-            } else {
-                rowHtml += `<td class="muted">—</td>`;
-            }
-        });
-        
-        let totalChangeHtml = '<td class="muted">—</td>';
-        if (previousNetWorth !== null) {
-            const change = currentNetWorth - previousNetWorth;
-            const changeClass = change >= 0 ? 'ok' : 'bad';
-            totalChangeHtml = `<td class="${changeClass}">${change >= 0 ? '+' : ''}${fmt(change, state.currency)}</td>`;
-        }
-        
-        rowHtml += `<td><b>${fmt(currentNetWorth, state.currency)}</b></td>`;
-        rowHtml += totalChangeHtml;
-
-        tr.innerHTML = rowHtml;
-        tbody.appendChild(tr);
-
-        previousNetWorth = currentNetWorth;
-    }
+    renderEomKpis(ctx, accountStats);
+    renderEomInsights(ctx, monthlySummary);
+    renderEomHistoryTable(ctx, monthsToShow);
+    renderEomChangeTable(ctx, accountStats);
+    renderEomMonthlySummary(monthlySummary.filter(row => monthsToShow.includes(row.ym)));
+    renderEomNetWorthChart(ctx, monthsToShow);
+    renderEomAccountsChart(ctx, monthsToShow);
   }
 
   // --- Goals ------------------------------------------------------------------
@@ -1847,6 +2521,11 @@
   const ANALYTICS_STATE_KEY='lifeos_budget_filters_v1';
   let analyticsUiState = loadAnalyticsUiState();
   const analyticsCharts={};
+  const eomCharts={};
+  const eomUiState={
+    changeSort:{field:'delta',dir:'desc'},
+    monthlySort:{field:'ym',dir:'desc'}
+  };
   const ANALYTICS_COLORS=['#0ea5e9','#ef4444','#16a34a','#f97316','#8b5cf6','#14b8a6','#facc15','#6366f1','#0f172a'];
 
   function loadAnalyticsUiState(){
