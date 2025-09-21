@@ -73,6 +73,10 @@
     .analytics-filter-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
     .analytics-filter-actions .btn{padding:6px 10px;font-size:13px}
     .analytics-summary{font-size:12px;color:var(--muted);margin-top:4px}
+    .analytics-month-picker{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .analytics-month-chip{padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:12px;transition:all .2s ease}
+    .analytics-month-chip.active{background:#0f172a;color:#fff;border-color:#0f172a}
+    .analytics-month-chip:hover{border-color:var(--blue)}
     .table-sortable th{cursor:pointer;position:relative;white-space:nowrap}
     .table-sortable th .sort-indicator{font-size:10px;margin-left:4px}
     .delta-up{color:var(--green);font-weight:600}
@@ -455,18 +459,25 @@
 
     <!-- Analytics -->
     <section id="tab-analytics" class="card" style="margin-top:12px;display:none">
-      <div class="row">
-        <h3 class="title">Centrum Analityczne</h3>
-        <div class="row" style="gap:8px;align-items:center">
-          <label for="analytics-period" class="tiny">Okres:</label>
-          <select id="analytics-period" style="width:auto">
-            <option value="1" selected>Bieżący miesiąc</option>
-            <option value="3">Ostatnie 3 miesiące</option>
-            <option value="6">Ostatnie 6 miesięcy</option>
-            <option value="12">Ostatnie 12 miesięcy</option>
-            <option value="all">Wszystkie dane</option>
-          </select>
+      <div class="row" style="align-items:center">
+        <h3 class="title" style="margin-bottom:0">Centrum Analityczne</h3>
+      </div>
+
+      <div class="analytics-filter-card">
+        <div class="row" style="align-items:flex-start;gap:12px">
+          <div style="flex:1">
+            <div class="title" style="margin:0;font-size:18px">Zakres miesięcy</div>
+            <div id="analytics-month-summary" class="analytics-summary">Kliknij miesiące, aby ustawić dokładny okres analizy.</div>
+          </div>
+          <div class="analytics-filter-actions" id="analytics-month-quick">
+            <button class="btn soft" data-range="current">Bieżący</button>
+            <button class="btn soft" data-range="last3">Ostatnie 3</button>
+            <button class="btn soft" data-range="last6">Ostatnie 6</button>
+            <button class="btn soft" data-range="year">Bieżący rok</button>
+            <button class="btn soft" data-range="all">Wszystkie</button>
+          </div>
         </div>
+        <div id="analytics-month-picker" class="analytics-month-picker"></div>
       </div>
 
       <div class="analytics-filter-card">
@@ -1841,17 +1852,18 @@
   function loadAnalyticsUiState(){
     try{
       const raw=localStorage.getItem(ANALYTICS_STATE_KEY);
-      if(!raw) return {selectedCategoryIds:[],sortField:'total',sortDir:'desc',searchTerm:''};
+      if(!raw) return {selectedCategoryIds:[],sortField:'total',sortDir:'desc',searchTerm:'',selectedMonths:null};
       const parsed=JSON.parse(raw);
       return {
         selectedCategoryIds:Array.isArray(parsed?.selectedCategoryIds)?parsed.selectedCategoryIds:[],
         sortField:typeof parsed?.sortField==='string'?parsed.sortField:'total',
         sortDir:parsed?.sortDir==='asc'?'asc':'desc',
-        searchTerm:typeof parsed?.searchTerm==='string'?parsed.searchTerm:''
+        searchTerm:typeof parsed?.searchTerm==='string'?parsed.searchTerm:'',
+        selectedMonths:Array.isArray(parsed?.selectedMonths)?parsed.selectedMonths:null
       };
     }catch(err){
       console.warn('Nie można odczytać ustawień analityki',err);
-      return {selectedCategoryIds:[],sortField:'total',sortDir:'desc',searchTerm:''};
+      return {selectedCategoryIds:[],sortField:'total',sortDir:'desc',searchTerm:'',selectedMonths:null};
     }
   }
   function saveAnalyticsUiState(){
@@ -1867,6 +1879,40 @@
   function setAnalyticsSelectedCategories(ids){
     analyticsUiState.selectedCategoryIds=Array.from(new Set(ids));
     saveAnalyticsUiState();
+  }
+  function setAnalyticsSelectedMonths(months){
+    const unique=Array.from(new Set(Array.isArray(months)?months:[])).sort();
+    analyticsUiState.selectedMonths=unique;
+    saveAnalyticsUiState();
+  }
+  function getAnalyticsAvailableMonths(){
+    const months=new Set();
+    (b().transactions||[]).forEach(t=>{if(t?.date) months.add(t.date.slice(0,7));});
+    if(b().monthly){
+      Object.keys(b().monthly).forEach(ym=>months.add(ym));
+    }
+    return Array.from(months).sort();
+  }
+  function defaultAnalyticsMonths(allMonths){
+    if(!allMonths.length) return [];
+    const current=b().workingMonth;
+    if(current && allMonths.includes(current)) return [current];
+    return [allMonths[allMonths.length-1]];
+  }
+  function getAnalyticsSelectedMonths(allMonths){
+    const currentRaw=Array.isArray(analyticsUiState.selectedMonths)?analyticsUiState.selectedMonths:[];
+    const currentSorted=[...currentRaw].sort();
+    let valid=currentRaw.filter(m=>allMonths.includes(m));
+    if(valid.length===0 && allMonths.length>0){
+      valid=defaultAnalyticsMonths(allMonths);
+    }
+    const normalized=Array.from(new Set(valid)).sort();
+    const changed=normalized.length!==currentSorted.length || normalized.some((m,i)=>m!==currentSorted[i]);
+    if(changed){
+      analyticsUiState.selectedMonths=normalized;
+      saveAnalyticsUiState();
+    }
+    return normalized;
   }
   function ensureAnalyticsSortDefaults(){
     if(!analyticsUiState.sortField) analyticsUiState.sortField='total';
@@ -1930,6 +1976,100 @@
   }
 
   // --- Analytics --------------------------------------------------------------
+  function renderAnalyticsMonthPicker(allMonths, selectedMonths){
+    const container=document.getElementById('analytics-month-picker');
+    const summary=document.getElementById('analytics-month-summary');
+    const quick=document.getElementById('analytics-month-quick');
+    if(!container) return;
+
+    container.innerHTML='';
+
+    if(!allMonths.length){
+      if(summary){
+        summary.textContent='Brak danych historycznych. Dodaj transakcje lub przychody, aby rozpocząć analizę.';
+      }
+      if(quick){ quick.style.display='none'; }
+      return;
+    }
+
+    if(quick){ quick.style.display='flex'; }
+
+    const selectedSet=new Set(selectedMonths);
+    const monthsForDisplay=[...allMonths].sort().reverse();
+    monthsForDisplay.forEach(ym=>{
+      const chip=document.createElement('button');
+      chip.type='button';
+      chip.className='analytics-month-chip'+(selectedSet.has(ym)?' active':'');
+      chip.textContent=ym;
+      chip.onclick=()=>{
+        const current=getAnalyticsSelectedMonths(allMonths);
+        const next=new Set(current);
+        if(next.has(ym)){
+          if(next.size===1) return;
+          next.delete(ym);
+        }else{
+          next.add(ym);
+        }
+        setAnalyticsSelectedMonths(Array.from(next));
+        renderAnalytics();
+      };
+      container.appendChild(chip);
+    });
+
+    if(summary){
+      if(selectedMonths.length<=1){
+        const ym=selectedMonths[0]||'—';
+        summary.textContent=`Wybrany miesiąc: ${ym}. Dodaj kolejne, aby zobaczyć porównania.`;
+      }else{
+        const first=selectedMonths[0];
+        const last=selectedMonths[selectedMonths.length-1];
+        const prev=selectedMonths[selectedMonths.length-2];
+        summary.textContent=`Wybrane miesiące: ${selectedMonths.length} (${first} → ${last}). Porównania MoM: ${last} vs ${prev}.`;
+      }
+    }
+
+    if(quick){
+      quick.querySelectorAll('button[data-range]').forEach(btn=>{
+        btn.onclick=()=>{
+          const range=btn.dataset.range;
+          let selection=[];
+          switch(range){
+            case 'current':{
+              const current=b().workingMonth;
+              if(current && allMonths.includes(current)) selection=[current];
+              else selection=defaultAnalyticsMonths(allMonths);
+              break;
+            }
+            case 'last3':
+              selection=allMonths.slice(-3);
+              break;
+            case 'last6':
+              selection=allMonths.slice(-6);
+              break;
+            case 'year':{
+              const workingYear=(b().workingMonth||'').slice(0,4);
+              if(workingYear){ selection=allMonths.filter(m=>m.startsWith(workingYear)); }
+              if(!selection.length){
+                const nowYear=String(new Date().getFullYear());
+                selection=allMonths.filter(m=>m.startsWith(nowYear));
+              }
+              if(!selection.length){ selection=allMonths.slice(-12); }
+              break;
+            }
+            case 'all':
+              selection=[...allMonths];
+              break;
+            default:
+              selection=defaultAnalyticsMonths(allMonths);
+          }
+          if(!selection.length){ selection=defaultAnalyticsMonths(allMonths); }
+          setAnalyticsSelectedMonths(selection);
+          renderAnalytics();
+        };
+      });
+    }
+  }
+
   function renderAnalyticsFilterPanel(expenseCats, categoryStats, totalExpense) {
     const list = document.getElementById('analytics-category-filter-list');
     const searchInput = document.getElementById('analytics-category-search');
@@ -2063,202 +2203,199 @@
   }
 
   function renderAnalytics(){
-    document.getElementById('analytics-period').onchange = renderAnalytics;
+    const allMonths=getAnalyticsAvailableMonths();
+    const selectedMonths=getAnalyticsSelectedMonths(allMonths);
+    renderAnalyticsMonthPicker(allMonths, selectedMonths);
 
-    const period = document.getElementById('analytics-period').value;
-    const allMonthsRaw = [...new Set(b().transactions.map(t => t.date.slice(0, 7)))];
-    if (b().monthly) {
-        Object.keys(b().monthly).forEach(ym => {
-            if (!allMonthsRaw.includes(ym)) allMonthsRaw.push(ym);
-        });
-    }
-    const allMonths = [...new Set(allMonthsRaw)].sort();
+    ensureAnalyticsSortDefaults();
+    const expenseCats=analyticsExpenseCategories();
 
-    let monthsToAnalyze;
-    if (period === 'all') {
-        monthsToAnalyze = allMonths;
-    } else if (period === '1') {
-        monthsToAnalyze = [b().workingMonth];
-    } else {
-        const monthCount = parseInt(period, 10);
-        const endIndex = allMonths.indexOf(b().workingMonth);
-        if (endIndex > -1) {
-            const startIndex = Math.max(0, endIndex - monthCount + 1);
-            monthsToAnalyze = allMonths.slice(startIndex, endIndex + 1);
-        } else {
-            monthsToAnalyze = allMonths.slice(-monthCount);
-        }
-    }
-
-    if (monthsToAnalyze.length === 0) {
-      document.getElementById('analytics-kpis').innerHTML = `<p class="muted" style="grid-column: 1 / -1; text-align:center;">Brak danych do analizy w wybranym okresie.</p>`;
+    if(selectedMonths.length===0){
+      const emptyStats={};
+      for(const cat of expenseCats){
+        emptyStats[cat.id]={
+          category:cat,
+          total:0,
+          count:0,
+          values:[],
+          months:{},
+          max:{amount:0,date:''},
+          min:{amount:0,date:''}
+        };
+      }
+      renderAnalyticsFilterPanel(expenseCats, emptyStats, 0);
+      const message=allMonths.length? 'Wybierz miesiące, aby zobaczyć analizy.' : 'Brak danych historycznych do analizy.';
+      const kpiBox=document.getElementById('analytics-kpis');
+      if(kpiBox){kpiBox.innerHTML=`<p class='muted' style='grid-column:1 / -1; text-align:center;'>${message}</p>`;}
+      const placeholder=`<tbody><tr><td class='muted' style='text-align:center;'>${message}</td></tr></tbody>`;
+      ['analytics-category-summary','analytics-category-momentum','analytics-monthly-breakdown','analytics-top-transactions'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.innerHTML=placeholder;
+      });
+      const matrix=document.getElementById('analytics-category-trends');
+      if(matrix) matrix.innerHTML=placeholder;
+      ['incomeExpense','categoryShare','monthlyActivity','avgTrend','categoryLeader','categoryTrend'].forEach(key=>destroyAnalyticsChart(key));
       return;
     }
 
-    ensureAnalyticsSortDefaults();
-    const expenseCats = analyticsExpenseCategories();
-    const selectedCatIds = getActiveAnalyticsCategoryIds(expenseCats);
-    const selectedCatSet = new Set(selectedCatIds);
-    const catsMap = catsById();
+    const monthsToAnalyze=selectedMonths;
+    const monthsSet=new Set(monthsToAnalyze);
+    const selectedCatIds=getActiveAnalyticsCategoryIds(expenseCats);
+    const selectedCatSet=new Set(selectedCatIds);
+    const catsMap=catsById();
 
-    const firstMonth = monthsToAnalyze[0];
-    const lastMonth = monthsToAnalyze[monthsToAnalyze.length - 1];
+    const allEntriesInPeriod=b().transactions.filter(t=>monthsSet.has(t.date.slice(0,7)));
 
-    const allEntriesInPeriod = b().transactions.filter(t => {
-        const ym = t.date.slice(0, 7);
-        return ym >= firstMonth && ym <= lastMonth;
-    });
+    const categoryStats={};
+    const monthlySummaries=[];
+    let totalIncome=0;
+    let totalExpenseAll=0;
+    let totalSelectedExpense=0;
+    let totalSelectedCount=0;
+    let totalEntriesAll=0;
+    const selectedAmounts=[];
 
-    const categoryStats = {};
-    const monthlySummaries = [];
-    let totalIncome = 0;
-    let totalExpenseAll = 0;
-    let totalSelectedExpense = 0;
-    let totalSelectedCount = 0;
-    let totalEntriesAll = 0;
-    const selectedAmounts = [];
+    monthsToAnalyze.forEach(ym=>{
+      ensureMonth(ym);
+      const monthIncome=b().monthly[ym].incomes.reduce((s,x)=>s+num(x.amount),0);
+      totalIncome+=monthIncome;
 
-    monthsToAnalyze.forEach(ym => {
-        ensureMonth(ym);
-        const monthIncome = b().monthly[ym].incomes.reduce((s, x) => s + num(x.amount), 0);
-        totalIncome += monthIncome;
+      const monthEntries=entriesForMonth(ym);
+      let monthExpense=0;
+      let monthSelectedTotal=0;
+      let monthSelectedCount=0;
+      const monthSelectedValues=[];
+      const byCategory={};
 
-        const monthEntries = entriesForMonth(ym);
-        let monthExpense = 0;
-        let monthSelectedTotal = 0;
-        let monthSelectedCount = 0;
-        const monthSelectedValues = [];
-        const byCategory = {};
+      monthEntries.forEach(e=>{
+        const cat=catsMap[e.categoryId];
+        if(!cat || (cat.type!=='expense' && cat.type!=='saving')) return;
+        const amount=Math.abs(e.amount);
+        monthExpense+=amount;
+        totalExpenseAll+=amount;
+        totalEntriesAll+=1;
 
-        monthEntries.forEach(e => {
-            const cat = catsMap[e.categoryId];
-            if(!cat || (cat.type !== 'expense' && cat.type !== 'saving')) return;
-            const amount = Math.abs(e.amount);
-            monthExpense += amount;
-            totalExpenseAll += amount;
-            totalEntriesAll += 1;
-
-            let stat = categoryStats[cat.id];
-            if(!stat){
-                stat = categoryStats[cat.id] = {
-                    category: cat,
-                    total: 0,
-                    count: 0,
-                    values: [],
-                    months: {},
-                    max: { amount: 0, date: '' },
-                    min: { amount: Infinity, date: '' }
-                };
-            }
-            stat.total += amount;
-            stat.count += 1;
-            stat.values.push(amount);
-            if(!stat.months[ym]) stat.months[ym] = { total: 0, count: 0, values: [] };
-            stat.months[ym].total += amount;
-            stat.months[ym].count += 1;
-            stat.months[ym].values.push(amount);
-            if(amount > stat.max.amount) stat.max = { amount, date: e.date };
-            if(amount < stat.min.amount) stat.min = { amount, date: e.date };
-
-            if(!byCategory[cat.id]) byCategory[cat.id] = { total: 0, count: 0, values: [] };
-            byCategory[cat.id].total += amount;
-            byCategory[cat.id].count += 1;
-            byCategory[cat.id].values.push(amount);
-
-            if(selectedCatSet.has(cat.id)){
-                monthSelectedTotal += amount;
-                monthSelectedCount += 1;
-                totalSelectedExpense += amount;
-                totalSelectedCount += 1;
-                selectedAmounts.push(amount);
-                monthSelectedValues.push(amount);
-            }
-        });
-
-        monthlySummaries.push({
-            ym,
-            incomes: monthIncome,
-            expenses: monthExpense,
-            selectedTotal: monthSelectedTotal,
-            selectedCount: monthSelectedCount,
-            selectedAvg: monthSelectedCount ? monthSelectedTotal / monthSelectedCount : 0,
-            selectedMedian: calcMedian(monthSelectedValues),
-            byCategory
-        });
-    });
-
-    expenseCats.forEach(cat => {
-        if(!categoryStats[cat.id]){
-            categoryStats[cat.id] = {
-                category: cat,
-                total: 0,
-                count: 0,
-                values: [],
-                months: {},
-                max: { amount: 0, date: '' },
-                min: { amount: 0, date: '' }
-            };
-        } else if(categoryStats[cat.id].min.amount === Infinity){
-            categoryStats[cat.id].min = { amount: 0, date: '' };
+        let stat=categoryStats[cat.id];
+        if(!stat){
+          stat=categoryStats[cat.id]={
+            category:cat,
+            total:0,
+            count:0,
+            values:[],
+            months:{},
+            max:{amount:0,date:''},
+            min:{amount:Infinity,date:''}
+          };
         }
+        stat.total+=amount;
+        stat.count+=1;
+        stat.values.push(amount);
+        if(!stat.months[ym]) stat.months[ym]={total:0,count:0,values:[]};
+        stat.months[ym].total+=amount;
+        stat.months[ym].count+=1;
+        stat.months[ym].values.push(amount);
+        if(amount>stat.max.amount) stat.max={amount,date:e.date};
+        if(amount<stat.min.amount) stat.min={amount,date:e.date};
+
+        if(!byCategory[cat.id]) byCategory[cat.id]={total:0,count:0,values:[]};
+        byCategory[cat.id].total+=amount;
+        byCategory[cat.id].count+=1;
+        byCategory[cat.id].values.push(amount);
+
+        if(selectedCatSet.has(cat.id)){
+          monthSelectedTotal+=amount;
+          monthSelectedCount+=1;
+          totalSelectedExpense+=amount;
+          totalSelectedCount+=1;
+          selectedAmounts.push(amount);
+          monthSelectedValues.push(amount);
+        }
+      });
+
+      monthlySummaries.push({
+        ym,
+        incomes:monthIncome,
+        expenses:monthExpense,
+        selectedTotal:monthSelectedTotal,
+        selectedCount:monthSelectedCount,
+        selectedAvg:monthSelectedCount ? monthSelectedTotal/monthSelectedCount : 0,
+        selectedMedian:calcMedian(monthSelectedValues),
+        byCategory
+      });
     });
 
-    const monthsCount = monthsToAnalyze.length;
-    const netChange = totalIncome - totalExpenseAll;
-    const avgSavingsRate = totalIncome > 0 ? (netChange / totalIncome) * 100 : 0;
-    const selectedAvg = totalSelectedCount ? totalSelectedExpense / totalSelectedCount : 0;
-    const selectedMedian = calcMedian(selectedAmounts);
-    const selectedShare = totalExpenseAll > 0 ? (totalSelectedExpense / totalExpenseAll) * 100 : 0;
-    const lastMonthSummary = monthlySummaries[monthlySummaries.length - 1];
-    const prevMonthSummary = monthlySummaries.length >= 2 ? monthlySummaries[monthlySummaries.length - 2] : null;
-    const lastVsPrevAmount = prevMonthSummary ? lastMonthSummary.selectedTotal - prevMonthSummary.selectedTotal : 0;
-    const lastVsPrevPercent = (prevMonthSummary && prevMonthSummary.selectedTotal > 0)
-        ? (lastVsPrevAmount / prevMonthSummary.selectedTotal) * 100
-        : 0;
-    const lastCountDelta = prevMonthSummary ? lastMonthSummary.selectedCount - prevMonthSummary.selectedCount : 0;
-    const lastAvg = lastMonthSummary.selectedCount ? lastMonthSummary.selectedTotal / lastMonthSummary.selectedCount : 0;
-    const prevAvg = prevMonthSummary && prevMonthSummary.selectedCount ? prevMonthSummary.selectedTotal / prevMonthSummary.selectedCount : 0;
-    const avgDelta = lastAvg - prevAvg;
-    const avgDeltaPct = prevAvg ? (avgDelta / prevAvg) * 100 : 0;
+    expenseCats.forEach(cat=>{
+      if(!categoryStats[cat.id]){
+        categoryStats[cat.id]={
+          category:cat,
+          total:0,
+          count:0,
+          values:[],
+          months:{},
+          max:{amount:0,date:''},
+          min:{amount:0,date:''}
+        };
+      }else if(categoryStats[cat.id].min.amount===Infinity){
+        categoryStats[cat.id].min={amount:0,date:''};
+      }
+    });
 
-    const selectedTypeTotals = selectedCatIds.reduce((acc, id) => {
-        const cat = catsMap[id];
-        if(!cat) return acc;
-        if(cat.type === 'saving') acc.saving += categoryStats[id]?.total || 0;
-        else acc.expense += categoryStats[id]?.total || 0;
-        return acc;
-    }, {expense:0, saving:0});
-    const selectedMood = selectedTypeTotals.saving > selectedTypeTotals.expense ? 'saving' : 'expense';
+    const monthsCount=monthsToAnalyze.length;
+    const netChange=totalIncome-totalExpenseAll;
+    const avgSavingsRate=totalIncome>0?(netChange/totalIncome)*100:0;
+    const selectedAvg=totalSelectedCount?totalSelectedExpense/totalSelectedCount:0;
+    const selectedMedian=calcMedian(selectedAmounts);
+    const selectedShare=totalExpenseAll>0?(totalSelectedExpense/totalExpenseAll)*100:0;
+    const lastMonthSummary=monthlySummaries[monthlySummaries.length-1];
+    const prevMonthSummary=monthlySummaries.length>=2?monthlySummaries[monthlySummaries.length-2]:null;
+    const lastVsPrevAmount=prevMonthSummary?lastMonthSummary.selectedTotal-prevMonthSummary.selectedTotal:0;
+    const lastVsPrevPercent=(prevMonthSummary && prevMonthSummary.selectedTotal>0)
+      ?(lastVsPrevAmount/prevMonthSummary.selectedTotal)*100
+      :0;
+    const lastCountDelta=prevMonthSummary?lastMonthSummary.selectedCount-prevMonthSummary.selectedCount:0;
+    const lastAvg=lastMonthSummary.selectedCount?lastMonthSummary.selectedTotal/lastMonthSummary.selectedCount:0;
+    const prevAvg=prevMonthSummary && prevMonthSummary.selectedCount?prevMonthSummary.selectedTotal/prevMonthSummary.selectedCount:0;
+    const avgDelta=lastAvg-prevAvg;
+    const avgDeltaPct=prevAvg?(avgDelta/prevAvg)*100:0;
+    const selectedTypeTotals=selectedCatIds.reduce((acc,id)=>{
+      const cat=categoryStats[id]?.category;
+      if(!cat) return acc;
+      acc[cat.type]=(acc[cat.type]||0)+(categoryStats[id]?.total||0);
+      return acc;
+    },{expense:0,saving:0});
+    const selectedMood=selectedTypeTotals.saving>selectedTypeTotals.expense?'saving':'expense';
+    const largestCategory=selectedCatIds
+      .map(id=>categoryStats[id])
+      .filter(Boolean)
+      .sort((a,b)=>(b?.total||0)-(a?.total||0))[0]||null;
 
-    const largestCategory = selectedCatIds.map(id => categoryStats[id]).filter(Boolean).sort((a,b) => (b?.total||0) - (a?.total||0))[0] || null;
-
-    const analyticsContext = {
-        months: monthsToAnalyze,
-        monthlySummaries,
-        categoryStats,
-        selectedCatIds,
-        totalSelectedExpense,
-        totalSelectedCount,
-        selectedAvg,
-        selectedMedian,
-        selectedShare,
-        totalExpenseAll,
-        totalIncome,
-        netChange,
-        avgSavingsRate,
-        monthsCount,
-        lastMonthSummary,
-        prevMonthSummary,
-        lastVsPrevAmount,
-        lastVsPrevPercent,
-        lastCountDelta,
-        avgDelta,
-        avgDeltaPct,
-        selectedMood,
-        largestCategory,
-        allEntriesInPeriod,
-        totalEntriesAll,
-        selectedTypeTotals
+    const analyticsContext={
+      months:monthsToAnalyze,
+      monthlySummaries,
+      categoryStats,
+      selectedCatIds,
+      totalSelectedExpense,
+      totalSelectedCount,
+      selectedAvg,
+      selectedMedian,
+      selectedShare,
+      totalExpenseAll,
+      totalIncome,
+      netChange,
+      avgSavingsRate,
+      monthsCount,
+      lastMonthSummary,
+      prevMonthSummary,
+      lastVsPrevAmount,
+      lastVsPrevPercent,
+      lastCountDelta,
+      avgDelta,
+      avgDeltaPct,
+      selectedMood,
+      largestCategory,
+      allEntriesInPeriod,
+      totalEntriesAll,
+      selectedTypeTotals
     };
 
     renderAnalyticsFilterPanel(expenseCats, categoryStats, totalExpenseAll);
@@ -2276,7 +2413,6 @@
     renderAnalyticsMonthlyBreakdown(analyticsContext);
     renderAnalyticsTopTransactions(analyticsContext);
   }
-
   function renderAnalyticsIncomeExpenseChart(monthlySummaries) {
     const canvas = document.getElementById('analytics-income-expense-chart');
     if(!canvas) return;
