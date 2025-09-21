@@ -966,6 +966,20 @@
     if(!bud.inventory.rates.rates || typeof bud.inventory.rates.rates!=='object') bud.inventory.rates.rates={};
     bud.inventory.rates.rates.EUR = Number(bud.inventory.rates.rates.EUR)||null;
     bud.inventory.rates.rates.USD = Number(bud.inventory.rates.rates.USD)||null;
+    if(!bud.inventory.rates.mids || typeof bud.inventory.rates.mids!=='object') bud.inventory.rates.mids={};
+    const eurMidCached=Number(bud.inventory.rates.mids.EUR);
+    const usdMidCached=Number(bud.inventory.rates.mids.USD);
+    bud.inventory.rates.mids.EUR=Number.isFinite(eurMidCached)&&eurMidCached>0?eurMidCached:null;
+    bud.inventory.rates.mids.USD=Number.isFinite(usdMidCached)&&usdMidCached>0?usdMidCached:null;
+    if(!bud.inventory.rates.mids.EUR && Number.isFinite(bud.inventory.rates.rates.EUR) && bud.inventory.rates.rates.EUR>0){
+      bud.inventory.rates.mids.EUR=1/bud.inventory.rates.rates.EUR;
+    }
+    if(!bud.inventory.rates.mids.USD && Number.isFinite(bud.inventory.rates.rates.USD) && bud.inventory.rates.rates.USD>0){
+      bud.inventory.rates.mids.USD=1/bud.inventory.rates.rates.USD;
+    }
+    if(typeof bud.inventory.rates.effectiveDate!=='string') bud.inventory.rates.effectiveDate=null;
+    if(typeof bud.inventory.rates.tableNo!=='string') bud.inventory.rates.tableNo=null;
+    if(typeof bud.inventory.rates.source!=='string') bud.inventory.rates.source='';
     if(!bud.inventory.ui || typeof bud.inventory.ui!=='object') bud.inventory.ui={};
     const invUi=bud.inventory.ui;
     if(!['PLN','EUR','USD'].includes(invUi.selectedCurrency)) invUi.selectedCurrency='PLN';
@@ -2769,16 +2783,45 @@
 
     const rateInfo=document.getElementById('inv-rate-info');
     if(rateInfo){
-      const fetchedAt=inventoryState.rates?.fetchedAt;
       const rates=inventoryState.rates?.rates||{};
-      if(fetchedAt){
-        const dt=new Date(fetchedAt);
-        const formatted=isNaN(dt)?fetchedAt:dt.toLocaleString('pl-PL');
-        const eur=rates.EUR?rates.EUR.toFixed(4):'—';
-        const usd=rates.USD?rates.USD.toFixed(4):'—';
-        rateInfo.textContent=`Kursy z ${formatted} | PLN→EUR ${eur} • PLN→USD ${usd}`;
-      }else{
+      const hasRates=Object.values(rates).some(v=>Number.isFinite(v)&&v>0);
+      if(!hasRates){
         rateInfo.textContent='Brak kursów – pobierz aktualne notowania.';
+      }else{
+        const effectiveDate=inventoryState.rates?.effectiveDate;
+        const fetchedAt=inventoryState.rates?.fetchedAt;
+        let dateLabel='';
+        if(typeof effectiveDate==='string' && effectiveDate){
+          const dt=new Date(`${effectiveDate}T00:00:00`);
+          dateLabel=isNaN(dt)?effectiveDate:dt.toLocaleDateString('pl-PL');
+        }else if(fetchedAt){
+          const dt=new Date(fetchedAt);
+          dateLabel=isNaN(dt)?fetchedAt:dt.toLocaleString('pl-PL');
+        }
+        const sourceLabel=inventoryState.rates?.source?` (${inventoryState.rates.source})`:'';
+        const prefix=`Kursy${dateLabel?` z ${dateLabel}`:''}${sourceLabel}`;
+        const segments=[];
+        const eurRate=rates.EUR;
+        if(Number.isFinite(eurRate)&&eurRate>0){
+          const storedMid=inventoryState.rates?.mids?.EUR;
+          const eurMid=Number.isFinite(storedMid)&&storedMid>0?storedMid:(1/eurRate);
+          let text=`1 PLN → EUR ${eurRate.toFixed(4)}`;
+          if(Number.isFinite(eurMid)&&eurMid>0) text+=` (1 EUR → PLN ${eurMid.toFixed(4)})`;
+          segments.push(text);
+        }else{
+          segments.push('1 PLN → EUR —');
+        }
+        const usdRate=rates.USD;
+        if(Number.isFinite(usdRate)&&usdRate>0){
+          const storedMid=inventoryState.rates?.mids?.USD;
+          const usdMid=Number.isFinite(storedMid)&&storedMid>0?storedMid:(1/usdRate);
+          let text=`1 PLN → USD ${usdRate.toFixed(4)}`;
+          if(Number.isFinite(usdMid)&&usdMid>0) text+=` (1 USD → PLN ${usdMid.toFixed(4)})`;
+          segments.push(text);
+        }else{
+          segments.push('1 PLN → USD —');
+        }
+        rateInfo.textContent=`${prefix} | ${segments.join(' • ')}`;
       }
     }
 
@@ -2977,16 +3020,36 @@
         refreshBtn.disabled=true;
         refreshBtn.textContent='Pobieranie...';
         try{
-          const res=await fetch(INVENTORY_RATES_API);
+          const res=await fetch(INVENTORY_RATES_API,{headers:{'Accept':'application/json'}});
           if(!res.ok) throw new Error(`HTTP ${res.status}`);
           const data=await res.json();
-          if(!data?.rates) throw new Error('Brak danych');
+          const tables=Array.isArray(data)?data:[data];
+          const table=tables.find(t=>Array.isArray(t?.rates)&&t.rates.length);
+          if(!table) throw new Error('Brak tabeli kursowej NBP');
+          const ratesList=Array.isArray(table.rates)?table.rates:[];
+          const eurEntry=ratesList.find(r=>r.code==='EUR');
+          const usdEntry=ratesList.find(r=>r.code==='USD');
+          const eurMid=Number(eurEntry?.mid);
+          const usdMid=Number(usdEntry?.mid);
+          const eurRate=Number.isFinite(eurMid)&&eurMid>0?1/eurMid:null;
+          const usdRate=Number.isFinite(usdMid)&&usdMid>0?1/usdMid:null;
+          if(!eurRate && !usdRate) throw new Error('Brak kursów EUR/USD w tabeli NBP');
+          const effectiveDate=typeof table.effectiveDate==='string'?table.effectiveDate:null;
+          const tableNo=typeof table.no==='string'?table.no:null;
+          const sourceLabel=tableNo?`NBP tabela A (${tableNo})`:'NBP tabela A';
           inventoryState.rates={
             base:'PLN',
             fetchedAt:new Date().toISOString(),
+            effectiveDate,
+            tableNo,
+            source:sourceLabel,
             rates:{
-              EUR:Number(data.rates.EUR)||null,
-              USD:Number(data.rates.USD)||null
+              EUR:eurRate,
+              USD:usdRate
+            },
+            mids:{
+              EUR:Number.isFinite(eurMid)&&eurMid>0?eurMid:null,
+              USD:Number.isFinite(usdMid)&&usdMid>0?usdMid:null
             }
           };
           save(state);
@@ -2994,7 +3057,7 @@
           alert('Kursy zostały zaktualizowane.');
         }catch(err){
           console.error('Inventory rates error',err);
-          alert('Nie udało się pobrać kursów. Spróbuj ponownie później.');
+          alert('Nie udało się pobrać kursów z NBP. Spróbuj ponownie później.');
         }finally{
           refreshBtn.disabled=false;
           refreshBtn.textContent=original;
@@ -3549,7 +3612,7 @@
   };
   const ANALYTICS_COLORS=['#0ea5e9','#ef4444','#16a34a','#f97316','#8b5cf6','#14b8a6','#facc15','#6366f1','#0f172a'];
   const INVENTORY_SUPPORTED_CURRENCIES=['PLN','EUR','USD'];
-  const INVENTORY_RATES_API='https://api.exchangerate.host/latest?base=PLN&symbols=EUR,USD';
+  const INVENTORY_RATES_API='https://api.nbp.pl/api/exchangerates/tables/A/last/1?format=json';
   const inventoryCharts={};
 
   function loadAnalyticsUiState(){
