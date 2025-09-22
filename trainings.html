@@ -31,6 +31,12 @@
   --run-color: #047857;
   --read-color: #1d4ed8;
   --extra-color: #0ea5e9;
+  --day-empty: #fff1f2;
+  --day-empty-border: rgba(248, 113, 113, 0.5);
+  --day-planned: #fff7ed;
+  --day-planned-border: rgba(251, 191, 36, 0.45);
+  --day-completed: #ecfdf5;
+  --day-completed-border: rgba(34, 197, 94, 0.45);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -209,7 +215,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .calendar-day {
-  background: var(--bg-alt);
+  background: #fff;
   border-radius: 16px;
   border: 1px solid rgba(148, 163, 184, 0.3);
   padding: 10px 12px;
@@ -223,9 +229,12 @@ a { color: inherit; text-decoration: none; }
 }
 
 .calendar-day:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); transform: translateY(-2px); }
-.calendar-day--other-month { opacity: 0.55; background: rgba(248, 250, 252, 0.6); }
-.calendar-day--selected { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16); background: #fff; }
+.calendar-day--other-month { opacity: 0.55; }
+.calendar-day--selected { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12); }
 .calendar-day--today { border-color: var(--success); }
+.calendar-day--empty { background: var(--day-empty); border-color: var(--day-empty-border); }
+.calendar-day--planned { background: var(--day-planned); border-color: var(--day-planned-border); }
+.calendar-day--completed { background: var(--day-completed); border-color: var(--day-completed-border); }
 
 .calendar-day-header { display: flex; justify-content: space-between; align-items: center; }
 .calendar-date-number { font-weight: 700; font-size: 14px; }
@@ -240,18 +249,75 @@ a { color: inherit; text-decoration: none; }
   color: var(--muted);
 }
 
-.calendar-day-dots { display: flex; flex-wrap: wrap; gap: 4px; min-height: 20px; }
-.activity-dot, .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-.activity-dot.gym, .legend-dot.gym { background: var(--gym-color); }
-.activity-dot.running, .legend-dot.running { background: var(--run-color); }
-.activity-dot.reading, .legend-dot.reading { background: var(--read-color); }
-.activity-dot.extra, .legend-dot.extra { background: var(--extra-color); }
+.calendar-day-tags { display: flex; flex-wrap: wrap; gap: 4px; min-height: 32px; }
+.activity-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: rgba(148, 163, 184, 0.18);
+  color: var(--ink);
+  border: 1px solid transparent;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.activity-tag.gym { background: rgba(91, 33, 182, 0.12); color: var(--gym-color); border-color: rgba(91, 33, 182, 0.16); }
+.activity-tag.running { background: rgba(4, 120, 87, 0.12); color: var(--run-color); border-color: rgba(4, 120, 87, 0.18); }
+.activity-tag.reading { background: rgba(29, 78, 216, 0.12); color: var(--read-color); border-color: rgba(29, 78, 216, 0.18); }
+.activity-tag.extra { background: rgba(14, 165, 233, 0.12); color: var(--extra-color); border-color: rgba(14, 165, 233, 0.18); }
+.activity-tag.more { background: rgba(148, 163, 184, 0.14); color: var(--muted); border-style: dashed; }
 
 .calendar-day-footer { margin-top: auto; font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
-.calendar-footer-label { font-weight: 600; color: var(--success); }
+.calendar-footer-label { font-weight: 600; color: var(--muted); }
+.calendar-day--empty .calendar-footer-label { color: var(--danger); }
+.calendar-day--planned .calendar-footer-label { color: var(--warning); }
+.calendar-day--completed .calendar-footer-label { color: var(--success); }
 
-.calendar-legend { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
+.calendar-legend { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
 .calendar-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  background: rgba(148, 163, 184, 0.16);
+  color: var(--muted);
+}
+.legend-tag.gym { background: rgba(91, 33, 182, 0.12); color: var(--gym-color); }
+.legend-tag.running { background: rgba(4, 120, 87, 0.12); color: var(--run-color); }
+.legend-tag.reading { background: rgba(29, 78, 216, 0.12); color: var(--read-color); }
+.legend-tag.extra { background: rgba(14, 165, 233, 0.12); color: var(--extra-color); }
+
+.planning-banner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.planning-banner.active { display: flex; }
+.planning-banner-info { display: flex; align-items: center; gap: 10px; }
+.planning-banner-info strong { display: block; font-size: 12px; font-weight: 700; color: var(--ink); }
+.planning-banner-info span { display: block; font-size: 11px; color: var(--muted); }
+.planning-banner .icon { color: var(--primary); }
+
+.btn.small { padding: 6px 12px; font-size: 11px; border-radius: 10px; }
+
+.calendar-card--planning { border-color: var(--primary); box-shadow: var(--shadow-sm); }
+.calendar-grid.is-planning .calendar-day { cursor: crosshair; }
 
 .upcoming-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .upcoming-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.25); background: rgba(248, 250, 252, 0.7); }
@@ -333,16 +399,16 @@ a { color: inherit; text-decoration: none; }
 .goal-progress-bar span { display: block; height: 100%; border-radius: 999px; transition: width .3s ease; }
 
 .heatmap-card { display: flex; flex-direction: column; gap: 16px; }
-.heatmap { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 6px; }
-.heatmap-week { display: grid; grid-template-rows: repeat(7, 14px) auto; gap: 4px; align-items: center; }
-.heatmap-cell { width: 14px; height: 14px; border-radius: 3px; background: #e2e8f0; }
+.heatmap { display: flex; gap: 3px; overflow: hidden; padding-bottom: 8px; flex-wrap: nowrap; }
+.heatmap-week { display: grid; grid-template-rows: repeat(7, 11px) auto; gap: 3px; align-items: center; }
+.heatmap-cell { width: 11px; height: 11px; border-radius: 3px; background: #e2e8f0; }
 .heatmap-cell[data-level="0"] { background: #e2e8f0; }
 .heatmap-cell[data-level="1"] { background: #b7f3d0; }
 .heatmap-cell[data-level="2"] { background: #6ee7b7; }
 .heatmap-cell[data-level="3"] { background: #34d399; }
 .heatmap-cell[data-level="4"] { background: #059669; }
 .heatmap-cell--empty { background: transparent; }
-.heatmap-month-label { font-size: 9px; text-transform: uppercase; color: var(--muted); text-align: center; letter-spacing: 0.08em; }
+.heatmap-month-label { font-size: 9px; text-transform: uppercase; color: var(--muted); text-align: center; letter-spacing: 0.08em; margin-top: 1px; }
 .heatmap-legend { display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 11px; color: var(--muted); }
 .heatmap-legend-scale { display: inline-flex; align-items: center; gap: 4px; }
 .heatmap-legend-scale span { width: 14px; height: 14px; border-radius: 3px; background: #e2e8f0; }
@@ -478,14 +544,24 @@ a { color: inherit; text-decoration: none; }
             <p class="muted tiny">Planowanie i realizacja celów bez przewijania</p>
           </div>
           <div class="calendar-legend">
-            <span><span class="legend-dot gym"></span>Siłownia</span>
-            <span><span class="legend-dot running"></span>Bieganie</span>
-            <span><span class="legend-dot reading"></span>Czytanie</span>
-            <span><span class="legend-dot extra"></span>Dodatkowe</span>
+            <span class="legend-tag gym">Siłownia</span>
+            <span class="legend-tag running">Bieganie</span>
+            <span class="legend-tag reading">Czytanie</span>
+            <span class="legend-tag extra">Dodatkowe</span>
           </div>
         </div>
         <div class="calendar-weekdays">
           <span>Pon</span><span>Wt</span><span>Śr</span><span>Czw</span><span>Pt</span><span>Sob</span><span>Niedz</span>
+        </div>
+        <div id="planning-banner" class="planning-banner" aria-live="polite">
+          <div class="planning-banner-info">
+            <i data-lucide="mouse-pointer" class="icon"></i>
+            <div>
+              <strong id="planning-banner-title">Tryb planowania</strong>
+              <span id="planning-banner-meta">Wybierz typ treningu, aby rozpocząć tryb planowania wielu dni.</span>
+            </div>
+          </div>
+          <button id="stop-planning-btn" class="btn soft small"><i data-lucide="check" class="icon"></i>Zakończ</button>
         </div>
         <div id="calendar-grid" class="calendar-grid"></div>
       </div>
@@ -529,7 +605,7 @@ a { color: inherit; text-decoration: none; }
         </div>
 
         <div class="detail-actions">
-          <button id="add-training-btn" class="btn"><i data-lucide="plus" class="icon"></i>Zaplanuj trening</button>
+          <button id="add-training-btn" class="btn"><i data-lucide="plus" class="icon"></i>Zaplanuj treningi</button>
           <button id="add-extra-btn" class="btn ghost"><i data-lucide="sparkles" class="icon"></i>Dodaj aktywność</button>
         </div>
       </div>
@@ -622,10 +698,15 @@ const PRIORITY_IMPACT_LABELS = PRIORITY_IMPACT_OPTIONS.reduce((acc, opt) => {
   return acc;
 }, {});
 const MAX_PRIORITIES = 3;
+const ACTIVITY_TAG_SHORT = { gym: 'Siła', running: 'Bieg', reading: 'Czyt.' };
+const ACTIVITY_UNIT_SHORT = { running: 'km', reading: 'str.' };
+const MAX_CALENDAR_TAGS = 4;
+const DEFAULT_PLANNING_META = 'Wybierz typ treningu, aby rozpocząć tryb planowania wielu dni.';
 
 let state = { activities: {}, extras: {}, priorities: {} };
 let currentMonth = startOfMonth(new Date());
 let selectedDate = toYYYYMMDD(new Date());
+let planningMode = null;
 let saveTimeout;
 
 function startOfMonth(date) {
@@ -654,6 +735,53 @@ function formatRange(start, end) {
 
 function formatDateWithDay(date) {
   return date.toLocaleDateString('pl-PL', { weekday: 'short', day: '2-digit', month: 'short' });
+}
+
+function formatPlanningSummary(type, plannedValue) {
+  const def = GOAL_DEFINITIONS[type];
+  if (!def) return 'Nowy trening';
+  if (type === 'gym') return def.label;
+  const numeric = Number(plannedValue);
+  if (!Number.isFinite(numeric) || numeric <= 0) return def.label;
+  const valueLabel = `${numeric.toLocaleString('pl-PL')} ${def.unit}`;
+  return `${def.label} · ${valueLabel}`;
+}
+
+function getActivityTagText(activity) {
+  if (!activity || !activity.type) return 'Trening';
+  const short = ACTIVITY_TAG_SHORT[activity.type] || 'Plan';
+  if (activity.type === 'gym') return short;
+  const numeric = Number(activity.plannedValue || activity.loggedValue);
+  if (!Number.isFinite(numeric) || numeric <= 0) return short;
+  const unit = ACTIVITY_UNIT_SHORT[activity.type] || '';
+  const value = numeric.toLocaleString('pl-PL');
+  return unit ? `${short} ${value} ${unit}` : `${short} ${value}`;
+}
+
+function getExtraTagText(extra) {
+  if (!extra) return 'Aktywność';
+  const base = (extra.title || '').trim() || EXTRA_CATEGORY_LABELS[extra.category] || 'Aktywność';
+  if (base.length <= 14) return base;
+  return `${base.slice(0, 13)}…`;
+}
+
+function isPlanningActive() {
+  return Boolean(planningMode && planningMode.active);
+}
+
+function startPlanningMode(type, plannedValue) {
+  planningMode = {
+    active: true,
+    type,
+    plannedValue: type === 'gym' ? 1 : Number(plannedValue) || 0
+  };
+  setTimeout(() => render(), 0);
+}
+
+function stopPlanningMode() {
+  if (!isPlanningActive()) return;
+  planningMode = null;
+  setTimeout(() => render(), 0);
 }
 
 function addDays(date, days) {
@@ -699,6 +827,7 @@ function getISOWeekStart(year, week) {
 
 function loadState() {
   state = { activities: {}, extras: {}, priorities: {} };
+  planningMode = null;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
@@ -979,6 +1108,7 @@ function render() {
   renderPriorities();
   renderGoalProgress(weekStats.goalPercents);
   renderHeatmap();
+  renderPlanningIndicator();
   lucide.createIcons();
 }
 
@@ -1025,6 +1155,9 @@ function renderCalendar() {
     if (date.getMonth() !== currentMonth.getMonth()) cell.classList.add('calendar-day--other-month');
     if (dateString === selectedDate) cell.classList.add('calendar-day--selected');
     if (normalizeDate(date).getTime() === today.getTime()) cell.classList.add('calendar-day--today');
+    if (plannedCount === 0) cell.classList.add('calendar-day--empty');
+    else if (completedCount === 0) cell.classList.add('calendar-day--planned');
+    else cell.classList.add('calendar-day--completed');
 
     const header = document.createElement('div');
     header.className = 'calendar-day-header';
@@ -1043,23 +1176,44 @@ function renderCalendar() {
     header.appendChild(badges);
     cell.appendChild(header);
 
-    const dots = document.createElement('div');
-    dots.className = 'calendar-day-dots';
-    const dotTypes = [];
-    activities.forEach(activity => dotTypes.push(activity.type));
-    extras.forEach(() => dotTypes.push('extra'));
-    dotTypes.slice(0, 8).forEach(type => {
-      const dot = document.createElement('span');
-      dot.className = `activity-dot ${type}`;
-      dots.appendChild(dot);
+    const tags = document.createElement('div');
+    tags.className = 'calendar-day-tags';
+    const tagItems = [];
+    activities.forEach(activity => {
+      tagItems.push({
+        type: activity.type,
+        text: getActivityTagText(activity),
+        tooltip: formatPlanningSummary(activity.type, activity.plannedValue || activity.loggedValue)
+      });
     });
-    cell.appendChild(dots);
+    extras.forEach(extra => {
+      tagItems.push({
+        type: 'extra',
+        text: getExtraTagText(extra),
+        tooltip: (extra.title || '').trim() || EXTRA_CATEGORY_LABELS[extra.category] || 'Aktywność dodatkowa'
+      });
+    });
+    tagItems.slice(0, MAX_CALENDAR_TAGS).forEach(tag => {
+      const pill = document.createElement('span');
+      pill.className = `activity-tag ${tag.type}`;
+      pill.textContent = tag.text;
+      pill.title = tag.tooltip || tag.text;
+      tags.appendChild(pill);
+    });
+    if (tagItems.length > MAX_CALENDAR_TAGS) {
+      const more = document.createElement('span');
+      more.className = 'activity-tag more';
+      more.textContent = `+${tagItems.length - MAX_CALENDAR_TAGS}`;
+      more.title = 'Więcej zaplanowanych aktywności';
+      tags.appendChild(more);
+    }
+    cell.appendChild(tags);
 
     const footer = document.createElement('div');
     footer.className = 'calendar-day-footer';
     const done = document.createElement('span');
     done.className = 'calendar-footer-label';
-    done.textContent = completedCount > 0 ? `${completedCount} ukończ.` : 'Brak';
+    done.textContent = `${completedCount} ukończ.`;
     const remaining = document.createElement('span');
     const openCount = Math.max(0, plannedCount - completedCount);
     remaining.textContent = openCount > 0 ? `${openCount} otwarte` : '';
@@ -1069,14 +1223,47 @@ function renderCalendar() {
 
     cell.addEventListener('click', () => {
       selectedDate = dateString;
-      if (date.getMonth() !== currentMonth.getMonth()) {
+      if (!sameMonth(date, currentMonth)) {
         currentMonth = startOfMonth(date);
+      }
+      if (isPlanningActive()) {
+        addTraining(dateString, planningMode.type, planningMode.plannedValue);
+        return;
       }
       render();
     });
 
     grid.appendChild(cell);
   });
+}
+
+function renderPlanningIndicator() {
+  const banner = document.getElementById('planning-banner');
+  const title = document.getElementById('planning-banner-title');
+  const meta = document.getElementById('planning-banner-meta');
+  const calendarCard = document.querySelector('.calendar-card');
+  const grid = document.getElementById('calendar-grid');
+  const addBtn = document.getElementById('add-training-btn');
+  if (!banner || !title || !meta || !calendarCard || !grid || !addBtn) return;
+
+  if (isPlanningActive()) {
+    const summary = formatPlanningSummary(planningMode.type, planningMode.plannedValue);
+    banner.classList.add('active');
+    title.textContent = summary;
+    meta.textContent = 'Klikaj dni w kalendarzu, aby dodać ten trening. Zakończ, gdy skończysz planować.';
+    calendarCard.classList.add('calendar-card--planning');
+    grid.classList.add('is-planning');
+    addBtn.innerHTML = '<i data-lucide="x" class="icon"></i>Zakończ planowanie';
+    addBtn.classList.add('ghost');
+  } else {
+    banner.classList.remove('active');
+    title.textContent = 'Tryb planowania';
+    meta.textContent = DEFAULT_PLANNING_META;
+    calendarCard.classList.remove('calendar-card--planning');
+    grid.classList.remove('is-planning');
+    addBtn.innerHTML = '<i data-lucide="plus" class="icon"></i>Zaplanuj treningi';
+    addBtn.classList.remove('ghost');
+  }
 }
 
 function renderDayDetail() {
@@ -1463,6 +1650,16 @@ function showAddTrainingModal() {
     ],
     buttons: [
       { text: 'Anuluj', class: 'btn soft', action: 'close' },
+      { text: 'Planowanie wielu dni', class: 'btn ghost', action: (value, selected) => {
+          const type = selected || 'gym';
+          if (type !== 'gym') {
+            const numeric = Number(value);
+            if (!numeric || numeric <= 0) return false;
+            startPlanningMode(type, numeric);
+          } else {
+            startPlanningMode(type, 1);
+          }
+        } },
       { text: 'Dodaj', class: 'btn', action: (value, selected) => {
           const type = selected || 'gym';
           if (type !== 'gym') {
@@ -1622,7 +1819,14 @@ function setupEventListeners() {
     selectedDate = toYYYYMMDD(today);
     render();
   });
-  document.getElementById('add-training-btn').addEventListener('click', showAddTrainingModal);
+  document.getElementById('add-training-btn').addEventListener('click', () => {
+    if (isPlanningActive()) {
+      stopPlanningMode();
+    } else {
+      showAddTrainingModal();
+    }
+  });
+  document.getElementById('stop-planning-btn').addEventListener('click', () => stopPlanningMode());
   document.getElementById('add-extra-btn').addEventListener('click', showAddExtraModal);
   document.getElementById('priority-add-btn').addEventListener('click', showPriorityModal);
 
