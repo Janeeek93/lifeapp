@@ -3,136 +3,81 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LifeOS – Plany i Progres</title>
+  <title>LifeOS – Trainings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
-
 :root {
-  --bg: #f3f5f9;
+  --bg: #eef2ff;
+  --bg-alt: #f8fafc;
   --card: #ffffff;
   --ink: #0f172a;
   --muted: #64748b;
   --line: #e2e8f0;
-  --green: #059669;
-  --green-soft: #ecfdf5;
-  --green-border: #a7f3d0;
-  --red: #dc2626;
-  --red-soft: #fef2f2;
-  --red-border: #fecaca;
-  --orange: #ea580c;
-  --orange-soft: #fff7ed;
-  --orange-border: #fed7aa;
-  --blue: #2563eb;
-  --blue-soft: #eff6ff;
-  --blue-border: #bfdbfe;
-  --purple: #7c3aed;
-  --yellow: #ca8a04;
+  --primary: #2563eb;
+  --primary-soft: #eff6ff;
+  --primary-border: #bfdbfe;
+  --success: #0f9d58;
+  --success-soft: #ecfdf5;
+  --success-border: #bbf7d0;
+  --warning: #f59e0b;
+  --danger: #dc2626;
+  --shadow-sm: 0 12px 30px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 28px 60px rgba(15, 23, 42, 0.12);
+  --transition: all .2s ease;
   --gym-color: #5b21b6;
-  --gym-soft: #f5f3ff;
-  --gym-border: #ddd6fe;
   --run-color: #047857;
-  --run-soft: #ecfdf5;
-  --run-border: #a7f3d0;
-  --read-color: #0369a1;
-  --read-soft: #f0f9ff;
-  --read-border: #bae6fd;
-  --extra-training: #9333ea;
-  --extra-learning: #2563eb;
-  --extra-relax: #0ea5e9;
-  --extra-home: #f97316;
-  --extra-other: #334155;
-  --shadow-sm: 0 6px 18px rgba(15, 23, 42, 0.07);
-  --shadow-md: 0 16px 30px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 22px 45px rgba(15, 23, 42, 0.12);
-  --transition-fast: all .2s ease;
+  --read-color: #1d4ed8;
+  --extra-color: #0ea5e9;
 }
+
 *, *::before, *::after { box-sizing: border-box; }
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(180deg, #e0e7ff 0%, #f3f5f9 45%, #f8fafc 100%);
+  background: linear-gradient(160deg, #e0e7ff 0%, #f1f5f9 45%, #ffffff 100%);
   color: var(--ink);
   font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto;
   font-size: 13px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
+
 h1, h2, h3, h4, h5 { margin: 0; color: var(--ink); }
 p { margin: 0; }
+
 .wrap {
-  max-width: 1260px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 24px 28px 32px;
+  padding: 28px 32px 40px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  min-height: 100vh;
+  gap: 20px;
 }
-.muted { color: var(--muted); }
-.tiny { font-size: 11px; letter-spacing: 0.02em; }
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--muted);
-}
+
+a { color: inherit; text-decoration: none; }
+
 .card {
   background: var(--card);
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 18px;
-  padding: 18px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  padding: 20px 24px;
   box-shadow: var(--shadow-sm);
-  transition: var(--transition-fast);
-  position: relative;
 }
-.card:hover { box-shadow: var(--shadow-md); }
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border-radius: 10px;
-  padding: 6px 12px;
-  border: 1px solid transparent;
-  background: var(--ink);
-  color: #fff;
-  cursor: pointer;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 12px;
-  transition: var(--transition-fast);
-}
-.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-.btn.soft {
-  background: #fff;
-  border-color: rgba(148, 163, 184, 0.45);
-  color: var(--ink);
-}
-.btn.soft:hover { border-color: var(--blue); color: var(--blue); }
-.btn.ghost {
-  background: rgba(148, 163, 184, 0.16);
-  color: var(--ink);
-}
-.btn.ghost:hover { background: rgba(148, 163, 184, 0.26); }
-.btn.danger {
-  background: var(--red-soft);
-  border-color: var(--red-border);
-  color: var(--red);
-}
-.btn.danger:hover { background: var(--red); color: #fff; }
-.btn.small { padding: 5px 10px; font-size: 11px; }
-.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+
 .page-header {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(12px);
 }
+
 .page-header-top {
   display: flex;
   align-items: center;
@@ -140,1984 +85,1436 @@ p { margin: 0; }
   gap: 16px;
   flex-wrap: wrap;
 }
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex: 1;
-  min-width: 0;
-}
-.header-title-block { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.header-title-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.header-title-row h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.2px; }
-.header-week-range { font-size: 12px; color: var(--muted); }
-.week-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--blue-soft);
-  color: var(--blue);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+
+.title-block { display: flex; flex-direction: column; gap: 6px; }
+.eyebrow {
   text-transform: uppercase;
-}
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-}
-.metric-card {
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  background: linear-gradient(140deg, rgba(37, 99, 235, 0.06), rgba(14, 165, 233, 0.04));
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-height: 78px;
-}
-.metric-label {
+  letter-spacing: 0.14em;
   font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--muted);
   font-weight: 600;
+  color: var(--muted);
 }
-.metric-value { font-size: 18px; font-weight: 700; color: var(--ink); }
-.metric-sub { font-size: 11px; color: var(--muted); min-height: 14px; }
-.dashboard {
-  display: grid;
-  grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
-  gap: 16px;
-  flex: 1;
-  min-height: 0;
-}
-.dashboard-main {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 16px;
-  min-height: 0;
-}
-.dashboard-side {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 16px;
-  min-height: 0;
-}
-.section-title {
+
+.title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.title-row h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.3px; }
+
+.page-header-actions { display: flex; gap: 10px; align-items: center; }
+
+.btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  font-size: 16px;
-  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 12px;
+  border: 1px solid transparent;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+  transition: var(--transition);
 }
-.planner-card {
+
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.btn .icon { width: 16px; height: 16px; }
+.btn.soft { background: #fff; color: var(--ink); border-color: rgba(148, 163, 184, 0.45); }
+.btn.soft:hover { border-color: var(--primary); color: var(--primary); }
+.btn.ghost { background: rgba(148, 163, 184, 0.16); color: var(--ink); }
+.btn.ghost:hover { background: rgba(148, 163, 184, 0.3); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--ink);
+}
+
+.icon-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+.icon { width: 16px; height: 16px; }
+
+.month-bar { display: flex; justify-content: space-between; align-items: center; }
+.month-controls { display: flex; align-items: center; gap: 12px; }
+.month-labels { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.month-labels h2 { font-size: 20px; font-weight: 700; text-transform: capitalize; }
+.month-range { font-size: 12px; color: var(--muted); }
+
+.month-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric-card {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 16px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  min-height: 0;
+  gap: 6px;
+  background: linear-gradient(160deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.05));
 }
-.planner-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  flex-wrap: wrap;
+
+.metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); font-weight: 600; }
+.metric-value { font-size: 22px; font-weight: 700; }
+.metric-sub { font-size: 11px; color: var(--muted); }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
 }
-.planner-title { display: flex; flex-direction: column; gap: 4px; }
-.planner-range { font-size: 12px; color: var(--muted); }
-.planner-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.week-nav { display: flex; gap: 8px; }
-.planner-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.planner-status { font-weight: 600; font-size: 12px; }
-.planner-instructions {
-  display: none;
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--blue-soft);
-  color: var(--blue);
-  font-weight: 500;
-}
-.planner-grid-wrapper { flex: 1; min-height: 0; }
-.planner-grid {
+
+.calendar-column, .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+.card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.card-header p { margin-top: 4px; }
+
+.muted { color: var(--muted); }
+.tiny { font-size: 11px; letter-spacing: 0.02em; }
+
+.calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 10px;
-  min-height: 0;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
 }
-.day-column {
-  background: rgba(248, 250, 252, 0.9);
-  border-radius: 14px;
-  padding: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+
+.calendar-weekdays span {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 4px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calendar-day {
+  background: var(--bg-alt);
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 10px 12px;
+  min-height: 116px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 0;
-  transition: var(--transition-fast);
+  cursor: pointer;
+  transition: var(--transition);
   position: relative;
 }
-.day-header {
-  font-weight: 600;
-  text-align: center;
-  font-size: 12px;
-  padding-bottom: 6px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--line);
-}
-.day-header.today { color: var(--blue); }
-.activities-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-height: 80px;
-}
-.activity-pill {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 9px;
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid transparent;
-  cursor: grab;
-  transition: var(--transition-fast);
-}
-.activity-pill.dragging { opacity: 0.6; transform: scale(1.02); box-shadow: var(--shadow-md); }
-.activity-pill:not(.completed):hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-.activity-pill.gym { background: var(--gym-soft); color: var(--gym-color); border-color: var(--gym-border); }
-.activity-pill.running { background: var(--run-soft); color: var(--run-color); border-color: var(--run-border); }
-.activity-pill.reading { background: var(--read-soft); color: var(--read-color); border-color: var(--read-border); }
-.activity-pill.completed {
-  background: var(--green-soft);
-  color: var(--green);
-  border-color: var(--green-border);
-  cursor: pointer;
-}
-.activity-pill span { flex: 1; }
-.activity-pill.completed span { text-decoration: line-through; opacity: 0.75; }
-.day-column.drag-over { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue-border); }
-.delete-activity-btn {
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  transition: var(--transition-fast);
-}
-.delete-activity-btn:hover { color: var(--red); background-color: var(--red-soft); }
-.quick-add-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+
+.calendar-day:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); transform: translateY(-2px); }
+.calendar-day--other-month { opacity: 0.55; background: rgba(248, 250, 252, 0.6); }
+.calendar-day--selected { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16); background: #fff; }
+.calendar-day--today { border-color: var(--success); }
+
+.calendar-day-header { display: flex; justify-content: space-between; align-items: center; }
+.calendar-date-number { font-weight: 700; font-size: 14px; }
+.calendar-day-badges { display: flex; gap: 6px; align-items: center; }
+.calendar-badge {
   background: #fff;
-  border: 1px solid var(--line);
   border-radius: 999px;
-  width: 26px;
-  height: 26px;
-  color: var(--muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity .2s;
-  font-size: 14px;
-  padding: 0;
-}
-.day-column:hover .quick-add-btn { opacity: 1; }
-.quick-add-menu {
-  position: absolute;
-  top: 36px;
-  right: 8px;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  box-shadow: var(--shadow-md);
-  z-index: 10;
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-}
-.quick-add-menu button {
-  background: none;
-  border: none;
-  padding: 8px 12px;
-  text-align: left;
-  cursor: pointer;
-  width: 100%;
-  font-size: 12px;
-}
-.quick-add-menu button:hover { background-color: var(--bg); }
-.extras-container { display: flex; flex-direction: column; gap: 8px; }
-.extras-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 2px 8px;
   font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  border: 1px solid rgba(148, 163, 184, 0.4);
   color: var(--muted);
 }
-.extra-pill {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 12px 10px 18px;
+
+.calendar-day-dots { display: flex; flex-wrap: wrap; gap: 4px; min-height: 20px; }
+.activity-dot, .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.activity-dot.gym, .legend-dot.gym { background: var(--gym-color); }
+.activity-dot.running, .legend-dot.running { background: var(--run-color); }
+.activity-dot.reading, .legend-dot.reading { background: var(--read-color); }
+.activity-dot.extra, .legend-dot.extra { background: var(--extra-color); }
+
+.calendar-day-footer { margin-top: auto; font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+.calendar-footer-label { font-weight: 600; color: var(--success); }
+
+.calendar-legend { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
+.calendar-legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+.upcoming-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.upcoming-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.25); background: rgba(248, 250, 252, 0.7); }
+.upcoming-item strong { display: block; font-size: 13px; }
+.upcoming-item .meta { display: flex; gap: 8px; font-size: 11px; color: var(--muted); }
+.upcoming-item .badge { background: rgba(37, 99, 235, 0.12); color: var(--primary); border-radius: 999px; padding: 2px 8px; font-weight: 600; }
+
+.empty-state {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  padding: 18px 12px;
   border-radius: 12px;
+  background: rgba(248, 250, 252, 0.7);
+  border: 1px dashed rgba(148, 163, 184, 0.4);
+}
+.day-detail-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.detail-block { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.detail-block-header { font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.detail-list { display: flex; flex-direction: column; gap: 10px; }
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: rgba(248, 250, 252, 0.8);
+  transition: var(--transition);
+}
+.detail-item:hover { border-color: var(--primary-border); box-shadow: var(--shadow-sm); background: #fff; }
+.detail-item.completed { background: var(--success-soft); border-color: var(--success-border); }
+.detail-info { display: flex; gap: 12px; }
+.detail-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 14px; }
+.detail-icon.gym { background: rgba(91, 33, 182, 0.2); color: var(--gym-color); }
+.detail-icon.running { background: rgba(4, 120, 87, 0.18); color: var(--run-color); }
+.detail-icon.reading { background: rgba(29, 78, 216, 0.18); color: var(--read-color); }
+.detail-icon.extra { background: rgba(14, 165, 233, 0.18); color: var(--extra-color); }
+.detail-title { font-weight: 600; font-size: 13px; }
+.detail-meta { font-size: 11px; color: var(--muted); }
+.detail-actions-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+
+.action-btn {
+  border-radius: 10px;
   border: 1px solid rgba(148, 163, 184, 0.4);
   background: #fff;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition-fast);
-  font-size: 12px;
-}
-.extra-pill::before {
-  content: "";
-  position: absolute;
-  left: 8px;
-  top: 10px;
-  bottom: 10px;
-  width: 4px;
-  border-radius: 999px;
-  background: var(--extra-other);
-}
-.extra-pill[data-category="training"]::before { background: var(--extra-training); }
-.extra-pill[data-category="learning"]::before { background: var(--extra-learning); }
-.extra-pill[data-category="relax"]::before { background: var(--extra-relax); }
-.extra-pill[data-category="home"]::before { background: var(--extra-home); }
-.extra-pill:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-.extra-pill.completed { background: var(--green-soft); border-color: var(--green-border); }
-.extra-main { display: flex; align-items: center; gap: 10px; flex: 1; }
-.extra-toggle {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(148, 163, 184, 0.2);
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-.extra-toggle:hover { background: rgba(37, 99, 235, 0.15); color: var(--blue); }
-.extra-pill.completed .extra-toggle { background: var(--green); color: #fff; }
-.extra-info { display: flex; flex-direction: column; gap: 4px; }
-.extra-title { font-weight: 600; font-size: 12px; }
-.extra-pill.completed .extra-title { text-decoration: line-through; color: var(--muted); }
-.extra-category { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.extra-delete-btn {
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  transition: var(--transition-fast);
-}
-.extra-delete-btn:hover { color: var(--red); background: var(--red-soft); }
-.add-extra-btn {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px dashed rgba(148, 163, 184, 0.6);
-  background: transparent;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 600;
   padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 11px;
-  color: var(--muted);
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: var(--transition);
 }
-.add-extra-btn:hover { border-color: var(--blue); color: var(--blue); }
-.analytics-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  gap: 16px;
-  align-items: start;
-}
-.panel-header { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
-.next-actions-panel { display: flex; flex-direction: column; gap: 8px; }
-.next-actions-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.next-action-item {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: #fff;
-  font-size: 12px;
-}
-.next-action-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-.next-action-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.next-action-date { font-size: 11px; color: var(--muted); }
-.next-action-badge {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  background: rgba(37, 99, 235, 0.12);
-  border-radius: 999px;
-  padding: 4px 8px;
-}
-.heatmap-panel { display: flex; flex-direction: column; gap: 8px; }
-.heatmap-container { overflow: hidden; }
-.heatmap {
-  display: flex;
-  gap: 3px;
-  align-items: flex-end;
-  min-width: max-content;
-}
-.heatmap-week { display: flex; flex-direction: column; gap: 3px; align-items: center; }
-.heatmap-week-label {
-  font-size: 9px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-}
-.heatmap-cell {
-  width: 12px;
-  height: 12px;
-  background: var(--line);
-  border-radius: 3px;
-  position: relative;
-}
-.heatmap-cell[data-level="1"] { background: #9be9a8; }
-.heatmap-cell[data-level="2"] { background: #40c463; }
-.heatmap-cell[data-level="3"] { background: #30a14e; }
-.heatmap-cell[data-level="4"] { background: #216e39; }
-.heatmap-legend {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  justify-content: flex-end;
-  font-size: 11px;
-}
-.weekly-overview-card { display: flex; flex-direction: column; gap: 14px; }
-.overview-progress { display: flex; flex-direction: column; gap: 8px; }
-.progress-summary { display: flex; justify-content: space-between; align-items: center; }
-.progress-bar {
-  height: 8px;
-  background: var(--line);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.progress-bar > div { height: 100%; transition: width .4s cubic-bezier(0.22, 1, 0.36, 1); }
-.goal-grid { display: grid; gap: 12px; }
-.goal-card {
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(248, 250, 252, 0.7);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  transition: var(--transition-fast);
-}
-.goal-card.goal-gym { background: var(--gym-soft); border-color: var(--gym-border); }
-.goal-card.goal-running { background: var(--run-soft); border-color: var(--run-border); }
-.goal-card.goal-reading { background: var(--read-soft); border-color: var(--read-border); }
-.goal-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm); }
-.goal-title { font-size: 15px; font-weight: 700; }
-.goal-value { font-size: 18px; font-weight: 700; }
-.goal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.goal-actions .btn { flex: 1; min-width: 120px; }
-.goal-meta { font-size: 11px; color: var(--muted); }
-.priorities-card { display: flex; flex-direction: column; gap: 12px; }
-.priority-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.priority-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(248, 250, 252, 0.8);
-  transition: var(--transition-fast);
-}
-.priority-item:hover { border-color: rgba(37, 99, 235, 0.35); box-shadow: var(--shadow-sm); }
-.priority-item.completed { background: var(--green-soft); border-color: var(--green-border); }
-.priority-details { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+
+.action-btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.action-btn.success { background: var(--success); color: #fff; border-color: var(--success); }
+.action-btn.danger { border-color: rgba(220, 38, 38, 0.3); color: var(--danger); background: #fff5f5; }
+.action-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+.detail-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+.priority-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.priority-item { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.3); background: rgba(248, 250, 252, 0.8); transition: var(--transition); }
+.priority-item.completed { background: var(--success-soft); border-color: var(--success-border); }
+.priority-body { display: flex; flex-direction: column; gap: 4px; }
 .priority-title { font-weight: 600; font-size: 13px; }
-.priority-item.completed .priority-title { text-decoration: line-through; color: var(--muted); }
-.priority-meta { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.priority-actions { display: flex; gap: 6px; }
-.priority-toggle, .priority-delete {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition-fast);
-  color: var(--muted);
-}
-.priority-toggle:hover { color: var(--green); background: var(--green-soft); }
-.priority-delete:hover { color: var(--red); background: var(--red-soft); }
-.empty-priority { margin: 0; text-align: center; font-size: 12px; color: var(--muted); }
-.empty-planner {
-  text-align: center;
-  padding: 24px;
-  color: var(--muted);
-  border: 1px dashed var(--line);
-  border-radius: 14px;
-  margin-top: 8px;
-  background: rgba(255, 255, 255, 0.65);
-}
-.empty-planner h4 { margin: 0 0 6px 0; font-size: 15px; }
+.priority-meta { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.priority-item.completed .priority-title { text-decoration: line-through; }
+.priority-actions { display: flex; gap: 8px; }
+.priority-btn { border: none; background: rgba(148, 163, 184, 0.16); border-radius: 10px; padding: 6px 8px; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; transition: var(--transition); }
+.priority-btn:hover { background: rgba(37, 99, 235, 0.15); color: var(--primary); }
+
+.goal-progress-list { display: flex; flex-direction: column; gap: 14px; }
+.goal-progress-item { display: flex; flex-direction: column; gap: 8px; }
+.goal-progress-label { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.goal-progress-label strong { font-size: 13px; }
+.goal-progress-value { font-size: 11px; font-weight: 600; color: var(--muted); }
+.goal-progress-bar { width: 100%; height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.goal-progress-bar span { display: block; height: 100%; border-radius: 999px; transition: width .3s ease; }
+
+.heatmap-card { display: flex; flex-direction: column; gap: 16px; }
+.heatmap { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 6px; }
+.heatmap-week { display: grid; grid-template-rows: repeat(7, 14px) auto; gap: 4px; align-items: center; }
+.heatmap-cell { width: 14px; height: 14px; border-radius: 3px; background: #e2e8f0; }
+.heatmap-cell[data-level="0"] { background: #e2e8f0; }
+.heatmap-cell[data-level="1"] { background: #b7f3d0; }
+.heatmap-cell[data-level="2"] { background: #6ee7b7; }
+.heatmap-cell[data-level="3"] { background: #34d399; }
+.heatmap-cell[data-level="4"] { background: #059669; }
+.heatmap-cell--empty { background: transparent; }
+.heatmap-month-label { font-size: 9px; text-transform: uppercase; color: var(--muted); text-align: center; letter-spacing: 0.08em; }
+.heatmap-legend { display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 11px; color: var(--muted); }
+.heatmap-legend-scale { display: inline-flex; align-items: center; gap: 4px; }
+.heatmap-legend-scale span { width: 14px; height: 14px; border-radius: 3px; background: #e2e8f0; }
+.heatmap-legend-scale span[data-level="1"] { background: #b7f3d0; }
+.heatmap-legend-scale span[data-level="2"] { background: #6ee7b7; }
+.heatmap-legend-scale span[data-level="3"] { background: #34d399; }
+.heatmap-legend-scale span[data-level="4"] { background: #059669; }
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(15, 23, 42, 0.6);
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
+  justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .2s ease-out;
+  transition: opacity .2s ease;
+  z-index: 100;
 }
+
 .modal-overlay.visible { opacity: 1; pointer-events: all; }
+
 .modal-card {
-  background: var(--card);
+  background: #fff;
   padding: 28px;
-  border-radius: 16px;
-  box-shadow: var(--shadow-lg);
+  border-radius: 18px;
   max-width: 440px;
   width: 90%;
-  text-align: center;
-  transition: transform .2s ease-out;
-  transform: scale(0.95);
-}
-.modal-overlay.visible .modal-card { transform: scale(1); }
-.modal-actions { margin-top: 20px; display: flex; justify-content: center; gap: 12px; }
-.modal-card input {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  margin-top: 12px;
-  text-align: center;
-  font-size: 18px;
-  padding: 12px;
-  width: 100%;
-}
-.modal-options { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
-.option-label {
+  box-shadow: var(--shadow-lg);
   display: flex;
-  align-items: center;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: var(--transition-fast);
+  flex-direction: column;
+  gap: 16px;
 }
-.option-label:hover { background-color: var(--bg); border-color: var(--blue-border); }
-.option-label input { margin-right: 12px; }
-.planning-mode .day-column { cursor: pointer; border: 1px dashed var(--blue-border); }
-.planning-mode .day-column:hover { border-color: var(--blue); background: var(--blue-soft); }
+
+.modal-card h3 { font-size: 18px; font-weight: 700; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.modal-card input, .modal-card textarea, .modal-card select { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-family: inherit; font-size: 13px; }
+.modal-options { display: flex; flex-direction: column; gap: 10px; }
+.option-label { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: var(--transition); }
+.option-label:hover { border-color: var(--primary); background: var(--primary-soft); }
+.option-label input { accent-color: var(--primary); }
+
 #save-status {
   position: fixed;
-  bottom: 20px;
+  bottom: 24px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(20px);
   background: var(--ink);
   color: #fff;
   padding: 10px 20px;
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow: var(--shadow-lg);
-  z-index: 2000;
   opacity: 0;
-  transition: opacity .3s, transform .3s;
   pointer-events: none;
+  transition: opacity .3s ease, transform .3s ease;
   font-size: 12px;
+  z-index: 120;
 }
-#save-status.visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-.icon { width: 16px; height: 16px; }
-@media (max-width: 1180px) {
-  .dashboard { grid-template-columns: 1fr; }
-  .dashboard-side { grid-template-rows: auto auto; }
+
+#save-status.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 1080px) {
+  .layout { grid-template-columns: 1fr; }
 }
-@media (max-width: 860px) {
-  .analytics-card { grid-template-columns: 1fr; }
-  .metrics-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
-  .planner-grid { grid-template-columns: repeat(7, minmax(130px, 1fr)); }
-  .planner-grid-wrapper { overflow-x: auto; }
-}
-@media (max-width: 600px) {
+
+@media (max-width: 720px) {
+  .wrap { padding: 24px 18px 40px; }
   .page-header-top { flex-direction: column; align-items: flex-start; }
-  .header-left { flex-direction: column; align-items: flex-start; }
-  .week-chip { align-self: flex-start; }
-  .btn { width: 100%; justify-content: center; }
-  .planner-controls { width: 100%; justify-content: space-between; }
-  .week-nav { flex: 1; justify-content: space-between; }
+  .page-header-actions { width: 100%; }
+  .page-header-actions .btn { flex: 1; justify-content: center; }
+  .metrics-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .calendar-weekdays { display: none; }
+  .calendar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
   </style>
 </head>
 <body>
-
 <div class="wrap">
   <header class="page-header card">
     <div class="page-header-top">
-      <div class="header-left">
-        <a href="./index.html" class="btn ghost"><i data-lucide="arrow-left" class="icon"></i>Powrót</a>
-        <div class="header-title-block">
-          <span class="eyebrow">Strategiczne zarządzanie rozwojem</span>
-          <div class="header-title-row">
-            <h1>Panel treningów</h1>
-            <span class="week-chip" id="header-week-label">Tydzień --</span>
-          </div>
-          <span class="header-week-range" id="header-week-range">--</span>
+      <div class="title-block">
+        <span class="eyebrow">Program treningowy</span>
+        <div class="title-row">
+          <h1>Panel treningów</h1>
+          <span class="month-chip" id="header-month-chip">--</span>
         </div>
       </div>
+      <div class="page-header-actions">
+        <a href="./index.html" class="btn ghost"><i data-lucide="arrow-left" class="icon"></i>Powrót</a>
+        <button id="today-month-btn" class="btn soft"><i data-lucide="calendar" class="icon"></i>Dzisiaj</button>
+      </div>
     </div>
-    <div class="metrics-grid">
+    <div class="month-bar">
+      <div class="month-controls">
+        <button id="prev-month-btn" class="icon-btn" aria-label="Poprzedni miesiąc"><i data-lucide="chevron-left" class="icon"></i></button>
+        <div class="month-labels">
+          <h2 id="current-month-label">--</h2>
+          <span class="month-range muted" id="current-month-range">--</span>
+        </div>
+        <button id="next-month-btn" class="icon-btn" aria-label="Następny miesiąc"><i data-lucide="chevron-right" class="icon"></i></button>
+      </div>
+    </div>
+    <div class="metrics-row">
       <div class="metric-card">
         <span class="metric-label">Realizacja celów</span>
-        <span class="metric-value" id="header-week-progress">0%</span>
-        <span class="metric-sub">Średni postęp celów głównych</span>
+        <span class="metric-value" id="metric-goal-progress">0%</span>
+        <span class="metric-sub">Średni postęp głównych celów</span>
       </div>
       <div class="metric-card">
-        <span class="metric-label">Aktywności tygodnia</span>
-        <span class="metric-value" id="header-planned-activities">0/0</span>
-        <span class="metric-sub">ukończone / zaplanowane</span>
+        <span class="metric-label">Zamknięte działania</span>
+        <span class="metric-value" id="metric-plan-completion">0/0</span>
+        <span class="metric-sub">Ukończone vs zaplanowane</span>
       </div>
       <div class="metric-card">
-        <span class="metric-label">Status planu</span>
-        <span class="metric-value" id="header-plan-status">W trakcie</span>
-        <span class="metric-sub" id="header-plan-status-hint">Uzupełnij plan, aby zamknąć cele tygodnia.</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Ukończone tyg.</span>
-        <span class="metric-value" id="yearly-progress-value">0/36</span>
-        <span class="metric-sub">Cel roczny</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Seria</span>
-        <span class="metric-value" id="streak-value">0</span>
-        <span class="metric-sub">Najdłuższa passa</span>
+        <span class="metric-label">Aktywne dni</span>
+        <span class="metric-value" id="metric-active-days">0/0</span>
+        <span class="metric-sub">Dni z planem w miesiącu</span>
       </div>
       <div class="metric-card">
         <span class="metric-label">Najbliższa aktywność</span>
-        <span class="metric-value" id="next-activity-kpi">Brak planu</span>
-        <span class="metric-sub" id="next-activity-date"></span>
+        <span class="metric-value" id="metric-next-activity">Brak</span>
+        <span class="metric-sub" id="metric-next-activity-date">--</span>
       </div>
     </div>
   </header>
 
-  <main class="dashboard">
-    <section class="dashboard-main">
-      <div id="planner-shell" class="card planner-card">
-        <div class="planner-header">
-          <div class="planner-title">
-            <h3 class="section-title"><i data-lucide="layout-grid" class="icon"></i>Planer tygodniowy</h3>
-            <span class="planner-range" id="planner-week-range">--</span>
+  <main class="layout">
+    <section class="calendar-column">
+      <div class="card calendar-card">
+        <div class="card-header">
+          <div>
+            <h3>Harmonogram miesięczny</h3>
+            <p class="muted tiny">Planowanie i realizacja celów bez przewijania</p>
           </div>
-          <div class="planner-controls">
-            <button id="copy-plan-btn" class="btn ghost" style="display: none;"><i data-lucide="copy" class="icon"></i>Kopiuj plan</button>
-            <div class="week-nav">
-              <button id="prev-week-btn" class="btn soft"><i data-lucide="chevron-left" class="icon"></i>Poprzedni</button>
-              <button id="today-week-btn" class="btn soft" style="display: none;">Bieżący</button>
-              <button id="next-week-btn" class="btn soft">Następny<i data-lucide="chevron-right" class="icon"></i></button>
-            </div>
+          <div class="calendar-legend">
+            <span><span class="legend-dot gym"></span>Siłownia</span>
+            <span><span class="legend-dot running"></span>Bieganie</span>
+            <span><span class="legend-dot reading"></span>Czytanie</span>
+            <span><span class="legend-dot extra"></span>Dodatkowe</span>
           </div>
         </div>
-        <div class="planner-meta">
-          <span id="planning-status" class="planner-status muted"></span>
-          <button id="cancel-planning-btn" class="btn soft small" style="display: none;">Zakończ planowanie</button>
+        <div class="calendar-weekdays">
+          <span>Pon</span><span>Wt</span><span>Śr</span><span>Czw</span><span>Pt</span><span>Sob</span><span>Niedz</span>
         </div>
-        <p id="planning-instructions" class="planner-instructions"></p>
-        <div class="planner-grid-wrapper">
-          <div class="planner-grid"></div>
-        </div>
-        <div id="empty-planner-placeholder" class="empty-planner" style="display: none;">
-          <h4>Brak zaplanowanych działań</h4>
-          <p class="muted">Dodaj cele z panelu obok lub użyj szybkich przycisków w kalendarzu.</p>
-        </div>
+        <div id="calendar-grid" class="calendar-grid"></div>
       </div>
 
-      <div class="card analytics-card">
-        <div class="next-actions-panel">
-          <div class="panel-header">
-            <h3 class="section-title"><i data-lucide="alarm-clock" class="icon"></i>Najbliższe kroki</h3>
-            <p class="muted tiny">Automatyczne podpowiedzi z planera i aktywności dodatkowych.</p>
-          </div>
-          <ul id="next-actions-list" class="next-actions-list"></ul>
-          <p id="next-actions-empty" class="empty-priority">Brak zaplanowanych aktywności na horyzoncie.</p>
-        </div>
-        <div class="heatmap-panel">
-          <div class="panel-header">
-            <h3 class="section-title"><i data-lucide="flame" class="icon"></i>Aktywność w czasie</h3>
-            <p class="muted tiny">Każdy kwadrat to jeden dzień roku. Im ciemniejszy odcień, tym więcej ukończonych działań.</p>
-          </div>
-          <div class="heatmap-container"></div>
-          <div class="heatmap-legend">
-            <span class="muted tiny">Mniej</span>
-            <div class="heatmap-cell" style="background: var(--line)"></div>
-            <div class="heatmap-cell" data-level="1"></div>
-            <div class="heatmap-cell" data-level="2"></div>
-            <div class="heatmap-cell" data-level="3"></div>
-            <div class="heatmap-cell" data-level="4"></div>
-            <span class="muted tiny">Więcej</span>
+      <div class="card overview-card">
+        <div class="card-header">
+          <div>
+            <h3>Najbliższe działania</h3>
+            <p class="muted tiny">Lista priorytetów na obecny miesiąc</p>
           </div>
         </div>
+        <ul id="upcoming-list" class="upcoming-list"></ul>
+        <p id="upcoming-empty" class="empty-state">Brak zaplanowanych aktywności w nadchodzących dniach.</p>
       </div>
     </section>
 
-    <aside class="dashboard-side">
-      <div class="card weekly-overview-card">
-        <div class="panel-header">
-          <h3 class="section-title"><i data-lucide="calendar-check" class="icon"></i><span id="week-title">Cele tygodniowe</span></h3>
-          <p class="muted tiny">Monitoruj realizację kluczowych wskaźników.</p>
+    <aside class="sidebar">
+      <div class="card day-detail-card">
+        <div class="day-detail-header">
+          <div>
+            <h3 id="selected-day-title">--</h3>
+            <p class="muted tiny" id="selected-day-summary">Wybierz dzień z kalendarza, aby zarządzać planem.</p>
+          </div>
+          <span class="month-chip" id="selected-day-chip">--</span>
         </div>
-        <div class="overview-progress">
-          <div class="progress-summary">
-            <span id="overall-progress-label" class="tiny muted">Postęp tygodnia: 0%</span>
+
+        <div class="detail-block">
+          <div class="detail-block-header">
+            <span>Plan treningowy</span>
           </div>
-          <div class="progress-bar"><div id="overall-progress-bar" style="width:0%; background: var(--blue);"></div></div>
+          <div id="day-plan-list" class="detail-list"></div>
+          <p id="day-plan-empty" class="empty-state">Brak zaplanowanych treningów na ten dzień.</p>
         </div>
-        <div class="goal-grid">
-          <div class="goal-card goal-gym">
-            <div class="goal-title">💪 Trening siłowy</div>
-            <div id="goal-gym-progress" class="goal-value">0/3 sesje</div>
-            <div class="progress-bar"><div id="goal-gym-bar" style="width:0%; background: var(--gym-color);"></div></div>
-            <p class="goal-meta" id="goal-gym-remaining">Pozostało: 3 sesje</p>
-            <div class="goal-actions">
-              <button class="btn soft" data-activity-type="gym" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Dodaj do planu</button>
-            </div>
+
+        <div class="detail-block">
+          <div class="detail-block-header">
+            <span>Aktywności dodatkowe</span>
           </div>
-          <div class="goal-card goal-running">
-            <div class="goal-title">🏃 Bieg</div>
-            <div id="goal-running-progress" class="goal-value">0/5 km</div>
-            <div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div>
-            <p class="goal-meta" id="goal-running-remaining">Pozostało: 5 km</p>
-            <div class="goal-actions">
-              <button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Dodaj do planu</button>
-            </div>
-          </div>
-          <div class="goal-card goal-reading">
-            <div class="goal-title">📚 Czytanie</div>
-            <div id="goal-reading-progress" class="goal-value">0/100 stron</div>
-            <div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div>
-            <p class="goal-meta" id="goal-reading-remaining">Pozostało: 100 stron</p>
-            <div class="goal-actions">
-              <button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Dodaj do planu</button>
-            </div>
-          </div>
+          <div id="day-extra-list" class="detail-list"></div>
+          <p id="day-extra-empty" class="empty-state">Dodaj krótkie działania lub przypomnienia.</p>
+        </div>
+
+        <div class="detail-actions">
+          <button id="add-training-btn" class="btn"><i data-lucide="plus" class="icon"></i>Zaplanuj trening</button>
+          <button id="add-extra-btn" class="btn ghost"><i data-lucide="sparkles" class="icon"></i>Dodaj aktywność</button>
         </div>
       </div>
 
       <div class="card priorities-card">
-        <div class="panel-header">
-          <h3 class="section-title"><i data-lucide="star" class="icon"></i>Priorytety tygodnia</h3>
-          <p class="muted tiny">Skup się na maksymalnie trzech działaniach o największym wpływie.</p>
+        <div class="card-header">
+          <div>
+            <h3>Priorytety miesiąca</h3>
+            <p class="muted tiny" id="priority-month-label">--</p>
+          </div>
         </div>
         <ul id="priority-list" class="priority-list"></ul>
-        <p id="priority-empty" class="empty-priority">Dodaj pierwszy priorytet, by mieć jasność działań.</p>
-        <button id="add-priority-btn" class="btn soft"><i data-lucide="plus-circle" class="icon"></i>Dodaj priorytet</button>
+        <p id="priority-empty" class="empty-state">Ustal maksymalnie trzy kluczowe priorytety, które dociągniesz do końca miesiąca.</p>
+        <button id="priority-add-btn" class="btn soft"><i data-lucide="plus-circle" class="icon"></i>Dodaj priorytet</button>
+      </div>
+
+      <div class="card analytics-card">
+        <div class="card-header">
+          <div>
+            <h3>Postęp celów</h3>
+            <p class="muted tiny">Porównanie z planem miesięcznym</p>
+          </div>
+        </div>
+        <div id="goal-progress-list" class="goal-progress-list"></div>
       </div>
     </aside>
   </main>
+
+  <div class="card heatmap-card">
+    <div class="card-header">
+      <div>
+        <h3>Historia aktywności</h3>
+        <p class="muted tiny">Podsumowanie ukończonych zadań w ciągu roku</p>
+      </div>
+      <span class="month-chip" id="heatmap-year-label">--</span>
+    </div>
+    <div id="heatmap" class="heatmap"></div>
+    <div class="heatmap-legend">
+      <span>Brak</span>
+      <div class="heatmap-legend-scale">
+        <span data-level="0"></span>
+        <span data-level="1"></span>
+        <span data-level="2"></span>
+        <span data-level="3"></span>
+        <span data-level="4"></span>
+      </div>
+      <span>Intensywnie</span>
+    </div>
+  </div>
 </div>
 
 <div id="modal-overlay" class="modal-overlay">
   <div class="modal-card">
-    <h3 id="modal-title" class="section-title" style="justify-content: center;"></h3>
+    <h3 id="modal-title"></h3>
     <p id="modal-text" class="muted"></p>
     <div id="modal-input-container"></div>
     <div id="modal-options-container"></div>
     <div id="modal-actions" class="modal-actions"></div>
   </div>
 </div>
-
-<div id="save-status">Zapisano!</div>
+<div id="save-status">Zapisano zmiany</div>
 
 <script>
-// --- KONFIGURACJA ---
-const STORAGE_KEY = 'lifeos_trainings_v1';
+const STORAGE_KEY = 'lifeos_trainings_month_v1';
 const GOAL_DEFINITIONS = {
-    gym: { target: 3, unit: 'sesje', label: 'Trening siłowy', icon: 'dumbbell' },
-    running: { target: 5, unit: 'km', label: 'Bieg', icon: 'activity' },
-    reading: { target: 100, unit: 'stron', label: 'Czytanie', icon: 'book-open' }
+  gym: { target: 10, unit: 'sesji', label: 'Trening siłowy', icon: 'dumbbell', color: 'var(--gym-color)' },
+  running: { target: 60, unit: 'km', label: 'Bieganie', icon: 'activity', color: 'var(--run-color)' },
+  reading: { target: 300, unit: 'stron', label: 'Czytanie', icon: 'book-open', color: 'var(--read-color)' }
 };
 const EXTRA_ACTIVITY_CATEGORIES = [
-    { value: 'training', label: 'Trening / ruch' },
-    { value: 'learning', label: 'Nauka / rozwój' },
-    { value: 'relax', label: 'Regeneracja' },
-    { value: 'home', label: 'Dom i organizacja' },
-    { value: 'other', label: 'Inne' }
+  { value: 'training', label: 'Trening / ruch' },
+  { value: 'learning', label: 'Nauka / rozwój' },
+  { value: 'relax', label: 'Regeneracja' },
+  { value: 'home', label: 'Dom i organizacja' },
+  { value: 'other', label: 'Inne' }
 ];
 const EXTRA_CATEGORY_LABELS = EXTRA_ACTIVITY_CATEGORIES.reduce((acc, item) => {
-    acc[item.value] = item.label;
-    return acc;
+  acc[item.value] = item.label;
+  return acc;
 }, {});
-const MAX_PRIORITIES = 3;
 const PRIORITY_IMPACT_OPTIONS = [
-    { value: 'high', label: 'Wysoki wpływ' },
-    { value: 'medium', label: 'Średni wpływ' },
-    { value: 'low', label: 'Lekki wpływ' }
+  { value: 'high', label: 'Wysoki wpływ' },
+  { value: 'medium', label: 'Średni wpływ' },
+  { value: 'low', label: 'Lekki wpływ' }
 ];
 const PRIORITY_IMPACT_LABELS = PRIORITY_IMPACT_OPTIONS.reduce((acc, opt) => {
-    acc[opt.value] = opt.label;
-    return acc;
+  acc[opt.value] = opt.label;
+  return acc;
 }, {});
-const DEFAULT_EXTRA_CATEGORY = 'other';
-const MAX_NEXT_ACTIONS = 5;
-const DAY_NAMES = ['Niedz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
+const MAX_PRIORITIES = 3;
 
-function createEmptyDayMapping() {
-    return { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 0: [] };
-}
-
-let state = {};
-let currentDate = new Date();
-let planningState = { isPlanning: false, activityType: null };
-let dragState = { activityId: null, sourceDay: null };
+let state = { activities: {}, extras: {}, priorities: {} };
+let currentMonth = startOfMonth(new Date());
+let selectedDate = toYYYYMMDD(new Date());
 let saveTimeout;
 
-function ensureWeekDataShape(weekData) {
-    if (!weekData.plan) weekData.plan = createEmptyDayMapping();
-    if (!weekData.progress) weekData.progress = { gym: 0, running: 0, reading: 0 };
-    if (!weekData.extras) weekData.extras = createEmptyDayMapping();
-    if (!Array.isArray(weekData.priorities)) weekData.priorities = [];
+function startOfMonth(date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
-function getCurrentWeekContext() {
-    const [year, week] = getWeekNumber(currentDate);
-    initializeWeekData(year, week);
-    return { year, week, weekData: state[year][week] };
+function toYYYYMMDD(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function parseDate(dateString) {
+  const [y, m, d] = dateString.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function formatMonth(date) {
+  return date.toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' });
+}
+
+function formatRange(start, end) {
+  return `${start.toLocaleDateString('pl-PL', { day: '2-digit', month: 'short' })} – ${end.toLocaleDateString('pl-PL', { day: '2-digit', month: 'short' })}`;
 }
 
 function formatDateWithDay(date) {
-    const dayLabel = DAY_NAMES[date.getDay()] || '';
-    return `${dayLabel} · ${date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' })}`;
+  return date.toLocaleDateString('pl-PL', { weekday: 'short', day: '2-digit', month: 'short' });
 }
 
-function formatWeekRange(startDate) {
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 6);
-    const options = { day: '2-digit', month: 'short' };
-    const startLabel = startDate.toLocaleDateString('pl-PL', options);
-    const endLabel = endDate.toLocaleDateString('pl-PL', options);
-    return `${startLabel} – ${endLabel}`;
+function addDays(date, days) {
+  const copy = new Date(date);
+  copy.setDate(copy.getDate() + days);
+  return copy;
 }
 
-// --- STAN APLIKACJI ---
-function loadState() { state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
-function saveState() { 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    const saveStatus = document.getElementById('save-status');
-    clearTimeout(saveTimeout);
-    saveStatus.classList.add('visible');
-    saveTimeout = setTimeout(() => saveStatus.classList.remove('visible'), 1500);
+function ensureDay(dateString) {
+  if (!state.activities[dateString]) state.activities[dateString] = [];
+  if (!state.extras[dateString]) state.extras[dateString] = [];
 }
 
-// --- POMOCNICY DATY ---
-function getWeekNumber(d) {
-    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-    var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
-    return [d.getUTCFullYear(), weekNo];
+function ensurePriorityMonth(monthKey) {
+  if (!state.priorities[monthKey]) state.priorities[monthKey] = [];
 }
-function getStartOfWeek(year, week) {
-    const d = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
-    const day = d.getUTCDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(d.setUTCDate(diff));
-}
-function toYYYYMMDD(date) { return date.toISOString().slice(0, 10); }
 
-// --- LOGIKA BIZNESOWA ---
-function initializeWeekData(year, week) {
-    if (!state[year]) state[year] = {};
-    if (!state[year][week]) {
-        state[year][week] = {
-            progress: { gym: 0, running: 0, reading: 0 },
-            plan: createEmptyDayMapping(),
-            extras: createEmptyDayMapping(),
-            priorities: [],
-            isComplete: false,
-            summaryShown: false
-        };
+function sameMonth(date, reference) {
+  return date.getFullYear() === reference.getFullYear() && date.getMonth() === reference.getMonth();
+}
+
+function normalizeDate(date) {
+  const normalized = new Date(date);
+  normalized.setHours(0, 0, 0, 0);
+  return normalized;
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      state.activities = parsed.activities || {};
+      state.extras = parsed.extras || {};
+      state.priorities = parsed.priorities || {};
     }
-    ensureWeekDataShape(state[year][week]);
+  } catch (error) {
+    state = { activities: {}, extras: {}, priorities: {} };
+  }
 }
 
-function addActivity(type, dayIndex, plannedValue) {
-    const { weekData } = getCurrentWeekContext();
-    const newActivity = {
-        id: `act_${Date.now()}_${Math.random()}`,
-        type: type,
-        completed: false,
-        day: dayIndex,
-        plannedValue: plannedValue,
-        loggedValue: 0
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const status = document.getElementById('save-status');
+  status.classList.add('visible');
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => status.classList.remove('visible'), 1600);
+}
+
+function getMonthKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function getCalendarDays(monthDate) {
+  const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const offset = (start.getDay() + 6) % 7;
+  start.setDate(start.getDate() - offset);
+  const days = [];
+  for (let i = 0; i < 42; i++) {
+    const cell = new Date(start);
+    cell.setDate(start.getDate() + i);
+    days.push(cell);
+  }
+  return days;
+}
+
+function ensureSelectionInMonth() {
+  const currentSelection = parseDate(selectedDate);
+  if (!sameMonth(currentSelection, currentMonth)) {
+    selectedDate = toYYYYMMDD(currentMonth);
+  }
+}
+
+function calculateMonthlyStats(monthDate) {
+  const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+  const totalDays = lastDay.getDate();
+  const totals = { planned: 0, completed: 0 };
+  const goalProgress = { gym: 0, running: 0, reading: 0 };
+  const activeDays = new Set();
+  const upcoming = [];
+  const today = normalizeDate(new Date());
+
+  Object.entries(state.activities).forEach(([dateString, activities]) => {
+    const date = parseDate(dateString);
+    if (!sameMonth(date, monthDate)) return;
+    if (activities.length) activeDays.add(dateString);
+    totals.planned += activities.length;
+    activities.forEach(activity => {
+      if (activity.completed) {
+        totals.completed += 1;
+        if (activity.type === 'gym') goalProgress.gym += 1;
+        else goalProgress[activity.type] += Number(activity.loggedValue) || Number(activity.plannedValue) || 0;
+      } else if (normalizeDate(date) >= today) {
+        const goal = GOAL_DEFINITIONS[activity.type];
+        if (!goal) return;
+        let label = goal.label;
+        if (activity.type !== 'gym' && activity.plannedValue) {
+          label += ` • ${Number(activity.plannedValue).toLocaleString('pl-PL')} ${goal.unit}`;
+        }
+        upcoming.push({
+          type: activity.type,
+          label,
+          badge: 'Trening',
+          icon: goal.icon || 'activity',
+          date,
+          dateLabel: formatDateWithDay(date)
+        });
+      }
+    });
+  });
+
+  Object.entries(state.extras).forEach(([dateString, extras]) => {
+    const date = parseDate(dateString);
+    if (!sameMonth(date, monthDate)) return;
+    if (extras.length) activeDays.add(dateString);
+    totals.planned += extras.length;
+    extras.forEach(extra => {
+      if (extra.completed) {
+        totals.completed += 1;
+      } else if (normalizeDate(date) >= today) {
+        upcoming.push({
+          type: 'extra',
+          label: extra.title,
+          badge: EXTRA_CATEGORY_LABELS[extra.category] || 'Aktywność',
+          icon: 'sparkles',
+          date,
+          dateLabel: formatDateWithDay(date)
+        });
+      }
+    });
+  });
+
+  upcoming.sort((a, b) => {
+    const diff = a.date - b.date;
+    if (diff !== 0) return diff;
+    return a.type.localeCompare(b.type);
+  });
+
+  const goalPercents = {};
+  Object.keys(GOAL_DEFINITIONS).forEach(type => {
+    const progressValue = goalProgress[type] || 0;
+    const target = GOAL_DEFINITIONS[type].target;
+    const percent = target > 0 ? Math.min(100, Math.round((progressValue / target) * 100)) : 0;
+    goalPercents[type] = {
+      percent,
+      progress: progressValue,
+      target
     };
-    if(!weekData.plan[dayIndex]) weekData.plan[dayIndex] = [];
-    weekData.plan[dayIndex].push(newActivity);
-    saveState();
-    render();
+  });
+  const averageGoalPercent = Math.round(Object.values(goalPercents).reduce((acc, info) => acc + info.percent, 0) / Object.keys(GOAL_DEFINITIONS).length) || 0;
+
+  return {
+    plannedCount: totals.planned,
+    completedCount: totals.completed,
+    activeDays: activeDays.size,
+    totalDays,
+    goalPercents,
+    averageGoalPercent,
+    nextActivity: upcoming.length ? { label: upcoming[0].label, dateLabel: upcoming[0].dateLabel } : null,
+    upcoming,
+    range: { start: firstDay, end: lastDay }
+  };
 }
 
-function deleteActivity(activityId) {
-    const { year, week, weekData } = getCurrentWeekContext();
-    for (const day in weekData.plan) {
-        const initialLength = weekData.plan[day].length;
-        weekData.plan[day] = weekData.plan[day].filter(a => a.id !== activityId);
-        if (weekData.plan[day].length < initialLength) break;
-    }
-    recalculateWeekProgress(year, week);
-    checkWeekCompletion(year, week);
-    saveState();
-    render();
-}
-
-function logActivity(activityId, value, isCompleted) {
-    const { year, week, weekData } = getCurrentWeekContext();
-    let activityFound = null;
-    for (const day in weekData.plan) {
-        const activity = weekData.plan[day].find(a => a.id === activityId);
-        if (activity) { activityFound = activity; break; }
-    }
-    if (activityFound) {
-        activityFound.completed = isCompleted;
-        activityFound.loggedValue = Number(value) || 0;
-        recalculateWeekProgress(year, week);
-        checkWeekCompletion(year, week);
-        saveState();
-        render();
-    }
-}
-
-function addExtraActivity(dayIndex, title, category = DEFAULT_EXTRA_CATEGORY) {
-    const trimmedTitle = (title || '').trim();
-    if (!trimmedTitle) return;
-    const { weekData } = getCurrentWeekContext();
-    if (!weekData.extras[dayIndex]) weekData.extras[dayIndex] = [];
-    weekData.extras[dayIndex].push({
-        id: `extra_${Date.now()}_${Math.random()}`,
-        title: trimmedTitle,
-        category: category || DEFAULT_EXTRA_CATEGORY,
-        completed: false,
-        day: dayIndex,
-        createdAt: Date.now()
-    });
-    saveState();
-    render();
-}
-
-function toggleExtraActivity(activityId) {
-    const { weekData } = getCurrentWeekContext();
-    let updated = false;
-    for (const day in weekData.extras) {
-        const activity = weekData.extras[day].find(a => a.id === activityId);
-        if (activity) {
-            activity.completed = !activity.completed;
-            updated = true;
-            break;
-        }
-    }
-    if (updated) {
-        saveState();
-        render();
-    }
-}
-
-function deleteExtraActivity(activityId) {
-    const { weekData } = getCurrentWeekContext();
-    let removed = false;
-    for (const day in weekData.extras) {
-        const before = weekData.extras[day].length;
-        weekData.extras[day] = weekData.extras[day].filter(a => a.id !== activityId);
-        if (weekData.extras[day].length !== before) {
-            removed = true;
-            break;
-        }
-    }
-    if (removed) {
-        saveState();
-        render();
-    }
-}
-
-function recalculateWeekProgress(year, week) {
-    const weekData = state[year][week];
-    weekData.progress = { gym: 0, running: 0, reading: 0 };
-    Object.values(weekData.plan).flat().forEach(activity => {
-        if (activity.completed) {
-            weekData.progress[activity.type] += (Number(activity.loggedValue) || 0);
-        }
-    });
-}
-
-function checkWeekCompletion(year, week) {
-    const weekData = state[year][week];
-    const allGoalsMet = Object.keys(GOAL_DEFINITIONS).every(type => 
-        (weekData.progress[type] || 0) >= GOAL_DEFINITIONS[type].target
-    );
-    if (weekData.isComplete !== allGoalsMet) {
-        weekData.isComplete = allGoalsMet;
-    }
-}
-
-function copyPreviousWeek(copyProgress = false) {
-    const [currentYear, currentWeek] = getWeekNumber(currentDate);
-    
-    let prevWeekDate = new Date(currentDate);
-    prevWeekDate.setDate(prevWeekDate.getDate() - 7);
-    const [prevYear, prevWeek] = getWeekNumber(prevWeekDate);
-
-    const prevWeekData = state[prevYear]?.[prevWeek];
-    if (!prevWeekData) return;
-
-    // Deep copy of the plan
-    const newPlan = JSON.parse(JSON.stringify(prevWeekData.plan));
-
-    Object.values(newPlan).flat().forEach(activity => {
-        activity.id = `act_${Date.now()}_${Math.random()}`; // New unique ID
-        if (!copyProgress) {
-            activity.completed = false;
-            activity.loggedValue = 0;
-        }
-    });
-
-    initializeWeekData(currentYear, currentWeek);
-    state[currentYear][currentWeek].plan = newPlan;
-
-    const newExtras = createEmptyDayMapping();
-    if (prevWeekData.extras) {
-        Object.keys(prevWeekData.extras).forEach(day => {
-            newExtras[day] = prevWeekData.extras[day].map(extra => ({
-                ...extra,
-                id: `extra_${Date.now()}_${Math.random()}`,
-                completed: copyProgress ? extra.completed : false,
-                day: parseInt(day, 10)
-            }));
-        });
-    }
-    state[currentYear][currentWeek].extras = newExtras;
-
-    state[currentYear][currentWeek].priorities = copyProgress && Array.isArray(prevWeekData.priorities)
-        ? prevWeekData.priorities.map(priority => ({
-            ...priority,
-            id: `prio_${Date.now()}_${Math.random()}`,
-            completed: copyProgress ? priority.completed : false
-        }))
-        : [];
-
-    recalculateWeekProgress(currentYear, currentWeek);
-    checkWeekCompletion(currentYear, currentWeek);
-    saveState();
-    render();
-}
-
-
-// --- FUNKCJE RENDERUJĄCE ---
 function render() {
-    const [year, week] = getWeekNumber(currentDate);
-    initializeWeekData(year, week);
-    
-    const weekData = state[year][week];
-    const startOfWeek = getStartOfWeek(year, week);
-    
-    const weekTitleEl = document.getElementById('week-title');
-    if (weekTitleEl) weekTitleEl.textContent = `Cele tygodniowe · ${week}/${year}`;
-
-    const weekRangeLabel = formatWeekRange(startOfWeek);
-    const headerWeekLabel = document.getElementById('header-week-label');
-    if (headerWeekLabel) headerWeekLabel.textContent = `Tydzień ${week}`;
-    const headerWeekRange = document.getElementById('header-week-range');
-    if (headerWeekRange) headerWeekRange.textContent = `${weekRangeLabel} · ${year}`;
-    const plannerRangeEl = document.getElementById('planner-week-range');
-    if (plannerRangeEl) plannerRangeEl.textContent = weekRangeLabel;
-
-    const todayBtn = document.getElementById('today-week-btn');
-    const [currentYear, currentWeek] = getWeekNumber(new Date());
-    if (todayBtn) {
-        todayBtn.style.display = (year === currentYear && week === currentWeek) ? 'none' : 'inline-flex';
-    }
-
-    renderCopyPlanButton();
-    renderGoals(weekData.progress);
-    renderPriorities(weekData.priorities);
-    const upcoming = renderNextActions(weekData, startOfWeek);
-    renderPlanner(weekData, startOfWeek);
-    renderHeaderKPIs(year, upcoming[0]);
-    renderPlanningStatus(weekData.plan);
-    renderOverallProgress(weekData.progress);
-    updateHeaderActivitiesOverview(weekData);
-    renderStats();
-    lucide.createIcons();
+  ensureSelectionInMonth();
+  const stats = calculateMonthlyStats(currentMonth);
+  renderHeader(stats);
+  renderCalendar();
+  renderDayDetail();
+  renderUpcoming(stats.upcoming);
+  renderPriorities();
+  renderGoalProgress(stats.goalPercents);
+  renderHeatmap();
+  lucide.createIcons();
 }
 
-function renderGoals(progress) {
-    for (const type in GOAL_DEFINITIONS) {
-        const goal = GOAL_DEFINITIONS[type];
-        const currentProgress = parseFloat(progress[type] || 0);
-        const progressPercent = Math.min(100, (currentProgress / goal.target) * 100);
+function renderHeader(stats) {
+  const monthLabel = formatMonth(currentMonth);
+  document.getElementById('header-month-chip').textContent = monthLabel;
+  document.getElementById('current-month-label').textContent = monthLabel;
+  document.getElementById('current-month-range').textContent = `${formatRange(stats.range.start, stats.range.end)} ${currentMonth.getFullYear()}`;
+  const todayButton = document.getElementById('today-month-btn');
+  if (sameMonth(new Date(), currentMonth)) todayButton.style.display = 'none';
+  else todayButton.style.display = 'inline-flex';
 
-        document.getElementById(`goal-${type}-progress`).textContent = `${currentProgress.toLocaleString('pl-PL')}/${goal.target} ${goal.unit}`;
-        document.getElementById(`goal-${type}-bar`).style.width = `${progressPercent}%`;
-        const remainingValue = Math.max(0, goal.target - currentProgress);
-        const remainingEl = document.getElementById(`goal-${type}-remaining`);
-        if (remainingEl) {
-            remainingEl.textContent = remainingValue <= 0
-                ? 'Cel zrealizowany! Świetna robota!'
-                : `Pozostało: ${remainingValue.toLocaleString('pl-PL')} ${goal.unit}`;
-        }
-    }
+  document.getElementById('metric-goal-progress').textContent = `${stats.averageGoalPercent}%`;
+  document.getElementById('metric-plan-completion').textContent = `${stats.completedCount}/${stats.plannedCount}`;
+  document.getElementById('metric-active-days').textContent = `${stats.activeDays}/${stats.totalDays}`;
+  if (stats.nextActivity) {
+    document.getElementById('metric-next-activity').textContent = stats.nextActivity.label;
+    document.getElementById('metric-next-activity-date').textContent = stats.nextActivity.dateLabel;
+  } else {
+    document.getElementById('metric-next-activity').textContent = 'Brak';
+    document.getElementById('metric-next-activity-date').textContent = '--';
+  }
+  document.getElementById('priority-month-label').textContent = monthLabel;
 }
 
-function renderPlanner(weekData, startOfWeek) {
-    const plannerGrid = document.querySelector('.planner-grid');
-    const emptyPlaceholder = document.getElementById('empty-planner-placeholder');
-    plannerGrid.innerHTML = '';
-    const today = new Date();
-    today.setHours(0,0,0,0);
+function renderCalendar() {
+  const grid = document.getElementById('calendar-grid');
+  grid.innerHTML = '';
+  const today = normalizeDate(new Date());
+  const days = getCalendarDays(currentMonth);
+  days.forEach(date => {
+    const dateString = toYYYYMMDD(date);
+    ensureDay(dateString);
+    const activities = state.activities[dateString] || [];
+    const extras = state.extras[dateString] || [];
+    const plannedCount = activities.length + extras.length;
+    const completedCount = activities.filter(a => a.completed).length + extras.filter(e => e.completed).length;
 
-    let isPlanEmpty = true;
-    const plan = weekData.plan || {};
-    const extrasMap = weekData.extras || {};
+    const cell = document.createElement('div');
+    cell.className = 'calendar-day';
+    if (date.getMonth() !== currentMonth.getMonth()) cell.classList.add('calendar-day--other-month');
+    if (dateString === selectedDate) cell.classList.add('calendar-day--selected');
+    if (normalizeDate(date).getTime() === today.getTime()) cell.classList.add('calendar-day--today');
 
-    for (let i = 1; i <= 7; i++) {
-        const dayIndex = i % 7;
-        const currentDay = new Date(startOfWeek);
-        currentDay.setDate(startOfWeek.getDate() + (dayIndex - 1 + 7) % 7);
-
-        const dayColumn = document.createElement('div');
-        dayColumn.className = 'day-column';
-        dayColumn.dataset.dayIndex = dayIndex;
-
-        const dayHeader = document.createElement('div');
-        dayHeader.className = 'day-header';
-        dayHeader.textContent = `${DAY_NAMES[dayIndex]} ${currentDay.getDate()}`;
-        if (currentDay.getTime() === today.getTime()) dayHeader.classList.add('today');
-        
-        const activitiesContainer = document.createElement('div');
-        activitiesContainer.className = 'activities-container';
-
-        const plannedActivities = plan[dayIndex] || [];
-        if (plannedActivities.length > 0) {
-            isPlanEmpty = false;
-            plannedActivities.forEach(activity => {
-                const goal = GOAL_DEFINITIONS[activity.type];
-                const pill = document.createElement('div');
-                pill.className = `activity-pill ${activity.type}`;
-                pill.dataset.activityId = activity.id;
-
-                let text = `<span>${goal.label}`;
-                if (activity.type !== 'gym') {
-                     if (activity.completed) text += ` (${activity.loggedValue.toLocaleString('pl-PL')}/${activity.plannedValue.toLocaleString('pl-PL')} ${goal.unit})`;
-                     else if (activity.plannedValue) text += ` (${activity.plannedValue.toLocaleString('pl-PL')} ${goal.unit})`;
-                }
-                text += '</span>';
-                pill.innerHTML = text;
-
-                if (activity.completed) {
-                    pill.classList.add('completed');
-                } else {
-                    pill.draggable = true;
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'delete-activity-btn';
-                    deleteBtn.dataset.activityId = activity.id;
-                    deleteBtn.setAttribute('aria-label', 'Usuń aktywność');
-                    deleteBtn.innerHTML = `<i data-lucide="x" class="icon" style="width:16px; height:16px;"></i>`;
-                    pill.appendChild(deleteBtn);
-                }
-                
-                pill.addEventListener('dragstart', handleDragStart);
-                pill.addEventListener('dragend', handleDragEnd);
-                activitiesContainer.appendChild(pill);
-            });
-        }
-
-        const quickAddBtn = document.createElement('button');
-        quickAddBtn.className = 'quick-add-btn';
-        quickAddBtn.innerHTML = '<i data-lucide="plus" class="icon" style="width:18px; height:18px;"></i>';
-        quickAddBtn.setAttribute('aria-label', 'Szybko dodaj aktywność');
-        dayColumn.appendChild(quickAddBtn);
-
-        const quickAddMenu = document.createElement('div');
-        quickAddMenu.className = 'quick-add-menu';
-        for(const type in GOAL_DEFINITIONS) {
-            const btn = document.createElement('button');
-            btn.textContent = GOAL_DEFINITIONS[type].label;
-            btn.onclick = (e) => {
-                e.stopPropagation();
-                showPlanModal(type, dayIndex);
-                quickAddMenu.style.display = 'none';
-            };
-            quickAddMenu.appendChild(btn);
-        }
-        const customBtn = document.createElement('button');
-        customBtn.textContent = 'Aktywność własna';
-        customBtn.onclick = (e) => {
-            e.stopPropagation();
-            showExtraActivityModal(dayIndex);
-            quickAddMenu.style.display = 'none';
-        };
-        quickAddMenu.appendChild(customBtn);
-        dayColumn.appendChild(quickAddMenu);
-
-        dayColumn.appendChild(dayHeader);
-        dayColumn.appendChild(activitiesContainer);
-
-        const extras = extrasMap[dayIndex] || [];
-        if (extras.length > 0) {
-            isPlanEmpty = false;
-        }
-
-        const extrasContainer = document.createElement('div');
-        extrasContainer.className = 'extras-container';
-        if (extras.length > 0) {
-            const extrasHeader = document.createElement('div');
-            extrasHeader.className = 'extras-header';
-            extrasHeader.innerHTML = '<span>Aktywności dodatkowe</span>';
-            extrasContainer.appendChild(extrasHeader);
-        }
-
-        extras.forEach(extra => {
-            const extraPill = document.createElement('div');
-            extraPill.className = 'extra-pill';
-            extraPill.dataset.extraId = extra.id;
-            extraPill.dataset.category = extra.category || DEFAULT_EXTRA_CATEGORY;
-            if (extra.completed) extraPill.classList.add('completed');
-
-            const extraMain = document.createElement('div');
-            extraMain.className = 'extra-main';
-
-            const toggleBtn = document.createElement('button');
-            toggleBtn.className = 'extra-toggle';
-            toggleBtn.dataset.extraId = extra.id;
-            toggleBtn.innerHTML = `<i data-lucide="${extra.completed ? 'check-circle-2' : 'circle'}" class="icon" style="width:18px; height:18px;"></i>`;
-            extraMain.appendChild(toggleBtn);
-
-            const info = document.createElement('div');
-            info.className = 'extra-info';
-            const title = document.createElement('span');
-            title.className = 'extra-title';
-            title.textContent = extra.title;
-            info.appendChild(title);
-            const categoryLabel = document.createElement('span');
-            categoryLabel.className = 'extra-category';
-            categoryLabel.textContent = EXTRA_CATEGORY_LABELS[extra.category] || EXTRA_CATEGORY_LABELS[DEFAULT_EXTRA_CATEGORY];
-            info.appendChild(categoryLabel);
-            extraMain.appendChild(info);
-
-            extraPill.appendChild(extraMain);
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'extra-delete-btn';
-            deleteBtn.dataset.extraId = extra.id;
-            deleteBtn.setAttribute('aria-label', 'Usuń aktywność dodatkową');
-            deleteBtn.innerHTML = '<i data-lucide="trash-2" class="icon" style="width:16px; height:16px;"></i>';
-            extraPill.appendChild(deleteBtn);
-
-            extrasContainer.appendChild(extraPill);
-        });
-
-        const addExtraBtn = document.createElement('button');
-        addExtraBtn.type = 'button';
-        addExtraBtn.className = 'add-extra-btn';
-        addExtraBtn.dataset.dayIndex = dayIndex;
-        addExtraBtn.innerHTML = '<i data-lucide="plus" class="icon" style="width:16px; height:16px;"></i>Dodaj aktywność';
-        extrasContainer.appendChild(addExtraBtn);
-
-        dayColumn.appendChild(extrasContainer);
-        dayColumn.addEventListener('dragover', handleDragOver);
-        dayColumn.addEventListener('dragleave', handleDragLeave);
-        dayColumn.addEventListener('drop', handleDrop);
-        plannerGrid.appendChild(dayColumn);
+    const header = document.createElement('div');
+    header.className = 'calendar-day-header';
+    const number = document.createElement('span');
+    number.className = 'calendar-date-number';
+    number.textContent = date.getDate();
+    header.appendChild(number);
+    const badges = document.createElement('div');
+    badges.className = 'calendar-day-badges';
+    if (plannedCount > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'calendar-badge';
+      badge.textContent = plannedCount;
+      badges.appendChild(badge);
     }
-    
-    emptyPlaceholder.style.display = isPlanEmpty ? 'block' : 'none';
-}
+    header.appendChild(badges);
+    cell.appendChild(header);
 
-function renderHeaderKPIs(year, nextUpcoming) {
-    const yearData = state[year] || {};
-    const [currentYear, currentWeek] = getWeekNumber(new Date());
-
-    const relevantWeeks = (year < currentYear) ? getWeekNumber(new Date(year, 11, 28))[1] : currentWeek;
-    const completedWeeks = Object.keys(yearData).filter(weekNum => parseInt(weekNum) <= relevantWeeks && yearData[weekNum].isComplete).length;
-    
-    const percentage = relevantWeeks > 0 ? Math.round((completedWeeks / relevantWeeks) * 100) : 0;
-    document.getElementById('yearly-progress-value').innerHTML = `${completedWeeks}/${relevantWeeks} <span class="tiny" style="font-weight: 500;">(${percentage}%)</span>`;
-
-    let currentStreak = 0;
-    for (let w = currentWeek; w >= 1; w--) {
-        if (state[currentYear]?.[w]?.isComplete) currentStreak++;
-        else break;
-    }
-
-    let maxStreak = 0, tempStreak = 0;
-    Object.keys(state).sort().forEach(y => {
-        const totalWeeksInYear = getWeekNumber(new Date(y, 11, 28))[1];
-        for (let w = 1; w <= totalWeeksInYear; w++) {
-            if (state[y]?.[w]?.isComplete) tempStreak++;
-            else { maxStreak = Math.max(maxStreak, tempStreak); tempStreak = 0; }
-        }
+    const dots = document.createElement('div');
+    dots.className = 'calendar-day-dots';
+    const dotTypes = [];
+    activities.forEach(activity => dotTypes.push(activity.type));
+    extras.forEach(() => dotTypes.push('extra'));
+    dotTypes.slice(0, 8).forEach(type => {
+      const dot = document.createElement('span');
+      dot.className = `activity-dot ${type}`;
+      dots.appendChild(dot);
     });
-    maxStreak = Math.max(maxStreak, tempStreak);
+    cell.appendChild(dots);
 
-    document.getElementById('streak-value').innerHTML = `${currentStreak} <span class="tiny" style="font-weight: 500;">(max ${maxStreak})</span>`;
+    const footer = document.createElement('div');
+    footer.className = 'calendar-day-footer';
+    const done = document.createElement('span');
+    done.className = 'calendar-footer-label';
+    done.textContent = completedCount > 0 ? `${completedCount} ukończ.` : 'Brak';
+    const remaining = document.createElement('span');
+    const openCount = Math.max(0, plannedCount - completedCount);
+    remaining.textContent = openCount > 0 ? `${openCount} otwarte` : '';
+    footer.appendChild(done);
+    footer.appendChild(remaining);
+    cell.appendChild(footer);
 
-    const nextLabelEl = document.getElementById('next-activity-kpi');
-    const nextDateEl = document.getElementById('next-activity-date');
-    if (nextUpcoming && nextLabelEl && nextDateEl) {
-        nextLabelEl.textContent = nextUpcoming.label;
-        nextDateEl.textContent = `${nextUpcoming.badge} • ${formatDateWithDay(nextUpcoming.date)}`;
-    } else if (nextLabelEl && nextDateEl) {
-        nextLabelEl.textContent = 'Brak planu';
-        nextDateEl.textContent = '';
-    }
-}
-
-function renderPlanningStatus(plan) {
-    const statusEl = document.getElementById('planning-status');
-    const headerPlanStatus = document.getElementById('header-plan-status');
-    const headerPlanHint = document.getElementById('header-plan-status-hint');
-    const plannedTotals = { gym: 0, running: 0, reading: 0 };
-    Object.values(plan).flat().forEach(activity => {
-        plannedTotals[activity.type] += activity.completed ? activity.loggedValue : (activity.plannedValue || 0);
+    cell.addEventListener('click', () => {
+      selectedDate = dateString;
+      if (date.getMonth() !== currentMonth.getMonth()) {
+        currentMonth = startOfMonth(date);
+      }
+      render();
     });
 
-    const allGoalsPlanned = Object.keys(GOAL_DEFINITIONS).every(type => plannedTotals[type] >= GOAL_DEFINITIONS[type].target);
-
-    if (statusEl) {
-        if (allGoalsPlanned) {
-            statusEl.textContent = '✅ Wszystkie cele mają zaplanowane działania.';
-            statusEl.style.color = 'var(--green)';
-        } else {
-            statusEl.textContent = '🧭 Zaplanuj brakujące działania, aby domknąć tydzień.';
-            statusEl.style.color = 'var(--orange)';
-        }
-    }
-
-    if (headerPlanStatus && headerPlanHint) {
-        if (allGoalsPlanned) {
-            headerPlanStatus.textContent = 'Gotowy';
-            headerPlanStatus.style.color = 'var(--green)';
-            headerPlanHint.textContent = 'Cele mają pełny plan działania.';
-        } else {
-            headerPlanStatus.textContent = 'W trakcie';
-            headerPlanStatus.style.color = 'var(--orange)';
-            headerPlanHint.textContent = 'Uzupełnij plan, aby zamknąć cele tygodnia.';
-        }
-    }
+    grid.appendChild(cell);
+  });
 }
 
-function renderOverallProgress(progress) {
-    let totalPercent = 0;
-    for (const type in GOAL_DEFINITIONS) {
-        totalPercent += Math.min(100, ((progress[type] || 0) / GOAL_DEFINITIONS[type].target) * 100);
-    }
-    const avgPercent = totalPercent / Object.keys(GOAL_DEFINITIONS).length;
-    document.getElementById('overall-progress-bar').style.width = `${avgPercent}%`;
-    document.getElementById('overall-progress-label').textContent = `Postęp tygodnia: ${Math.round(avgPercent)}%`;
-    const headerProgress = document.getElementById('header-week-progress');
-    if (headerProgress) {
-        headerProgress.textContent = `${Math.round(avgPercent)}%`;
-    }
+function renderDayDetail() {
+  ensureDay(selectedDate);
+  const date = parseDate(selectedDate);
+  const activities = state.activities[selectedDate] || [];
+  const extras = state.extras[selectedDate] || [];
+  const completedCount = activities.filter(a => a.completed).length + extras.filter(e => e.completed).length;
+  const total = activities.length + extras.length;
+  document.getElementById('selected-day-title').textContent = date.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' });
+  document.getElementById('selected-day-summary').textContent = total > 0 ? `Zaplanowane: ${total} · Ukończone: ${completedCount}` : 'Brak zaplanowanych aktywności na ten dzień.';
+  document.getElementById('selected-day-chip').textContent = date.toLocaleDateString('pl-PL', { day: '2-digit', month: 'short' }).replace('.', '').toUpperCase();
+
+  renderDayActivities(activities);
+  renderDayExtras(extras);
 }
 
-function updateHeaderActivitiesOverview(weekData) {
-    const headerActivities = document.getElementById('header-planned-activities');
-    if (!headerActivities) return;
-    const planned = Object.values(weekData.plan || {}).flat();
-    const extras = Object.values(weekData.extras || {}).flat();
-    const total = planned.length + extras.length;
-    const completed = planned.filter(a => a.completed).length + extras.filter(a => a.completed).length;
-    headerActivities.textContent = total > 0 ? `${completed}/${total}` : '0/0';
-}
+function renderDayActivities(activities) {
+  const list = document.getElementById('day-plan-list');
+  const empty = document.getElementById('day-plan-empty');
+  list.innerHTML = '';
+  if (!activities.length) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
 
-function renderCopyPlanButton() {
-    let prevWeekDate = new Date(currentDate);
-    prevWeekDate.setDate(prevWeekDate.getDate() - 7);
-    const [prevYear, prevWeek] = getWeekNumber(prevWeekDate);
-
-    const prevWeekData = state[prevYear]?.[prevWeek];
-    const hasPreviousPlan = prevWeekData && (
-        Object.values(prevWeekData.plan || {}).some(day => day.length > 0) ||
-        Object.values(prevWeekData.extras || {}).some(day => day.length > 0)
-    );
-
-    const copyBtn = document.getElementById('copy-plan-btn');
-    if (copyBtn) {
-        copyBtn.style.display = hasPreviousPlan ? 'inline-flex' : 'none';
+  activities.forEach(activity => {
+    const goal = GOAL_DEFINITIONS[activity.type];
+    const item = document.createElement('div');
+    item.className = 'detail-item';
+    if (activity.completed) item.classList.add('completed');
+    const plannedInfo = activity.type === 'gym' ? 'Sesja siłowa' : (activity.plannedValue ? `Plan: ${Number(activity.plannedValue).toLocaleString('pl-PL')} ${goal.unit}` : 'Plan: brak');
+    let progressInfo = '';
+    if (activity.completed) {
+      if (activity.type === 'gym') progressInfo = 'Sesja zakończona';
+      else progressInfo = `Zrealizowano: ${Number(activity.loggedValue).toLocaleString('pl-PL')} ${goal.unit}`;
     }
+    const metaText = [plannedInfo, progressInfo].filter(Boolean).join(' · ');
+    item.innerHTML = `
+      <div class="detail-info">
+        <div class="detail-icon ${activity.type}"><i data-lucide="${goal.icon}" class="icon"></i></div>
+        <div>
+          <div class="detail-title">${goal.label}</div>
+          <div class="detail-meta">${metaText}</div>
+        </div>
+      </div>
+      <div class="detail-actions-inline">
+        ${activity.completed ? `<button class="action-btn" data-action="undo-activity" data-day="${selectedDate}" data-activity-id="${activity.id}">Cofnij</button>` : `<button class="action-btn primary" data-action="complete-activity" data-day="${selectedDate}" data-type="${activity.type}" data-activity-id="${activity.id}">${activity.type === 'gym' ? 'Oznacz wykonane' : 'Zaloguj wynik'}</button>`}
+        ${activity.type !== 'gym' ? `<button class="action-btn" data-action="edit-activity" data-day="${selectedDate}" data-activity-id="${activity.id}">Edytuj wynik</button>` : ''}
+        <button class="action-btn danger" data-action="delete-activity" data-day="${selectedDate}" data-activity-id="${activity.id}">Usuń</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
 }
 
-function renderPriorities(priorities = []) {
-    const listEl = document.getElementById('priority-list');
-    const emptyEl = document.getElementById('priority-empty');
-    const addBtn = document.getElementById('add-priority-btn');
-    if (!listEl || !emptyEl || !addBtn) return;
+function renderDayExtras(extras) {
+  const list = document.getElementById('day-extra-list');
+  const empty = document.getElementById('day-extra-empty');
+  list.innerHTML = '';
+  if (!extras.length) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  extras.forEach(extra => {
+    const item = document.createElement('div');
+    item.className = 'detail-item';
+    if (extra.completed) item.classList.add('completed');
+    item.innerHTML = `
+      <div class="detail-info">
+        <div class="detail-icon extra"><i data-lucide="sparkles" class="icon"></i></div>
+        <div>
+          <div class="detail-title">${extra.title}</div>
+          <div class="detail-meta">${EXTRA_CATEGORY_LABELS[extra.category] || 'Aktywność'}</div>
+        </div>
+      </div>
+      <div class="detail-actions-inline">
+        <button class="action-btn ${extra.completed ? '' : 'success'}" data-action="toggle-extra" data-day="${selectedDate}" data-extra-id="${extra.id}">${extra.completed ? 'Cofnij' : 'Zakończ'}</button>
+        <button class="action-btn danger" data-action="delete-extra" data-day="${selectedDate}" data-extra-id="${extra.id}">Usuń</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
 
-    listEl.innerHTML = '';
-    const sorted = [...priorities].sort((a, b) => {
-        if (a.completed !== b.completed) return a.completed ? 1 : -1;
-        return (a.createdAt || 0) - (b.createdAt || 0);
-    });
+function renderUpcoming(upcoming) {
+  const list = document.getElementById('upcoming-list');
+  const empty = document.getElementById('upcoming-empty');
+  list.innerHTML = '';
+  const limited = upcoming.slice(0, 6);
+  if (!limited.length) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  limited.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'upcoming-item';
+    li.innerHTML = `
+      <div class="detail-icon ${item.type === 'extra' ? 'extra' : item.type}"><i data-lucide="${item.icon}" class="icon"></i></div>
+      <div>
+        <strong>${item.label}</strong>
+        <div class="meta">
+          <span class="badge">${item.badge}</span>
+          <span>${item.dateLabel}</span>
+        </div>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+}
 
-    if (sorted.length === 0) {
-        emptyEl.style.display = 'block';
+function renderPriorities() {
+  const monthKey = getMonthKey(currentMonth);
+  ensurePriorityMonth(monthKey);
+  const list = document.getElementById('priority-list');
+  const empty = document.getElementById('priority-empty');
+  const addBtn = document.getElementById('priority-add-btn');
+  const items = [...state.priorities[monthKey]];
+  items.sort((a, b) => {
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    return (a.createdAt || 0) - (b.createdAt || 0);
+  });
+  list.innerHTML = '';
+  if (!items.length) empty.style.display = 'block';
+  else empty.style.display = 'none';
+
+  items.forEach(priority => {
+    const li = document.createElement('li');
+    li.className = 'priority-item';
+    if (priority.completed) li.classList.add('completed');
+    li.innerHTML = `
+      <div class="priority-body">
+        <span class="priority-title">${priority.title}</span>
+        <span class="priority-meta">${PRIORITY_IMPACT_LABELS[priority.impact] || ''}</span>
+      </div>
+      <div class="priority-actions">
+        <button class="priority-btn" data-action="toggle-priority" data-month-key="${monthKey}" data-priority-id="${priority.id}"><i data-lucide="${priority.completed ? 'rotate-ccw' : 'check'}" class="icon"></i></button>
+        <button class="priority-btn" data-action="delete-priority" data-month-key="${monthKey}" data-priority-id="${priority.id}"><i data-lucide="trash-2" class="icon"></i></button>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+
+  if (items.length >= MAX_PRIORITIES) {
+    addBtn.disabled = true;
+    addBtn.innerHTML = '<i data-lucide="check" class="icon"></i>Limit priorytetów';
+  } else {
+    addBtn.disabled = false;
+    addBtn.innerHTML = '<i data-lucide="plus-circle" class="icon"></i>Dodaj priorytet';
+  }
+}
+
+function renderGoalProgress(goalPercents) {
+  const container = document.getElementById('goal-progress-list');
+  container.innerHTML = '';
+  Object.entries(goalPercents).forEach(([type, info]) => {
+    const def = GOAL_DEFINITIONS[type];
+    const item = document.createElement('div');
+    item.className = 'goal-progress-item';
+    const progressValue = Number(info.progress || 0).toLocaleString('pl-PL');
+    const targetValue = Number(info.target || 0).toLocaleString('pl-PL');
+    item.innerHTML = `
+      <div class="goal-progress-label">
+        <div>
+          <strong>${def.label}</strong>
+          <div class="muted tiny">${progressValue} / ${targetValue} ${def.unit}</div>
+        </div>
+        <span class="goal-progress-value">${info.percent}%</span>
+      </div>
+      <div class="goal-progress-bar"><span style="width:${info.percent}%; background:${def.color};"></span></div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function getHeatLevel(value) {
+  if (value >= 5) return 4;
+  if (value >= 3) return 3;
+  if (value >= 2) return 2;
+  if (value >= 1) return 1;
+  return 0;
+}
+
+function renderHeatmap() {
+  const container = document.getElementById('heatmap');
+  container.innerHTML = '';
+  const year = currentMonth.getFullYear();
+  document.getElementById('heatmap-year-label').textContent = year;
+  const counts = {};
+  Object.entries(state.activities).forEach(([dateString, activities]) => {
+    const date = parseDate(dateString);
+    if (date.getFullYear() !== year) return;
+    const completed = activities.filter(a => a.completed).length;
+    if (completed > 0) counts[dateString] = (counts[dateString] || 0) + completed;
+  });
+  Object.entries(state.extras).forEach(([dateString, extras]) => {
+    const date = parseDate(dateString);
+    if (date.getFullYear() !== year) return;
+    const completed = extras.filter(e => e.completed).length;
+    if (completed > 0) counts[dateString] = (counts[dateString] || 0) + completed;
+  });
+
+  const start = new Date(year, 0, 1);
+  const offset = (start.getDay() + 6) % 7;
+  start.setDate(start.getDate() - offset);
+  for (let week = 0; week < 53; week++) {
+    const column = document.createElement('div');
+    column.className = 'heatmap-week';
+    const weekStart = new Date(start);
+    weekStart.setDate(start.getDate() + week * 7);
+    for (let day = 0; day < 7; day++) {
+      const current = new Date(weekStart);
+      current.setDate(weekStart.getDate() + day);
+      const key = toYYYYMMDD(current);
+      const cell = document.createElement('div');
+      cell.className = 'heatmap-cell';
+      if (current.getFullYear() === year) {
+        const value = counts[key] || 0;
+        const level = getHeatLevel(value);
+        cell.dataset.level = level;
+        const label = current.toLocaleDateString('pl-PL', { day: '2-digit', month: 'short' });
+        cell.title = value > 0 ? `${label}: ${value} ukończone aktywności` : label;
+      } else {
+        cell.classList.add('heatmap-cell--empty');
+      }
+      column.appendChild(cell);
+    }
+    const label = document.createElement('span');
+    label.className = 'heatmap-month-label';
+    if (weekStart.getFullYear() === year) {
+      label.textContent = weekStart.toLocaleDateString('pl-PL', { month: 'short' }).replace('.', '').toUpperCase();
+      label.title = `${formatRange(weekStart, addDays(weekStart, 6))} ${weekStart.getFullYear()}`;
     } else {
-        emptyEl.style.display = 'none';
+      label.textContent = '';
     }
-
-    sorted.forEach(priority => {
-        const item = document.createElement('li');
-        item.className = 'priority-item';
-        item.dataset.priorityId = priority.id;
-        if (priority.completed) item.classList.add('completed');
-
-        const toggleBtn = document.createElement('button');
-        toggleBtn.className = 'priority-toggle';
-        toggleBtn.dataset.priorityId = priority.id;
-        toggleBtn.innerHTML = `<i data-lucide="${priority.completed ? 'check-circle-2' : 'circle'}" class="icon" style="width:18px; height:18px;"></i>`;
-
-        const details = document.createElement('div');
-        details.className = 'priority-details';
-        const title = document.createElement('span');
-        title.className = 'priority-title';
-        title.textContent = priority.title;
-        details.appendChild(title);
-        const meta = document.createElement('span');
-        meta.className = 'priority-meta';
-        meta.textContent = PRIORITY_IMPACT_LABELS[priority.impact] || 'Priorytet';
-        details.appendChild(meta);
-
-        const actions = document.createElement('div');
-        actions.className = 'priority-actions';
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'priority-delete';
-        deleteBtn.dataset.priorityId = priority.id;
-        deleteBtn.innerHTML = '<i data-lucide="trash-2" class="icon" style="width:16px; height:16px;"></i>';
-        actions.appendChild(deleteBtn);
-
-        item.appendChild(toggleBtn);
-        item.appendChild(details);
-        item.appendChild(actions);
-        listEl.appendChild(item);
-    });
-
-    if (sorted.length >= MAX_PRIORITIES) {
-        addBtn.disabled = true;
-        addBtn.innerHTML = '<i data-lucide="check" class="icon"></i>Limit priorytetów';
-    } else {
-        addBtn.disabled = false;
-        addBtn.innerHTML = '<i data-lucide="plus-circle" class="icon"></i>Dodaj priorytet';
-    }
+    column.appendChild(label);
+    container.appendChild(column);
+  }
 }
 
-function renderNextActions(weekData, startOfWeek) {
-    const listEl = document.getElementById('next-actions-list');
-    const emptyEl = document.getElementById('next-actions-empty');
-    if (!listEl || !emptyEl) return [];
-
-    listEl.innerHTML = '';
-    const upcoming = [];
-    for (let i = 1; i <= 7; i++) {
-        const dayIndex = i % 7;
-        const currentDay = new Date(startOfWeek);
-        currentDay.setDate(startOfWeek.getDate() + (dayIndex - 1 + 7) % 7);
-
-        const plannedActivities = weekData.plan?.[dayIndex] || [];
-        plannedActivities.forEach((activity, index) => {
-            if (activity.completed) return;
-            const goal = GOAL_DEFINITIONS[activity.type];
-            if (!goal) return;
-            let label = goal.label;
-            if (activity.type === 'gym') {
-                label += ' • sesja';
-            } else if (activity.plannedValue) {
-                label += ` • cel ${activity.plannedValue.toLocaleString('pl-PL')} ${goal.unit}`;
-            }
-            upcoming.push({
-                label,
-                badge: 'Cel tygodnia',
-                date: new Date(currentDay),
-                icon: goal.icon || 'check',
-                order: index,
-                type: 'goal'
-            });
-        });
-
-        const extras = weekData.extras?.[dayIndex] || [];
-        extras.forEach((extra, index) => {
-            if (extra.completed) return;
-            upcoming.push({
-                label: extra.title,
-                badge: EXTRA_CATEGORY_LABELS[extra.category] || EXTRA_CATEGORY_LABELS[DEFAULT_EXTRA_CATEGORY],
-                date: new Date(currentDay),
-                icon: 'sparkles',
-                order: index,
-                type: 'extra'
-            });
-        });
-    }
-
-    upcoming.sort((a, b) => {
-        const diff = a.date - b.date;
-        if (diff !== 0) return diff;
-        if (a.type !== b.type) return a.type === 'goal' ? -1 : 1;
-        return (a.order || 0) - (b.order || 0);
-    });
-
-    const limited = upcoming.slice(0, MAX_NEXT_ACTIONS);
-    if (limited.length === 0) {
-        emptyEl.style.display = 'block';
-    } else {
-        emptyEl.style.display = 'none';
-        limited.forEach(item => {
-            const li = document.createElement('li');
-            li.className = 'next-action-item';
-
-            const iconWrapper = document.createElement('span');
-            iconWrapper.innerHTML = `<i data-lucide="${item.icon}" class="icon" style="width:18px; height:18px;"></i>`;
-            li.appendChild(iconWrapper);
-
-            const info = document.createElement('div');
-            info.className = 'next-action-info';
-            const title = document.createElement('span');
-            title.style.fontWeight = '600';
-            title.textContent = item.label;
-            info.appendChild(title);
-
-            const meta = document.createElement('div');
-            meta.className = 'next-action-meta';
-            const badge = document.createElement('span');
-            badge.className = 'next-action-badge';
-            badge.textContent = item.badge;
-            const date = document.createElement('span');
-            date.className = 'next-action-date';
-            date.textContent = formatDateWithDay(item.date);
-            meta.appendChild(badge);
-            meta.appendChild(date);
-            info.appendChild(meta);
-
-            li.appendChild(info);
-            listEl.appendChild(li);
-        });
-    }
-
-    return limited;
+function addTraining(dateString, type, plannedValue) {
+  ensureDay(dateString);
+  state.activities[dateString].push({
+    id: `act_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+    type,
+    plannedValue: type === 'gym' ? 1 : Number(plannedValue) || 0,
+    loggedValue: 0,
+    completed: false,
+    createdAt: Date.now()
+  });
+  saveState();
+  render();
 }
 
-
-// --- MODALE ---
-function showModal(config) {
-    const modal = document.getElementById('modal-overlay');
-    document.getElementById('modal-title').textContent = config.title;
-    document.getElementById('modal-text').innerHTML = config.text || '';
-    const inputContainer = document.getElementById('modal-input-container');
-    const optionsContainer = document.getElementById('modal-options-container');
-    inputContainer.innerHTML = '';
-    optionsContainer.innerHTML = '';
-    
-    if (config.input) {
-        const input = document.createElement('input');
-        input.type = config.input.type;
-        input.placeholder = config.input.placeholder || '';
-        input.value = config.input.value || '';
-        input.autocomplete = 'off';
-        input.dataset.modalInput = 'true';
-        inputContainer.appendChild(input);
-    }
-
-    if (config.textarea) {
-        const textarea = document.createElement('textarea');
-        textarea.placeholder = config.textarea.placeholder || '';
-        textarea.value = config.textarea.value || '';
-        textarea.rows = config.textarea.rows || 4;
-        textarea.style.marginTop = '12px';
-        textarea.style.width = '100%';
-        textarea.style.borderRadius = '12px';
-        textarea.style.border = '1px solid var(--line)';
-        textarea.style.padding = '12px';
-        textarea.style.fontSize = '14px';
-        textarea.dataset.modalInput = 'true';
-        inputContainer.appendChild(textarea);
-    }
-    
-    if (config.options) {
-        const optionsDiv = document.createElement('div');
-        optionsDiv.className = 'modal-options';
-        config.options.forEach(opt => {
-            const label = document.createElement('label');
-            label.className = 'option-label';
-            label.innerHTML = `<input type="radio" name="modal-option" value="${opt.value}" ${opt.checked ? 'checked' : ''}> ${opt.label}`;
-            optionsDiv.appendChild(label);
-        });
-        optionsContainer.appendChild(optionsDiv);
-    }
-
-    const actions = document.getElementById('modal-actions');
-    actions.innerHTML = '';
-    config.buttons.forEach(btnConfig => {
-        const button = document.createElement('button');
-        button.textContent = btnConfig.text;
-        button.className = btnConfig.class;
-        button.onclick = () => {
-            if (btnConfig.action === 'close') {
-                modal.classList.remove('visible');
-            } else {
-                const valueField = inputContainer.querySelector('[data-modal-input]');
-                const value = valueField ? valueField.value : '';
-                const selectedOption = optionsContainer.querySelector('input:checked')?.value;
-                btnConfig.action(value, selectedOption);
-                modal.classList.remove('visible');
-            }
-        };
-        actions.appendChild(button);
-    });
-    modal.classList.add('visible');
-    const focusTarget = inputContainer.querySelector('[data-modal-input]');
-    if (focusTarget) { focusTarget.focus(); }
+function addExtra(dateString, title, category) {
+  ensureDay(dateString);
+  state.extras[dateString].push({
+    id: `extra_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+    title,
+    category,
+    completed: false,
+    createdAt: Date.now()
+  });
+  saveState();
+  render();
 }
 
-function showPlanModal(type, dayIndex) {
-    const goal = GOAL_DEFINITIONS[type];
-    if (type === 'gym') { addActivity(type, dayIndex, 1); return; }
-    showModal({
-        title: `Zaplanuj: ${goal.label}`,
-        text: `Ile ${goal.unit} planujesz na ten dzień?`,
-        input: { type: 'number', placeholder: '0' },
-        buttons: [
-            { text: 'Anuluj', class: 'btn soft', action: 'close' },
-            { text: 'Dodaj plan', class: 'btn', action: (value) => addActivity(type, dayIndex, parseFloat(value) || 0) }
-        ]
-    });
+function addPriority(title, impact) {
+  const monthKey = getMonthKey(currentMonth);
+  ensurePriorityMonth(monthKey);
+  if (state.priorities[monthKey].length >= MAX_PRIORITIES) return;
+  state.priorities[monthKey].push({
+    id: `prio_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+    title,
+    impact,
+    completed: false,
+    createdAt: Date.now()
+  });
+  saveState();
+  render();
 }
 
-function showExtraActivityModal(dayIndex) {
-    showModal({
-        title: 'Dodaj aktywność dodatkową',
-        text: 'Nazwij aktywność i wybierz kategorię, aby mieć pełny obraz tygodnia.',
-        input: { type: 'text', placeholder: 'np. Trening brzucha' },
-        options: EXTRA_ACTIVITY_CATEGORIES.map((cat, index) => ({
-            value: cat.value,
-            label: cat.label,
-            checked: index === 0
-        })),
-        buttons: [
-            { text: 'Anuluj', class: 'btn soft', action: 'close' },
-            { text: 'Dodaj', class: 'btn', action: (value, selectedOption) => addExtraActivity(dayIndex, value, selectedOption || DEFAULT_EXTRA_CATEGORY) }
-        ]
-    });
+function togglePriority(id, monthKey) {
+  const list = state.priorities[monthKey] || [];
+  const priority = list.find(p => p.id === id);
+  if (!priority) return;
+  priority.completed = !priority.completed;
+  saveState();
+  render();
+}
+
+function deletePriority(id, monthKey) {
+  if (!state.priorities[monthKey]) return;
+  state.priorities[monthKey] = state.priorities[monthKey].filter(p => p.id !== id);
+  saveState();
+  render();
+}
+
+function completeActivity(day, id) {
+  const activities = state.activities[day] || [];
+  const activity = activities.find(a => a.id === id);
+  if (!activity) return;
+  if (activity.type === 'gym') {
+    activity.completed = true;
+    activity.loggedValue = 1;
+    saveState();
+    render();
+  } else {
+    showLogModal(activity, day);
+  }
+}
+
+function showLogModal(activity, day) {
+  const goal = GOAL_DEFINITIONS[activity.type];
+  showModal({
+    title: `Zaloguj ${goal.label.toLowerCase()}`,
+    text: `Podaj zrealizowaną wartość dla ${formatDateWithDay(parseDate(day))}.`,
+    input: { type: 'number', value: activity.loggedValue || activity.plannedValue || '', placeholder: `Wartość w ${goal.unit}`, min: '0', step: '1' },
+    buttons: [
+      { text: 'Anuluj', class: 'btn soft', action: 'close' },
+      { text: 'Zapisz', class: 'btn', action: (value) => {
+          const numeric = Number(value);
+          if (!numeric || numeric <= 0) return false;
+          activity.loggedValue = numeric;
+          activity.completed = true;
+          saveState();
+          render();
+        } }
+    ]
+  });
+}
+
+function editActivity(day, id) {
+  const activity = (state.activities[day] || []).find(a => a.id === id);
+  if (!activity || activity.type === 'gym') return;
+  showLogModal(activity, day);
+}
+
+function undoActivity(day, id) {
+  const activity = (state.activities[day] || []).find(a => a.id === id);
+  if (!activity) return;
+  activity.completed = false;
+  activity.loggedValue = 0;
+  saveState();
+  render();
+}
+
+function deleteActivity(day, id) {
+  if (!state.activities[day]) return;
+  state.activities[day] = state.activities[day].filter(a => a.id !== id);
+  saveState();
+  render();
+}
+
+function toggleExtra(day, id) {
+  const extra = (state.extras[day] || []).find(e => e.id === id);
+  if (!extra) return;
+  extra.completed = !extra.completed;
+  saveState();
+  render();
+}
+
+function deleteExtra(day, id) {
+  if (!state.extras[day]) return;
+  state.extras[day] = state.extras[day].filter(e => e.id !== id);
+  saveState();
+  render();
+}
+
+function showAddTrainingModal() {
+  const date = parseDate(selectedDate);
+  showModal({
+    title: 'Zaplanuj trening',
+    text: `Dodaj aktywność na ${date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}.`,
+    input: { type: 'number', placeholder: 'Docelowa wartość', min: '0', step: '1' },
+    options: [
+      { value: 'gym', label: 'Trening siłowy', checked: true },
+      { value: 'running', label: 'Bieganie' },
+      { value: 'reading', label: 'Czytanie' }
+    ],
+    buttons: [
+      { text: 'Anuluj', class: 'btn soft', action: 'close' },
+      { text: 'Dodaj', class: 'btn', action: (value, selected) => {
+          const type = selected || 'gym';
+          if (type !== 'gym') {
+            const numeric = Number(value);
+            if (!numeric || numeric <= 0) return false;
+            addTraining(selectedDate, type, numeric);
+          } else {
+            addTraining(selectedDate, type, 1);
+          }
+        } }
+    ],
+    onShow: ({ overlay, input }) => {
+      const radios = overlay.querySelectorAll('input[name="modal-option"]');
+      const update = () => {
+        const type = overlay.querySelector('input[name="modal-option"]:checked')?.value;
+        if (!input) return;
+        if (type === 'gym') {
+          input.value = '';
+          input.placeholder = 'Sesja siłowa – bez dodatkowej wartości';
+          input.disabled = true;
+        } else if (type === 'running') {
+          input.disabled = false;
+          input.placeholder = 'Cel w kilometrach';
+        } else if (type === 'reading') {
+          input.disabled = false;
+          input.placeholder = 'Cel w stronach';
+        }
+      };
+      update();
+      radios.forEach(radio => radio.addEventListener('change', update));
+    }
+  });
+}
+
+function showAddExtraModal() {
+  const date = parseDate(selectedDate);
+  showModal({
+    title: 'Dodaj aktywność dodatkową',
+    text: `Dodaj drobne działanie na ${date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}.`,
+    textarea: { placeholder: 'Opis aktywności' },
+    options: EXTRA_ACTIVITY_CATEGORIES.map((cat, index) => ({ value: cat.value, label: cat.label, checked: index === 0 })),
+    buttons: [
+      { text: 'Anuluj', class: 'btn soft', action: 'close' },
+      { text: 'Dodaj', class: 'btn', action: (value, selected) => {
+          const textValue = (value || '').trim();
+          if (!textValue) return false;
+          addExtra(selectedDate, textValue, selected || 'other');
+        } }
+    ]
+  });
 }
 
 function showPriorityModal() {
-    const { weekData } = getCurrentWeekContext();
-    if (weekData.priorities.length >= MAX_PRIORITIES) return;
-    showModal({
-        title: 'Dodaj priorytet tygodnia',
-        text: 'Wybierz działanie o największym wpływie na Twój cel.',
-        input: { type: 'text', placeholder: 'np. 3 treningi brzucha' },
-        options: PRIORITY_IMPACT_OPTIONS.map((opt, index) => ({
-            value: opt.value,
-            label: opt.label,
-            checked: index === 0
-        })),
-        buttons: [
-            { text: 'Anuluj', class: 'btn soft', action: 'close' },
-            { text: 'Dodaj priorytet', class: 'btn', action: (value, selectedOption) => addPriority(value, selectedOption || 'high') }
-        ]
+  const monthKey = getMonthKey(currentMonth);
+  ensurePriorityMonth(monthKey);
+  if (state.priorities[monthKey].length >= MAX_PRIORITIES) return;
+  showModal({
+    title: 'Nowy priorytet',
+    text: `Określ priorytet na ${formatMonth(currentMonth)}.`,
+    textarea: { placeholder: 'Opisz priorytet' },
+    options: PRIORITY_IMPACT_OPTIONS.map((opt, index) => ({ value: opt.value, label: opt.label, checked: index === 0 })),
+    buttons: [
+      { text: 'Anuluj', class: 'btn soft', action: 'close' },
+      { text: 'Dodaj', class: 'btn', action: (value, selected) => {
+          const textValue = (value || '').trim();
+          if (!textValue) return false;
+          addPriority(textValue, selected || 'high');
+        } }
+    ]
+  });
+}
+
+function showModal(config) {
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-title').textContent = config.title || '';
+  document.getElementById('modal-text').innerHTML = config.text || '';
+  const inputContainer = document.getElementById('modal-input-container');
+  const optionsContainer = document.getElementById('modal-options-container');
+  const actions = document.getElementById('modal-actions');
+  inputContainer.innerHTML = '';
+  optionsContainer.innerHTML = '';
+  actions.innerHTML = '';
+
+  if (config.input) {
+    const input = document.createElement('input');
+    input.type = config.input.type || 'text';
+    if (config.input.placeholder) input.placeholder = config.input.placeholder;
+    if (config.input.value !== undefined) input.value = config.input.value;
+    if (config.input.min !== undefined) input.min = config.input.min;
+    if (config.input.step !== undefined) input.step = config.input.step;
+    if (config.input.disabled) input.disabled = true;
+    input.autocomplete = 'off';
+    input.dataset.modalInput = 'true';
+    inputContainer.appendChild(input);
+  }
+
+  if (config.textarea) {
+    const textarea = document.createElement('textarea');
+    textarea.placeholder = config.textarea.placeholder || '';
+    textarea.value = config.textarea.value || '';
+    textarea.rows = config.textarea.rows || 4;
+    textarea.dataset.modalInput = 'true';
+    inputContainer.appendChild(textarea);
+  }
+
+  if (config.options) {
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'modal-options';
+    config.options.forEach(opt => {
+      const label = document.createElement('label');
+      label.className = 'option-label';
+      label.innerHTML = `<input type="radio" name="modal-option" value="${opt.value}" ${opt.checked ? 'checked' : ''}> <span>${opt.label}</span>`;
+      optionsDiv.appendChild(label);
     });
-}
+    optionsContainer.appendChild(optionsDiv);
+  }
 
-function showLogModal(activity) {
-    const { type, id } = activity;
-    const goal = GOAL_DEFINITIONS[type];
-    showModal({
-        title: `Loguj: ${goal.label}`,
-        text: `Wprowadź ile ${goal.unit} udało Ci się zrobić:`,
-        input: { type: 'number', placeholder: activity.plannedValue || '0', value: activity.plannedValue || '' },
-        buttons: [
-            { text: 'Anuluj', class: 'btn soft', action: 'close' },
-            { text: 'Zapisz', class: 'btn', action: (value) => logActivity(id, parseFloat(value) || 0, true) }
-        ]
+  config.buttons.forEach(btn => {
+    const button = document.createElement('button');
+    button.textContent = btn.text;
+    button.className = btn.class;
+    button.addEventListener('click', () => {
+      if (btn.action === 'close') {
+        overlay.classList.remove('visible');
+        return;
+      }
+      const field = inputContainer.querySelector('[data-modal-input]');
+      const selectedOption = optionsContainer.querySelector('input[name="modal-option"]:checked')?.value;
+      const value = field ? field.value : '';
+      const result = btn.action(value, selectedOption);
+      if (result === false) return;
+      overlay.classList.remove('visible');
     });
-}
+    actions.appendChild(button);
+  });
 
-function showEditLogModal(activity) {
-    const { type, id, loggedValue } = activity;
-    const goal = GOAL_DEFINITIONS[type];
-    showModal({
-        title: `Edytuj: ${goal.label}`,
-        text: type === 'gym' ? `Ta sesja jest ukończona. Możesz cofnąć jej zaliczenie.` : `Zaktualizuj, ile ${goal.unit} udało Ci się zrobić:`,
-        input: type === 'gym' ? null : { type: 'number', placeholder: '0', value: loggedValue },
-        buttons: [
-            { text: 'Cofnij ukończenie', class: 'btn danger', action: () => logActivity(id, 0, false) },
-            { text: 'Anuluj', class: 'btn soft', action: 'close' },
-            ...(type !== 'gym' ? [{ text: 'Zapisz', class: 'btn', action: (value) => logActivity(id, parseFloat(value) || 0, true) }] : [])
-        ]
-    });
-}
-
-function showCopyPlanModal() {
-    showModal({
-        title: 'Kopiuj plan z poprzedniego tygodnia',
-        text: 'Wybierz, co chcesz skopiować do bieżącego tygodnia:',
-        options: [
-            { value: 'planOnly', label: 'Tylko plan (bez ukończonych zadań)', checked: true },
-            { value: 'planAndProgress', label: 'Plan wraz z postępem' }
-        ],
-        buttons: [
-            { text: 'Anuluj', class: 'btn soft', action: 'close' },
-            { text: 'Kopiuj', class: 'btn', action: (_, selectedOption) => {
-                copyPreviousWeek(selectedOption === 'planAndProgress');
-            }}
-        ]
-    });
-}
-
-function showWeeklySummary() {
-    const today = new Date();
-    if (today.getDay() !== 1) return; // Uruchom tylko w poniedziałki
-
-    const lastWeekDate = new Date();
-    lastWeekDate.setDate(today.getDate() - 1);
-    const [year, week] = getWeekNumber(lastWeekDate);
-    const weekData = state[year]?.[week];
-
-    if (weekData && !weekData.summaryShown) {
-        let summaryText = `W zeszłym tygodniu udało Ci się:<br><br>`;
-        Object.keys(GOAL_DEFINITIONS).forEach(type => {
-            const progress = weekData.progress[type] || 0;
-            const target = GOAL_DEFINITIONS[type].target;
-            summaryText += `<b>${GOAL_DEFINITIONS[type].label}:</b> ${progress.toLocaleString('pl-PL')}/${target.toLocaleString('pl-PL')} ${GOAL_DEFINITIONS[type].unit}<br>`;
-        });
-        const completedExtras = Object.values(weekData.extras || {}).flat().filter(extra => extra.completed).length;
-        if (completedExtras > 0) {
-            summaryText += `<b>Aktywności dodatkowe:</b> ${completedExtras}<br>`;
-        }
-        summaryText += `<br>${weekData.isComplete ? 'Świetna robota! Osiągnąłeś wszystkie cele.' : 'Dobra robota! Tak trzymaj.'}`;
-
-        showModal({
-            title: `Podsumowanie tygodnia ${week}`,
-            text: summaryText,
-            buttons: [{ text: 'OK', class: 'btn', action: 'close' }]
-        });
-        weekData.summaryShown = true;
-        saveState();
-    }
-}
-
-function addPriority(title, impact = 'high') {
-    const trimmed = (title || '').trim();
-    if (!trimmed) return;
-    const { weekData } = getCurrentWeekContext();
-    if (weekData.priorities.length >= MAX_PRIORITIES) return;
-    weekData.priorities.push({
-        id: `prio_${Date.now()}_${Math.random()}`,
-        title: trimmed,
-        impact,
-        completed: false,
-        createdAt: Date.now()
-    });
-    saveState();
-    render();
-}
-
-function togglePriority(priorityId) {
-    const { weekData } = getCurrentWeekContext();
-    const priority = weekData.priorities.find(p => p.id === priorityId);
-    if (!priority) return;
-    priority.completed = !priority.completed;
-    saveState();
-    render();
-}
-
-function deletePriority(priorityId) {
-    const { weekData } = getCurrentWeekContext();
-    const initialLength = weekData.priorities.length;
-    weekData.priorities = weekData.priorities.filter(p => p.id !== priorityId);
-    if (weekData.priorities.length !== initialLength) {
-        saveState();
-        render();
-    }
-}
-
-
-// --- OBSŁUGA ZDARZEŃ ---
-function handleDragStart(e) {
-    dragState.activityId = e.target.closest('.activity-pill').dataset.activityId;
-    dragState.sourceDay = e.target.closest('.day-column').dataset.dayIndex;
-    setTimeout(() => e.target.closest('.activity-pill').classList.add('dragging'), 0);
-}
-function handleDragEnd(e) {
-    const pill = document.querySelector('.activity-pill.dragging');
-    if(pill) pill.classList.remove('dragging');
-}
-function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
-function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
-function handleDrop(e) {
-    e.preventDefault();
-    e.currentTarget.classList.remove('drag-over');
-    const targetDayIndex = parseInt(e.currentTarget.dataset.dayIndex);
-    const sourceDayIndex = parseInt(dragState.sourceDay);
-    if (targetDayIndex === sourceDayIndex) return;
-
-    const [year, week] = getWeekNumber(currentDate);
-    const weekData = state[year][week];
-    const activityIndex = weekData.plan[sourceDayIndex].findIndex(a => a.id === dragState.activityId);
-    if (activityIndex === -1) return;
-
-    const [activity] = weekData.plan[sourceDayIndex].splice(activityIndex, 1);
-    activity.day = targetDayIndex;
-    
-    if(!weekData.plan[targetDayIndex]) weekData.plan[targetDayIndex] = [];
-    weekData.plan[targetDayIndex].push(activity);
-    saveState();
-    render();
+  overlay.classList.add('visible');
+  if (typeof config.onShow === 'function') {
+    config.onShow({ overlay, input: inputContainer.querySelector('[data-modal-input]'), optionsContainer });
+  }
+  const focusTarget = inputContainer.querySelector('[data-modal-input]');
+  if (focusTarget && !focusTarget.disabled) focusTarget.focus();
 }
 
 function setupEventListeners() {
-    document.getElementById('prev-week-btn').addEventListener('click', () => { currentDate.setDate(currentDate.getDate() - 7); render(); });
-    document.getElementById('next-week-btn').addEventListener('click', () => { currentDate.setDate(currentDate.getDate() + 7); render(); });
-    document.getElementById('today-week-btn').addEventListener('click', () => { currentDate = new Date(); render(); });
-    document.getElementById('copy-plan-btn').addEventListener('click', showCopyPlanModal);
-    
-    document.querySelectorAll('[data-action="plan"]').forEach(btn => {
-        btn.addEventListener('click', (e) => startPlanning(e.currentTarget.dataset.activityType));
-    });
-
-    document.getElementById('add-priority-btn').addEventListener('click', showPriorityModal);
-    document.getElementById('priority-list').addEventListener('click', (e) => {
-        const toggleBtn = e.target.closest('.priority-toggle');
-        if (toggleBtn) { togglePriority(toggleBtn.dataset.priorityId); return; }
-        const deleteBtn = e.target.closest('.priority-delete');
-        if (deleteBtn) { deletePriority(deleteBtn.dataset.priorityId); return; }
-    });
-
-    document.querySelector('.planner-grid').addEventListener('click', (e) => {
-        const dayColumn = e.target.closest('.day-column');
-        if (!dayColumn) return;
-        const dayIndex = parseInt(dayColumn.dataset.dayIndex, 10);
-        
-        if (planningState.isPlanning) {
-            if (!e.target.closest('.activity-pill') && !e.target.closest('.quick-add-btn')) {
-                showPlanModal(planningState.activityType, dayIndex);
-            }
-            return;
-        }
-
-        if (e.target.closest('.quick-add-btn')) {
-            const menu = dayColumn.querySelector('.quick-add-menu');
-            document.querySelectorAll('.quick-add-menu').forEach(m => {
-                if(m !== menu) m.style.display = 'none';
-            });
-            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-            e.stopPropagation();
-            return;
-        }
-
-        const addExtraBtn = e.target.closest('.add-extra-btn');
-        if (addExtraBtn) {
-            document.querySelectorAll('.quick-add-menu').forEach(menu => menu.style.display = 'none');
-            showExtraActivityModal(dayIndex);
-            return;
-        }
-
-        const extraToggle = e.target.closest('.extra-toggle');
-        if (extraToggle) {
-            toggleExtraActivity(extraToggle.dataset.extraId);
-            return;
-        }
-
-        const extraDelete = e.target.closest('.extra-delete-btn');
-        if (extraDelete) {
-            deleteExtraActivity(extraDelete.dataset.extraId);
-            return;
-        }
-
-        const deleteBtn = e.target.closest('.delete-activity-btn');
-        if (deleteBtn) {
-            deleteActivity(deleteBtn.dataset.activityId);
-            return;
-        }
-        
-        const pill = e.target.closest('.activity-pill');
-        if (pill) {
-            const activityId = pill.dataset.activityId;
-            const [year, week] = getWeekNumber(currentDate);
-            const activity = state[year]?.[week]?.plan?.[dayIndex]?.find(a => a.id === activityId);
-            
-            if (activity) {
-                if (activity.completed) {
-                    showEditLogModal(activity);
-                } else {
-                    if (activity.type === 'gym') logActivity(activityId, 1, true); 
-                    else showLogModal(activity);
-                }
-            }
-        }
-    });
-
-    document.addEventListener('click', e => {
-        if (!e.target.closest('.day-column')) {
-            document.querySelectorAll('.quick-add-menu').forEach(menu => menu.style.display = 'none');
-        }
-    });
-
-    document.getElementById('cancel-planning-btn').addEventListener('click', stopPlanning);
-}
-
-
-// --- INICJALIZACJA ---
-document.addEventListener('DOMContentLoaded', () => {
-    loadState();
+  document.getElementById('prev-month-btn').addEventListener('click', () => {
+    currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
     render();
-    setupEventListeners();
-    showWeeklySummary();
-});
+  });
+  document.getElementById('next-month-btn').addEventListener('click', () => {
+    currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+    render();
+  });
+  document.getElementById('today-month-btn').addEventListener('click', () => {
+    const today = new Date();
+    currentMonth = startOfMonth(today);
+    selectedDate = toYYYYMMDD(today);
+    render();
+  });
+  document.getElementById('add-training-btn').addEventListener('click', showAddTrainingModal);
+  document.getElementById('add-extra-btn').addEventListener('click', showAddExtraModal);
+  document.getElementById('priority-add-btn').addEventListener('click', showPriorityModal);
 
-// --- STATYSTYKI (HEATMAP) ---
-function renderStats() {
-    // Implementacja heatmapy - bez zmian w logice, ale może wymagać dostosowania renderowania
-    const year = getWeekNumber(currentDate)[0];
-    const yearData = state[year] || {};
-    const heatmapContainer = document.querySelector('.heatmap-container');
-    if (!heatmapContainer) return;
-    heatmapContainer.innerHTML = '';
+  document.getElementById('day-plan-list').addEventListener('click', (event) => {
+    const target = event.target.closest('[data-action]');
+    if (!target) return;
+    const day = target.dataset.day;
+    const id = target.dataset.activityId;
+    const action = target.dataset.action;
+    if (action === 'complete-activity') completeActivity(day, id);
+    if (action === 'undo-activity') undoActivity(day, id);
+    if (action === 'delete-activity') deleteActivity(day, id);
+    if (action === 'edit-activity') editActivity(day, id);
+  });
 
-    const activitiesByDay = {};
-    Object.keys(yearData).forEach(week => {
-        Object.keys(yearData[week].plan).forEach(day => {
-            const plannedActivities = yearData[week].plan[day] || [];
-            const extraActivities = yearData[week].extras?.[day] || [];
-            const completedCount = plannedActivities.filter(a => a.completed).length + extraActivities.filter(a => a.completed).length;
-            if (completedCount > 0) {
-                const date = new Date(getStartOfWeek(year, parseInt(week)));
-                date.setDate(date.getDate() + (parseInt(day) - 1 + 7) % 7);
-                const dateString = toYYYYMMDD(date);
-                activitiesByDay[dateString] = (activitiesByDay[dateString] || 0) + completedCount;
-            }
-        });
-    });
+  document.getElementById('day-extra-list').addEventListener('click', (event) => {
+    const target = event.target.closest('[data-action]');
+    if (!target) return;
+    const day = target.dataset.day;
+    const id = target.dataset.extraId;
+    const action = target.dataset.action;
+    if (action === 'toggle-extra') toggleExtra(day, id);
+    if (action === 'delete-extra') deleteExtra(day, id);
+  });
 
-    const firstDayOfYear = new Date(year, 0, 1);
-    let currentDay = new Date(firstDayOfYear);
-    // Przesuń do najbliższego poniedziałku przed 1 stycznia
-    currentDay.setDate(currentDay.getDate() - (currentDay.getDay() - 1 + 7) % 7);
-    
-    const heatmap = document.createElement('div');
-    heatmap.className = 'heatmap';
+  document.getElementById('priority-list').addEventListener('click', (event) => {
+    const target = event.target.closest('[data-action]');
+    if (!target) return;
+    const monthKey = target.dataset.monthKey;
+    const id = target.dataset.priorityId;
+    const action = target.dataset.action;
+    if (action === 'toggle-priority') togglePriority(id, monthKey);
+    if (action === 'delete-priority') deletePriority(id, monthKey);
+  });
 
-    const totalWeeks = 53;
-    for (let weekIndex = 0; weekIndex < totalWeeks; weekIndex++) {
-        const weekColumn = document.createElement('div');
-        weekColumn.className = 'heatmap-week';
-        const weekStart = new Date(currentDay);
-
-        for (let day = 0; day < 7; day++) {
-            const dateString = toYYYYMMDD(currentDay);
-            const cell = document.createElement('div');
-            cell.className = 'heatmap-cell';
-
-            if (currentDay.getFullYear() === year) {
-                const count = activitiesByDay[dateString] || 0;
-                let level = 0;
-                if(count > 0) level = 1;
-                if(count > 1) level = 2;
-                if(count > 2) level = 3;
-                if(count > 3) level = 4;
-                cell.dataset.level = level;
-                cell.title = `${dateString}: ${count} ukończone aktywności`;
-            } else {
-                 cell.style.background = 'transparent';
-            }
-
-            weekColumn.appendChild(cell);
-            currentDay.setDate(currentDay.getDate() + 1);
-        }
-
-        const label = document.createElement('span');
-        label.className = 'heatmap-week-label';
-        if (weekStart.getFullYear() === year) {
-            const monthLabel = weekStart.toLocaleDateString('pl-PL', { month: 'short' }).replace('.', '').toUpperCase();
-            label.textContent = monthLabel;
-            label.title = `${formatWeekRange(weekStart)} ${weekStart.getFullYear()}`;
-        } else {
-            label.textContent = ' ';
-        }
-        weekColumn.appendChild(label);
-        heatmap.appendChild(weekColumn);
+  document.getElementById('modal-overlay').addEventListener('click', (event) => {
+    if (event.target === event.currentTarget) {
+      event.currentTarget.classList.remove('visible');
     }
-
-    heatmapContainer.appendChild(heatmap);
+  });
 }
 
-// --- TRYB PLANOWANIA ---
-function startPlanning(type) {
-    planningState = { isPlanning: true, activityType: type };
-    document.getElementById('planner-shell').classList.add('planning-mode');
-    const instructions = document.getElementById('planning-instructions');
-    instructions.style.display = 'block';
-    instructions.textContent = `Kliknij w kalendarzu, aby dodać: ${GOAL_DEFINITIONS[type].label}`;
-    document.getElementById('cancel-planning-btn').style.display = 'inline-flex';
-    document.querySelectorAll('[data-action="plan"]').forEach(b => b.style.display = 'none');
-}
-
-function stopPlanning() {
-    planningState = { isPlanning: false, activityType: null };
-    document.getElementById('planner-shell').classList.remove('planning-mode');
-    const instructions = document.getElementById('planning-instructions');
-    instructions.style.display = 'none';
-    document.getElementById('cancel-planning-btn').style.display = 'none';
-    document.querySelectorAll('[data-action="plan"]').forEach(b => b.style.display = 'inline-flex');
-}
-
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  ensureDay(selectedDate);
+  render();
+  setupEventListeners();
+});
 </script>
 </body>
 </html>
-
