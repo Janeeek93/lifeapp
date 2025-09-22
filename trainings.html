@@ -9,394 +9,867 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
-    :root {
-      --bg: #f8fafc; --card: #fff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
-      --green: #059669; --green-soft: #f0fdf4; --green-border: #a7f3d0;
-      --red: #dc2626; --red-soft: #fef2f2; --red-border: #fecaca;
-      --orange: #ea580c; --orange-soft: #fff7ed; --orange-border: #fed7aa;
-      --blue: #2563eb; --blue-soft: #eff6ff; --blue-border: #bfdbfe;
-      --purple: #7c3aed; --yellow: #ca8a04;
-      --gym-color: #5b21b6; --gym-soft: #f5f3ff; --gym-border: #ddd6fe;
-      --run-color: #047857; --run-soft: #ecfdf5; --run-border: #a7f3d0;
-      --read-color: #0369a1; --read-soft: #f0f9ff; --read-border: #bae6fd;
-      --extra-training: #9333ea; --extra-learning: #2563eb; --extra-relax: #0ea5e9;
-      --extra-home: #f97316; --extra-other: #334155;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      --transition-fast: all .2s ease-in-out;
-    }
-    *, *::before, *::after { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 20%, #f8fafc 100%); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-    .wrap { max-width: 1240px; margin: 0 auto; padding: 32px 24px 56px; }
-    .grid { display: grid; gap: 16px; }
-    .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    @media(max-width: 1024px) { .g-3, .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media(max-width: 768px) { .g-3, .g-2 { grid-template-columns: 1fr; } }
-    
-    .card { background: var(--card); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); transition: var(--transition-fast); position: relative; overflow: hidden; }
-    .card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), transparent); opacity: 0; transition: opacity .3s ease; }
-    .card:hover::after { opacity: 1; }
-    .card > * { position: relative; z-index: 1; }
-    .card:hover { box-shadow: var(--shadow-md); }
-    .title { margin: 0 0 8px 0; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; }
-    .muted { color: var(--muted); }
-    .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; border-radius: 12px; padding: 10px 16px; border: 1px solid transparent; background: var(--ink); color: #fff; cursor: pointer; text-decoration: none; font-weight: 600; transition: var(--transition-fast); }
-    .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .btn.soft { background: #fff; border-color: rgba(148, 163, 184, 0.3); color: var(--ink); }
-    .btn.soft:hover { background: var(--bg); border-color: #d1d5db; }
-    .btn.ghost { background: rgba(255, 255, 255, 0.6); border-color: rgba(148, 163, 184, 0.2); color: var(--muted); }
-    .btn.ghost:hover { background: rgba(255, 255, 255, 0.95); color: var(--ink); }
-    .btn.danger { background: var(--red-soft); border-color: var(--red-border); color: var(--red); }
-    .btn.danger:hover { background: var(--red); color: #fff; }
-    .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
-    .btn:disabled:hover { transform: none; box-shadow: none; }
-    
-    .progress-bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 4px; }
-    .progress-bar > div { height: 100%; transition: width .4s cubic-bezier(0.22, 1, 0.36, 1); }
-    .tiny { font-size: 12px; color: var(--muted); }
-    .row { display: flex; justify-content: space-between; align-items: center; }
 
-    /* Header */
-    .page-header { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: 24px; margin-bottom: 32px; align-items: stretch; }
-    @media(max-width: 1100px) { .page-header { grid-template-columns: 1fr; } }
-    .page-header-main { display: flex; flex-direction: column; gap: 18px; padding: 24px; border-radius: 22px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(14, 165, 233, 0.03) 100%); border: 1px solid rgba(148, 163, 184, 0.2); position: relative; overflow: hidden; box-shadow: var(--shadow-sm); }
-    .page-header-main::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(59,130,246,0.14), transparent 60%); pointer-events: none; }
-    .page-header-main > * { position: relative; z-index: 1; }
-    .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    .header-title-block { display: flex; flex-direction: column; gap: 6px; }
-    .header-title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .header-title-row h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.3px; }
-    .header-subtitle { max-width: 600px; font-size: 14px; margin: 0; }
-    .header-week-range { font-size: 13px; color: var(--muted); }
-    .week-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
-    .header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .eyebrow { text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; font-weight: 600; color: var(--blue); }
-    .header-insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-    .insight-card { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 16px; padding: 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 6px; }
-    .insight-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); font-weight: 600; }
-    .insight-value { font-size: 20px; font-weight: 700; color: var(--ink); }
-    .insight-sub { font-size: 12px; color: var(--muted); }
-    .header-kpis { display: flex; flex-direction: column; gap: 18px; padding: 24px; }
-    .kpi-item { text-align: left; display: flex; flex-direction: column; gap: 6px; }
-    .kpi-value { font-size: 24px; font-weight: 800; line-height: 1.1; }
-    .kpi-note { margin: 0; color: var(--muted); }
-    .weekly-overview-card { position: relative; overflow: visible; display: flex; flex-direction: column; gap: 20px; }
-    .overview-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
-    .overview-header h3 { margin-bottom: 0; }
-    .button-group { display: flex; gap: 8px; flex-wrap: wrap; }
-    .overview-progress { display: flex; flex-direction: column; gap: 10px; }
-    .progress-summary { display: flex; justify-content: space-between; align-items: center; }
-    .goal-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
-    .goal-card { padding: 22px; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 18px; display: flex; flex-direction: column; gap: 12px; transition: var(--transition-fast); }
-    .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-    .goal-card .title { font-size: 16px; margin-bottom: 0; }
-    .goal-card .kpi-value { font-size: 22px; font-weight: 700; }
-    .goal-card .goal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .goal-card .btn { flex: 1; min-width: 140px; padding: 8px 12px; font-size: 13px; }
-    .goal-meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
-    .goal-card.goal-gym { background: var(--gym-soft); border-color: var(--gym-border); }
-    .goal-card.goal-running { background: var(--run-soft); border-color: var(--run-border); }
-    .goal-card.goal-reading { background: var(--read-soft); border-color: var(--read-border); }
-    .page-layout { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); gap: 24px; align-items: flex-start; }
-    .layout-main, .layout-side { display: flex; flex-direction: column; gap: 24px; }
-    @media(max-width: 1100px) { .page-layout { grid-template-columns: 1fr; } }
-    .insights-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-    .insights-grid .card { min-height: 220px; display: flex; flex-direction: column; gap: 12px; }
-    .priority-list, .next-actions-list { list-style: none; padding: 0; margin: 12px 0; display: flex; flex-direction: column; gap: 12px; }
-    .priority-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.35); background: rgba(248, 250, 252, 0.7); transition: var(--transition-fast); }
-    .priority-item:hover { border-color: rgba(37, 99, 235, 0.35); box-shadow: var(--shadow-sm); }
-    .priority-item.completed { background: var(--green-soft); border-color: var(--green-border); }
-    .priority-details { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-    .priority-title { font-weight: 600; font-size: 14px; }
-    .priority-item.completed .priority-title { text-decoration: line-through; color: var(--muted); }
-    .priority-meta { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-    .priority-actions { display: flex; gap: 6px; }
-    .priority-toggle, .priority-delete { background: transparent; border: none; cursor: pointer; border-radius: 8px; padding: 4px; display: flex; align-items: center; justify-content: center; transition: var(--transition-fast); color: var(--muted); }
-    .priority-toggle:hover { color: var(--green); background: var(--green-soft); }
-    .priority-delete:hover { color: var(--red); background: var(--red-soft); }
-    .empty-priority { margin: 0; text-align: center; font-size: 13px; color: var(--muted); }
-    .next-actions-card { position: relative; }
-    .next-action-item { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.35); background: #fff; }
-    .next-action-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-    .next-action-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .next-action-date { font-size: 12px; color: var(--muted); }
-    .next-action-badge { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: rgba(37, 99, 235, 0.12); border-radius: 999px; padding: 4px 8px; }
-    @media(max-width: 640px) {
-      .header-top { width: 100%; flex-direction: column; align-items: flex-start; }
-      .header-actions { width: 100%; justify-content: flex-start; }
-      .back-btn { width: 100%; }
-    }
-
-    /* Planner */
-    .planner-card { padding: 24px; overflow: visible; }
-    .planner-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
-    .planner-title { display: flex; flex-direction: column; gap: 4px; }
-    .planner-title .title { margin: 0; font-size: 20px; }
-    .planner-range { font-size: 13px; color: var(--muted); }
-    .planner-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .week-nav { display: flex; gap: 8px; }
-    .planner-meta { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
-    .planner-status { font-weight: 600; font-size: 13px; }
-    .planner-instructions { display: none; margin: 0; margin-top: 12px; padding: 12px 16px; border-radius: 12px; background: var(--blue-soft); color: var(--blue); font-weight: 500; }
-    .btn.small { padding: 6px 12px; font-size: 12px; border-radius: 10px; }
-    .planner-grid-wrapper { margin-top: 20px; overflow-x: auto; padding-bottom: 12px; }
-    .planner-grid { display: grid; grid-template-columns: repeat(7, minmax(160px, 1fr)); gap: 16px; min-width: 1120px; }
-    .day-column { position: relative; background: var(--bg); border-radius: 12px; padding: 12px; transition: var(--transition-fast); border: 2px solid transparent; min-width: 160px; }
-    .day-header { font-weight: 600; text-align: center; font-size: 13px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
-    .day-header.today { color: var(--blue); }
-    .activities-container { min-height: 120px; display: flex; flex-direction: column; gap: 8px; }
-    .activity-pill { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: grab; border: 1px solid; transition: var(--transition-fast); text-align: left; }
-    .activity-pill.dragging { opacity: 0.5; transform: scale(1.05); box-shadow: var(--shadow-lg); }
-    .activity-pill:not(.completed):hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-    .activity-pill.gym { background: var(--gym-soft); color: var(--gym-color); border-color: var(--gym-border); }
-    .activity-pill.running { background: var(--run-soft); color: var(--run-color); border-color: var(--run-border); }
-    .activity-pill.reading { background: var(--read-soft); color: var(--read-color); border-color: var(--read-border); }
-    .activity-pill.completed { background: var(--green-soft); color: var(--green); border-color: var(--green-border); cursor: pointer; }
-    .activity-pill.completed:hover { opacity: 1; box-shadow: var(--shadow-sm); }
-    .activity-pill > span { text-decoration: none; }
-    .activity-pill.completed > span { text-decoration: line-through; opacity: 0.7; }
-    .day-column.drag-over { background-color: var(--blue-soft); border-color: var(--blue-border); }
-    .delete-activity-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 2px; margin-left: 8px; border-radius: 4px; display: flex; align-items: center; transition: var(--transition-fast); }
-    .delete-activity-btn:hover { color: var(--red); background-color: var(--red-soft); }
-
-    .quick-add-btn { position: absolute; top: 8px; right: 8px; background: #fff; border: 1px solid var(--line); border-radius: 50%; width: 28px; height: 28px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
-    .day-column:hover .quick-add-btn { opacity: 1; }
-    .quick-add-menu { position: absolute; top: 40px; right: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); z-index: 10; display: none; flex-direction: column; overflow: hidden; }
-    .quick-add-menu button { background: none; border: none; padding: 8px 12px; text-align: left; cursor: pointer; width: 100%; font-size: 13px; }
-    .quick-add-menu button:hover { background-color: var(--bg); }
-
-    .extras-container { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
-    .extras-header { display: flex; justify-content: space-between; align-items: center; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-    .extra-pill { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px 12px 20px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.4); background: #fff; box-shadow: var(--shadow-sm); transition: var(--transition-fast); }
-    .extra-pill::before { content: ""; position: absolute; left: 8px; top: 12px; bottom: 12px; width: 4px; border-radius: 999px; background: var(--extra-other); }
-    .extra-pill[data-category="training"]::before { background: var(--extra-training); }
-    .extra-pill[data-category="learning"]::before { background: var(--extra-learning); }
-    .extra-pill[data-category="relax"]::before { background: var(--extra-relax); }
-    .extra-pill[data-category="home"]::before { background: var(--extra-home); }
-    .extra-pill:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-    .extra-pill.completed { background: var(--green-soft); border-color: var(--green-border); }
-    .extra-main { display: flex; align-items: center; gap: 12px; flex: 1; }
-    .extra-toggle { width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(148, 163, 184, 0.2); color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition-fast); }
-    .extra-toggle:hover { background: rgba(37, 99, 235, 0.12); color: var(--blue); }
-    .extra-pill.completed .extra-toggle { background: var(--green); color: #fff; }
-    .extra-info { display: flex; flex-direction: column; gap: 4px; }
-    .extra-title { font-weight: 600; font-size: 14px; }
-    .extra-pill.completed .extra-title { text-decoration: line-through; color: var(--muted); }
-    .extra-category { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-    .extra-delete-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px; border-radius: 8px; display: flex; align-items: center; transition: var(--transition-fast); }
-    .extra-delete-btn:hover { color: var(--red); background: var(--red-soft); }
-    .add-extra-btn { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; border: 1px dashed rgba(148, 163, 184, 0.6); background: transparent; padding: 6px 10px; border-radius: 10px; font-size: 12px; color: var(--muted); cursor: pointer; transition: var(--transition-fast); }
-    .add-extra-btn:hover { border-color: var(--blue); color: var(--blue); }
-
-    .empty-planner { text-align: center; padding: 40px; color: var(--muted); border: 2px dashed var(--line); border-radius: 16px; margin-top: 24px; background: rgba(255, 255, 255, 0.7); }
-
-    /* Modal */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity .2s ease-out; }
-    .modal-overlay.visible { opacity: 1; pointer-events: all; }
-    .modal-card { background: var(--card); padding: 32px; border-radius: 16px; box-shadow: var(--shadow-lg); max-width: 450px; width: 90%; text-align: center; transition: transform .2s ease-out; transform: scale(0.95); }
-    .modal-overlay.visible .modal-card { transform: scale(1); }
-    .modal-actions { margin-top: 24px; display: flex; justify-content: center; gap: 12px; }
-    .modal-card input { border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; text-align: center; font-size: 18px; padding: 12px; width: 100%; }
-    .modal-options { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
-    .option-label { display: flex; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: var(--transition-fast); }
-    .option-label:hover { background-color: var(--bg); border-color: var(--blue-border); }
-    .option-label input { margin-right: 12px; }
-
-    /* Planning Mode */
-    .planning-mode .day-column { cursor: pointer; border: 2px dashed var(--blue-border); }
-    .planning-mode .day-column:hover { border-color: var(--blue); background: var(--blue-soft); }
-
-    /* Stats */
-    .heatmap-container { margin-top: 16px; overflow-x: auto; padding-bottom: 12px; }
-    .heatmap { display: flex; gap: 4px; min-width: max-content; align-items: flex-start; }
-    .heatmap-week { display: flex; flex-direction: column; gap: 4px; align-items: center; }
-    .heatmap-week-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
-    .heatmap-cell { width: 15px; height: 15px; background: var(--line); border-radius: 3px; position: relative; }
-    .heatmap-cell[data-level="1"] { background: #9be9a8; }
-    .heatmap-cell[data-level="2"] { background: #40c463; }
-    .heatmap-cell[data-level="3"] { background: #30a14e; }
-    .heatmap-cell[data-level="4"] { background: #216e39; }
-    .heatmap-legend { display: flex; align-items: center; gap: 4px; justify-content: flex-end; margin-top: 8px; }
-
-    /* Save Status */
-    #save-status { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 12px; box-shadow: var(--shadow-lg); z-index: 2000; opacity: 0; transition: opacity .3s, transform .3s; pointer-events: none; }
-    #save-status.visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-    
-    .icon { width: 1em; height: 1em; }
+:root {
+  --bg: #f3f5f9;
+  --card: #ffffff;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --green: #059669;
+  --green-soft: #ecfdf5;
+  --green-border: #a7f3d0;
+  --red: #dc2626;
+  --red-soft: #fef2f2;
+  --red-border: #fecaca;
+  --orange: #ea580c;
+  --orange-soft: #fff7ed;
+  --orange-border: #fed7aa;
+  --blue: #2563eb;
+  --blue-soft: #eff6ff;
+  --blue-border: #bfdbfe;
+  --purple: #7c3aed;
+  --yellow: #ca8a04;
+  --gym-color: #5b21b6;
+  --gym-soft: #f5f3ff;
+  --gym-border: #ddd6fe;
+  --run-color: #047857;
+  --run-soft: #ecfdf5;
+  --run-border: #a7f3d0;
+  --read-color: #0369a1;
+  --read-soft: #f0f9ff;
+  --read-border: #bae6fd;
+  --extra-training: #9333ea;
+  --extra-learning: #2563eb;
+  --extra-relax: #0ea5e9;
+  --extra-home: #f97316;
+  --extra-other: #334155;
+  --shadow-sm: 0 6px 18px rgba(15, 23, 42, 0.07);
+  --shadow-md: 0 16px 30px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 22px 45px rgba(15, 23, 42, 0.12);
+  --transition-fast: all .2s ease;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #e0e7ff 0%, #f3f5f9 45%, #f8fafc 100%);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4, h5 { margin: 0; color: var(--ink); }
+p { margin: 0; }
+.wrap {
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 24px 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 100vh;
+}
+.muted { color: var(--muted); }
+.tiny { font-size: 11px; letter-spacing: 0.02em; }
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.card {
+  background: var(--card);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+  position: relative;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 10px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 12px;
+  transition: var(--transition-fast);
+}
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.btn.soft {
+  background: #fff;
+  border-color: rgba(148, 163, 184, 0.45);
+  color: var(--ink);
+}
+.btn.soft:hover { border-color: var(--blue); color: var(--blue); }
+.btn.ghost {
+  background: rgba(148, 163, 184, 0.16);
+  color: var(--ink);
+}
+.btn.ghost:hover { background: rgba(148, 163, 184, 0.26); }
+.btn.danger {
+  background: var(--red-soft);
+  border-color: var(--red-border);
+  color: var(--red);
+}
+.btn.danger:hover { background: var(--red); color: #fff; }
+.btn.small { padding: 5px 10px; font-size: 11px; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+}
+.page-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+.header-title-block { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.header-title-row h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.2px; }
+.header-week-range { font-size: 12px; color: var(--muted); }
+.week-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.metric-card {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: linear-gradient(140deg, rgba(37, 99, 235, 0.06), rgba(14, 165, 233, 0.04));
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 78px;
+}
+.metric-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 600;
+}
+.metric-value { font-size: 18px; font-weight: 700; color: var(--ink); }
+.metric-sub { font-size: 11px; color: var(--muted); min-height: 14px; }
+.dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+.dashboard-main {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 16px;
+  min-height: 0;
+}
+.dashboard-side {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 16px;
+  min-height: 0;
+}
+.section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.planner-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+.planner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.planner-title { display: flex; flex-direction: column; gap: 4px; }
+.planner-range { font-size: 12px; color: var(--muted); }
+.planner-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.week-nav { display: flex; gap: 8px; }
+.planner-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.planner-status { font-weight: 600; font-size: 12px; }
+.planner-instructions {
+  display: none;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-weight: 500;
+}
+.planner-grid-wrapper { flex: 1; min-height: 0; }
+.planner-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+  min-height: 0;
+}
+.day-column {
+  background: rgba(248, 250, 252, 0.9);
+  border-radius: 14px;
+  padding: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  transition: var(--transition-fast);
+  position: relative;
+}
+.day-header {
+  font-weight: 600;
+  text-align: center;
+  font-size: 12px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.day-header.today { color: var(--blue); }
+.activities-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 80px;
+}
+.activity-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: grab;
+  transition: var(--transition-fast);
+}
+.activity-pill.dragging { opacity: 0.6; transform: scale(1.02); box-shadow: var(--shadow-md); }
+.activity-pill:not(.completed):hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.activity-pill.gym { background: var(--gym-soft); color: var(--gym-color); border-color: var(--gym-border); }
+.activity-pill.running { background: var(--run-soft); color: var(--run-color); border-color: var(--run-border); }
+.activity-pill.reading { background: var(--read-soft); color: var(--read-color); border-color: var(--read-border); }
+.activity-pill.completed {
+  background: var(--green-soft);
+  color: var(--green);
+  border-color: var(--green-border);
+  cursor: pointer;
+}
+.activity-pill span { flex: 1; }
+.activity-pill.completed span { text-decoration: line-through; opacity: 0.75; }
+.day-column.drag-over { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue-border); }
+.delete-activity-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: var(--transition-fast);
+}
+.delete-activity-btn:hover { color: var(--red); background-color: var(--red-soft); }
+.quick-add-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  width: 26px;
+  height: 26px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .2s;
+  font-size: 14px;
+  padding: 0;
+}
+.day-column:hover .quick-add-btn { opacity: 1; }
+.quick-add-menu {
+  position: absolute;
+  top: 36px;
+  right: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+.quick-add-menu button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  font-size: 12px;
+}
+.quick-add-menu button:hover { background-color: var(--bg); }
+.extras-container { display: flex; flex-direction: column; gap: 8px; }
+.extras-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.extra-pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+  font-size: 12px;
+}
+.extra-pill::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--extra-other);
+}
+.extra-pill[data-category="training"]::before { background: var(--extra-training); }
+.extra-pill[data-category="learning"]::before { background: var(--extra-learning); }
+.extra-pill[data-category="relax"]::before { background: var(--extra-relax); }
+.extra-pill[data-category="home"]::before { background: var(--extra-home); }
+.extra-pill:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.extra-pill.completed { background: var(--green-soft); border-color: var(--green-border); }
+.extra-main { display: flex; align-items: center; gap: 10px; flex: 1; }
+.extra-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(148, 163, 184, 0.2);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.extra-toggle:hover { background: rgba(37, 99, 235, 0.15); color: var(--blue); }
+.extra-pill.completed .extra-toggle { background: var(--green); color: #fff; }
+.extra-info { display: flex; flex-direction: column; gap: 4px; }
+.extra-title { font-weight: 600; font-size: 12px; }
+.extra-pill.completed .extra-title { text-decoration: line-through; color: var(--muted); }
+.extra-category { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.extra-delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  transition: var(--transition-fast);
+}
+.extra-delete-btn:hover { color: var(--red); background: var(--red-soft); }
+.add-extra-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px dashed rgba(148, 163, 184, 0.6);
+  background: transparent;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.add-extra-btn:hover { border-color: var(--blue); color: var(--blue); }
+.analytics-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 16px;
+  align-items: start;
+}
+.panel-header { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.next-actions-panel { display: flex; flex-direction: column; gap: 8px; }
+.next-actions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.next-action-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: #fff;
+  font-size: 12px;
+}
+.next-action-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.next-action-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.next-action-date { font-size: 11px; color: var(--muted); }
+.next-action-badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  background: rgba(37, 99, 235, 0.12);
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+.heatmap-panel { display: flex; flex-direction: column; gap: 8px; }
+.heatmap-container { overflow: hidden; }
+.heatmap {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  min-width: max-content;
+}
+.heatmap-week { display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.heatmap-week-label {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.heatmap-cell {
+  width: 12px;
+  height: 12px;
+  background: var(--line);
+  border-radius: 3px;
+  position: relative;
+}
+.heatmap-cell[data-level="1"] { background: #9be9a8; }
+.heatmap-cell[data-level="2"] { background: #40c463; }
+.heatmap-cell[data-level="3"] { background: #30a14e; }
+.heatmap-cell[data-level="4"] { background: #216e39; }
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+  font-size: 11px;
+}
+.weekly-overview-card { display: flex; flex-direction: column; gap: 14px; }
+.overview-progress { display: flex; flex-direction: column; gap: 8px; }
+.progress-summary { display: flex; justify-content: space-between; align-items: center; }
+.progress-bar {
+  height: 8px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-bar > div { height: 100%; transition: width .4s cubic-bezier(0.22, 1, 0.36, 1); }
+.goal-grid { display: grid; gap: 12px; }
+.goal-card {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(248, 250, 252, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: var(--transition-fast);
+}
+.goal-card.goal-gym { background: var(--gym-soft); border-color: var(--gym-border); }
+.goal-card.goal-running { background: var(--run-soft); border-color: var(--run-border); }
+.goal-card.goal-reading { background: var(--read-soft); border-color: var(--read-border); }
+.goal-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm); }
+.goal-title { font-size: 15px; font-weight: 700; }
+.goal-value { font-size: 18px; font-weight: 700; }
+.goal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.goal-actions .btn { flex: 1; min-width: 120px; }
+.goal-meta { font-size: 11px; color: var(--muted); }
+.priorities-card { display: flex; flex-direction: column; gap: 12px; }
+.priority-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.priority-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(248, 250, 252, 0.8);
+  transition: var(--transition-fast);
+}
+.priority-item:hover { border-color: rgba(37, 99, 235, 0.35); box-shadow: var(--shadow-sm); }
+.priority-item.completed { background: var(--green-soft); border-color: var(--green-border); }
+.priority-details { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.priority-title { font-weight: 600; font-size: 13px; }
+.priority-item.completed .priority-title { text-decoration: line-through; color: var(--muted); }
+.priority-meta { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.priority-actions { display: flex; gap: 6px; }
+.priority-toggle, .priority-delete {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  color: var(--muted);
+}
+.priority-toggle:hover { color: var(--green); background: var(--green-soft); }
+.priority-delete:hover { color: var(--red); background: var(--red-soft); }
+.empty-priority { margin: 0; text-align: center; font-size: 12px; color: var(--muted); }
+.empty-planner {
+  text-align: center;
+  padding: 24px;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.65);
+}
+.empty-planner h4 { margin: 0 0 6px 0; font-size: 15px; }
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease-out;
+}
+.modal-overlay.visible { opacity: 1; pointer-events: all; }
+.modal-card {
+  background: var(--card);
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  max-width: 440px;
+  width: 90%;
+  text-align: center;
+  transition: transform .2s ease-out;
+  transform: scale(0.95);
+}
+.modal-overlay.visible .modal-card { transform: scale(1); }
+.modal-actions { margin-top: 20px; display: flex; justify-content: center; gap: 12px; }
+.modal-card input {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin-top: 12px;
+  text-align: center;
+  font-size: 18px;
+  padding: 12px;
+  width: 100%;
+}
+.modal-options { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+.option-label {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.option-label:hover { background-color: var(--bg); border-color: var(--blue-border); }
+.option-label input { margin-right: 12px; }
+.planning-mode .day-column { cursor: pointer; border: 1px dashed var(--blue-border); }
+.planning-mode .day-column:hover { border-color: var(--blue); background: var(--blue-soft); }
+#save-status {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity .3s, transform .3s;
+  pointer-events: none;
+  font-size: 12px;
+}
+#save-status.visible { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+.icon { width: 16px; height: 16px; }
+@media (max-width: 1180px) {
+  .dashboard { grid-template-columns: 1fr; }
+  .dashboard-side { grid-template-rows: auto auto; }
+}
+@media (max-width: 860px) {
+  .analytics-card { grid-template-columns: 1fr; }
+  .metrics-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .planner-grid { grid-template-columns: repeat(7, minmax(130px, 1fr)); }
+  .planner-grid-wrapper { overflow-x: auto; }
+}
+@media (max-width: 600px) {
+  .page-header-top { flex-direction: column; align-items: flex-start; }
+  .header-left { flex-direction: column; align-items: flex-start; }
+  .week-chip { align-self: flex-start; }
+  .btn { width: 100%; justify-content: center; }
+  .planner-controls { width: 100%; justify-content: space-between; }
+  .week-nav { flex: 1; justify-content: space-between; }
+}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="page-header">
-      <div class="page-header-main">
-        <div class="header-top">
-          <div class="header-title-block">
-            <span class="eyebrow">Strategiczne zarządzanie rozwojem</span>
-            <div class="header-title-row">
-              <h1>Panel treningów</h1>
-              <span class="week-chip" id="header-week-label">Tydzień --</span>
-            </div>
-            <span class="header-week-range" id="header-week-range">--</span>
+
+<div class="wrap">
+  <header class="page-header card">
+    <div class="page-header-top">
+      <div class="header-left">
+        <a href="./index.html" class="btn ghost"><i data-lucide="arrow-left" class="icon"></i>Powrót</a>
+        <div class="header-title-block">
+          <span class="eyebrow">Strategiczne zarządzanie rozwojem</span>
+          <div class="header-title-row">
+            <h1>Panel treningów</h1>
+            <span class="week-chip" id="header-week-label">Tydzień --</span>
           </div>
-          <div class="header-actions">
-            <a href="./index.html" class="btn soft back-btn"><i data-lucide="arrow-left" class="icon"></i> Powrót</a>
-          </div>
-        </div>
-        <p class="muted header-subtitle">Planowanie, realizacja i analiza Twoich kluczowych celów w jednym miejscu.</p>
-        <div class="header-insights">
-          <div class="insight-card">
-            <span class="insight-label">Realizacja celów</span>
-            <span class="insight-value" id="header-week-progress">0%</span>
-            <span class="insight-sub">Średni postęp celów głównych</span>
-          </div>
-          <div class="insight-card">
-            <span class="insight-label">Aktywności tygodnia</span>
-            <span class="insight-value" id="header-planned-activities">0/0</span>
-            <span class="insight-sub">ukończone / zaplanowane</span>
-          </div>
-          <div class="insight-card">
-            <span class="insight-label">Status planu</span>
-            <span class="insight-value" id="header-plan-status">W trakcie</span>
-            <span class="insight-sub" id="header-plan-status-hint">Uzupełnij plan, aby zamknąć cele tygodnia.</span>
-          </div>
+          <span class="header-week-range" id="header-week-range">--</span>
         </div>
       </div>
-      <div class="card header-kpis">
-        <div class="kpi-item">
-            <div class="muted">Ukończone tyg.</div>
-            <div id="yearly-progress-value" class="kpi-value" style="color: var(--green);">0/36</div>
-            <p class="kpi-note tiny">Cel roczny</p>
-        </div>
-        <div class="kpi-item">
-            <div class="muted">Seria</div>
-            <div id="streak-value" class="kpi-value" style="color: var(--orange);">0</div>
-            <p class="kpi-note tiny">Najdłuższa passa</p>
-        </div>
-        <div class="kpi-item">
-            <div class="muted">Najbliższa aktywność</div>
-            <div id="next-activity-kpi" class="kpi-value" style="color: var(--blue); font-size: 18px;">Brak planu</div>
-            <p id="next-activity-date" class="kpi-note tiny muted"></p>
-        </div>
-      </div>
-    </header>
-
-    <div class="page-layout">
-      <section class="layout-main">
-        <div id="planner-shell" class="card planner-card">
-          <div class="planner-header">
-            <div class="planner-title">
-              <h3 class="title"><i data-lucide="layout-grid" class="icon"></i>Planer tygodniowy</h3>
-              <span class="planner-range" id="planner-week-range">--</span>
-            </div>
-            <div class="planner-controls">
-              <button id="copy-plan-btn" class="btn ghost" style="display: none;"><i data-lucide="copy" class="icon"></i>Kopiuj plan</button>
-              <div class="week-nav">
-                <button id="prev-week-btn" class="btn soft"><i data-lucide="chevron-left" class="icon"></i>Poprzedni</button>
-                <button id="today-week-btn" class="btn soft" style="display: none;">Bieżący</button>
-                <button id="next-week-btn" class="btn soft">Następny<i data-lucide="chevron-right" class="icon"></i></button>
-              </div>
-            </div>
-          </div>
-          <div class="planner-meta">
-            <span id="planning-status" class="planner-status muted"></span>
-            <button id="cancel-planning-btn" class="btn soft small" style="display: none;">Zakończ planowanie</button>
-          </div>
-          <p id="planning-instructions" class="planner-instructions"></p>
-          <div class="planner-grid-wrapper">
-            <div class="planner-grid"></div>
-          </div>
-          <div id="empty-planner-placeholder" class="empty-planner" style="display: none;">
-            <h4 style="margin: 0 0 4px 0;">Brak zaplanowanych działań</h4>
-            <p class="muted" style="margin: 0;">Dodaj cele z panelu obok lub użyj szybkich przycisków w kalendarzu.</p>
-          </div>
-        </div>
-
-        <div class="insights-grid">
-          <div class="card next-actions-card">
-              <h3 class="title"><i data-lucide="alarm-clock" class="icon"></i>Najbliższe kroki</h3>
-              <p class="muted tiny" style="margin-top:-4px;">Automatyczne podpowiedzi z planera i aktywności dodatkowych.</p>
-              <ul id="next-actions-list" class="next-actions-list"></ul>
-              <p id="next-actions-empty" class="empty-priority">Brak zaplanowanych aktywności na horyzoncie.</p>
-          </div>
-          <div class="card stats-card">
-              <h3 class="title"><i data-lucide="flame" class="icon"></i>Aktywność w czasie</h3>
-              <p class="muted tiny" style="margin-top:-8px; margin-bottom: 12px;">Każdy kwadrat to jeden dzień roku. Im ciemniejszy odcień, tym więcej ukończonych działań.</p>
-              <div class="heatmap-container"></div>
-              <div class="heatmap-legend">
-                  <span class="muted tiny">Mniej</span>
-                  <div class="heatmap-cell" style="background: var(--line)"></div>
-                  <div class="heatmap-cell" data-level="1"></div>
-                  <div class="heatmap-cell" data-level="2"></div>
-                  <div class="heatmap-cell" data-level="3"></div>
-                  <div class="heatmap-cell" data-level="4"></div>
-                  <span class="muted tiny">Więcej</span>
-              </div>
-          </div>
-        </div>
-      </section>
-
-      <aside class="layout-side">
-        <div class="card weekly-overview-card">
-          <div class="overview-header">
-            <div>
-              <h3 class="title"><i data-lucide="calendar-check" class="icon"></i><span id="week-title">Cele tygodniowe</span></h3>
-              <p class="muted tiny" style="margin-top:-4px;">Monitoruj realizację kluczowych wskaźników.</p>
-            </div>
-          </div>
-          <div class="overview-progress">
-              <div class="progress-summary">
-                  <span id="overall-progress-label" class="tiny muted">Postęp tygodnia: 0%</span>
-              </div>
-              <div class="progress-bar"><div id="overall-progress-bar" style="width:0%; background: var(--blue);"></div></div>
-          </div>
-          <div class="goal-grid">
-              <div class="goal-card goal-gym">
-                  <h4 class="title">💪 Trening siłowy</h4>
-                  <div id="goal-gym-progress" class="kpi-value">0/3 sesje</div>
-                  <div class="progress-bar"><div id="goal-gym-bar" style="width:0%; background: var(--gym-color);"></div></div>
-                  <p class="goal-meta" id="goal-gym-remaining">Pozostało: 3 sesje</p>
-                  <div class="goal-actions">
-                    <button class="btn soft" data-activity-type="gym" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Dodaj do planu</button>
-                  </div>
-              </div>
-              <div class="goal-card goal-running">
-                  <h4 class="title">🏃 Bieg</h4>
-                  <div id="goal-running-progress" class="kpi-value">0/5 km</div>
-                  <div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div>
-                  <p class="goal-meta" id="goal-running-remaining">Pozostało: 5 km</p>
-                  <div class="goal-actions">
-                    <button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Dodaj do planu</button>
-                  </div>
-              </div>
-              <div class="goal-card goal-reading">
-                  <h4 class="title">📚 Czytanie</h4>
-                  <div id="goal-reading-progress" class="kpi-value">0/100 stron</div>
-                  <div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div>
-                  <p class="goal-meta" id="goal-reading-remaining">Pozostało: 100 stron</p>
-                  <div class="goal-actions">
-                    <button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Dodaj do planu</button>
-                  </div>
-              </div>
-          </div>
-        </div>
-
-        <div class="card priorities-card">
-              <h3 class="title"><i data-lucide="star" class="icon"></i>Priorytety tygodnia</h3>
-              <p class="muted tiny" style="margin-top:-4px;">Skup się na maksymalnie trzech działaniach o największym wpływie.</p>
-              <ul id="priority-list" class="priority-list"></ul>
-              <p id="priority-empty" class="empty-priority">Dodaj pierwszy priorytet, by mieć jasność działań.</p>
-              <button id="add-priority-btn" class="btn soft"><i data-lucide="plus-circle" class="icon"></i>Dodaj priorytet</button>
-        </div>
-      </aside>
     </div>
-  </div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">Realizacja celów</span>
+        <span class="metric-value" id="header-week-progress">0%</span>
+        <span class="metric-sub">Średni postęp celów głównych</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Aktywności tygodnia</span>
+        <span class="metric-value" id="header-planned-activities">0/0</span>
+        <span class="metric-sub">ukończone / zaplanowane</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Status planu</span>
+        <span class="metric-value" id="header-plan-status">W trakcie</span>
+        <span class="metric-sub" id="header-plan-status-hint">Uzupełnij plan, aby zamknąć cele tygodnia.</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Ukończone tyg.</span>
+        <span class="metric-value" id="yearly-progress-value">0/36</span>
+        <span class="metric-sub">Cel roczny</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Seria</span>
+        <span class="metric-value" id="streak-value">0</span>
+        <span class="metric-sub">Najdłuższa passa</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Najbliższa aktywność</span>
+        <span class="metric-value" id="next-activity-kpi">Brak planu</span>
+        <span class="metric-sub" id="next-activity-date"></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <section class="dashboard-main">
+      <div id="planner-shell" class="card planner-card">
+        <div class="planner-header">
+          <div class="planner-title">
+            <h3 class="section-title"><i data-lucide="layout-grid" class="icon"></i>Planer tygodniowy</h3>
+            <span class="planner-range" id="planner-week-range">--</span>
+          </div>
+          <div class="planner-controls">
+            <button id="copy-plan-btn" class="btn ghost" style="display: none;"><i data-lucide="copy" class="icon"></i>Kopiuj plan</button>
+            <div class="week-nav">
+              <button id="prev-week-btn" class="btn soft"><i data-lucide="chevron-left" class="icon"></i>Poprzedni</button>
+              <button id="today-week-btn" class="btn soft" style="display: none;">Bieżący</button>
+              <button id="next-week-btn" class="btn soft">Następny<i data-lucide="chevron-right" class="icon"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="planner-meta">
+          <span id="planning-status" class="planner-status muted"></span>
+          <button id="cancel-planning-btn" class="btn soft small" style="display: none;">Zakończ planowanie</button>
+        </div>
+        <p id="planning-instructions" class="planner-instructions"></p>
+        <div class="planner-grid-wrapper">
+          <div class="planner-grid"></div>
+        </div>
+        <div id="empty-planner-placeholder" class="empty-planner" style="display: none;">
+          <h4>Brak zaplanowanych działań</h4>
+          <p class="muted">Dodaj cele z panelu obok lub użyj szybkich przycisków w kalendarzu.</p>
+        </div>
+      </div>
+
+      <div class="card analytics-card">
+        <div class="next-actions-panel">
+          <div class="panel-header">
+            <h3 class="section-title"><i data-lucide="alarm-clock" class="icon"></i>Najbliższe kroki</h3>
+            <p class="muted tiny">Automatyczne podpowiedzi z planera i aktywności dodatkowych.</p>
+          </div>
+          <ul id="next-actions-list" class="next-actions-list"></ul>
+          <p id="next-actions-empty" class="empty-priority">Brak zaplanowanych aktywności na horyzoncie.</p>
+        </div>
+        <div class="heatmap-panel">
+          <div class="panel-header">
+            <h3 class="section-title"><i data-lucide="flame" class="icon"></i>Aktywność w czasie</h3>
+            <p class="muted tiny">Każdy kwadrat to jeden dzień roku. Im ciemniejszy odcień, tym więcej ukończonych działań.</p>
+          </div>
+          <div class="heatmap-container"></div>
+          <div class="heatmap-legend">
+            <span class="muted tiny">Mniej</span>
+            <div class="heatmap-cell" style="background: var(--line)"></div>
+            <div class="heatmap-cell" data-level="1"></div>
+            <div class="heatmap-cell" data-level="2"></div>
+            <div class="heatmap-cell" data-level="3"></div>
+            <div class="heatmap-cell" data-level="4"></div>
+            <span class="muted tiny">Więcej</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="dashboard-side">
+      <div class="card weekly-overview-card">
+        <div class="panel-header">
+          <h3 class="section-title"><i data-lucide="calendar-check" class="icon"></i><span id="week-title">Cele tygodniowe</span></h3>
+          <p class="muted tiny">Monitoruj realizację kluczowych wskaźników.</p>
+        </div>
+        <div class="overview-progress">
+          <div class="progress-summary">
+            <span id="overall-progress-label" class="tiny muted">Postęp tygodnia: 0%</span>
+          </div>
+          <div class="progress-bar"><div id="overall-progress-bar" style="width:0%; background: var(--blue);"></div></div>
+        </div>
+        <div class="goal-grid">
+          <div class="goal-card goal-gym">
+            <div class="goal-title">💪 Trening siłowy</div>
+            <div id="goal-gym-progress" class="goal-value">0/3 sesje</div>
+            <div class="progress-bar"><div id="goal-gym-bar" style="width:0%; background: var(--gym-color);"></div></div>
+            <p class="goal-meta" id="goal-gym-remaining">Pozostało: 3 sesje</p>
+            <div class="goal-actions">
+              <button class="btn soft" data-activity-type="gym" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Dodaj do planu</button>
+            </div>
+          </div>
+          <div class="goal-card goal-running">
+            <div class="goal-title">🏃 Bieg</div>
+            <div id="goal-running-progress" class="goal-value">0/5 km</div>
+            <div class="progress-bar"><div id="goal-running-bar" style="width:0%; background: var(--run-color);"></div></div>
+            <p class="goal-meta" id="goal-running-remaining">Pozostało: 5 km</p>
+            <div class="goal-actions">
+              <button class="btn soft" data-activity-type="running" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Dodaj do planu</button>
+            </div>
+          </div>
+          <div class="goal-card goal-reading">
+            <div class="goal-title">📚 Czytanie</div>
+            <div id="goal-reading-progress" class="goal-value">0/100 stron</div>
+            <div class="progress-bar"><div id="goal-reading-bar" style="width:0%; background: var(--read-color);"></div></div>
+            <p class="goal-meta" id="goal-reading-remaining">Pozostało: 100 stron</p>
+            <div class="goal-actions">
+              <button class="btn soft" data-activity-type="reading" data-action="plan"><i data-lucide="plus-circle" class="icon"></i>Dodaj do planu</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card priorities-card">
+        <div class="panel-header">
+          <h3 class="section-title"><i data-lucide="star" class="icon"></i>Priorytety tygodnia</h3>
+          <p class="muted tiny">Skup się na maksymalnie trzech działaniach o największym wpływie.</p>
+        </div>
+        <ul id="priority-list" class="priority-list"></ul>
+        <p id="priority-empty" class="empty-priority">Dodaj pierwszy priorytet, by mieć jasność działań.</p>
+        <button id="add-priority-btn" class="btn soft"><i data-lucide="plus-circle" class="icon"></i>Dodaj priorytet</button>
+      </div>
+    </aside>
+  </main>
+</div>
 
 <div id="modal-overlay" class="modal-overlay">
   <div class="modal-card">
-    <h3 id="modal-title" class="title" style="justify-content: center;"></h3>
+    <h3 id="modal-title" class="section-title" style="justify-content: center;"></h3>
     <p id="modal-text" class="muted"></p>
     <div id="modal-input-container"></div>
     <div id="modal-options-container"></div>
