@@ -449,7 +449,7 @@ a { color: inherit; text-decoration: none; }
       <div class="metric-card">
         <span class="metric-label">Realizacja celów</span>
         <span class="metric-value" id="metric-goal-progress">0%</span>
-        <span class="metric-sub">Średni postęp głównych celów</span>
+        <span class="metric-sub" id="metric-goal-progress-sub">Cele tygodniowe</span>
       </div>
       <div class="metric-card">
         <span class="metric-label">Zamknięte działania</span>
@@ -550,7 +550,7 @@ a { color: inherit; text-decoration: none; }
         <div class="card-header">
           <div>
             <h3>Postęp celów</h3>
-            <p class="muted tiny">Porównanie z planem miesięcznym</p>
+            <p class="muted tiny">Porównanie z celami tygodniowymi</p>
           </div>
         </div>
         <div id="goal-progress-list" class="goal-progress-list"></div>
@@ -594,10 +594,12 @@ a { color: inherit; text-decoration: none; }
 
 <script>
 const STORAGE_KEY = 'lifeos_trainings_month_v1';
+const LEGACY_STORAGE_KEY = 'lifeos_trainings_v1';
+const MIGRATION_FLAG_KEY = 'lifeos_trainings_migrated_to_month_v1';
 const GOAL_DEFINITIONS = {
-  gym: { target: 10, unit: 'sesji', label: 'Trening siłowy', icon: 'dumbbell', color: 'var(--gym-color)' },
-  running: { target: 60, unit: 'km', label: 'Bieganie', icon: 'activity', color: 'var(--run-color)' },
-  reading: { target: 300, unit: 'stron', label: 'Czytanie', icon: 'book-open', color: 'var(--read-color)' }
+  gym: { target: 3, unit: 'sesje', label: 'Trening siłowy', icon: 'dumbbell', color: 'var(--gym-color)' },
+  running: { target: 5, unit: 'km', label: 'Bieganie', icon: 'activity', color: 'var(--run-color)' },
+  reading: { target: 100, unit: 'stron', label: 'Czytanie', icon: 'book-open', color: 'var(--read-color)' }
 };
 const EXTRA_ACTIVITY_CATEGORIES = [
   { value: 'training', label: 'Trening / ruch' },
@@ -660,6 +662,14 @@ function addDays(date, days) {
   return copy;
 }
 
+function startOfWeek(date) {
+  const copy = new Date(date);
+  const offset = (copy.getDay() + 6) % 7;
+  copy.setDate(copy.getDate() - offset);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+}
+
 function ensureDay(dateString) {
   if (!state.activities[dateString]) state.activities[dateString] = [];
   if (!state.extras[dateString]) state.extras[dateString] = [];
@@ -679,18 +689,30 @@ function normalizeDate(date) {
   return normalized;
 }
 
+function getISOWeekStart(year, week) {
+  const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
+  const day = simple.getUTCDay();
+  const diff = (day === 0 ? -6 : 1) - day;
+  simple.setUTCDate(simple.getUTCDate() + diff);
+  return new Date(simple.getUTCFullYear(), simple.getUTCMonth(), simple.getUTCDate());
+}
+
 function loadState() {
+  state = { activities: {}, extras: {}, priorities: {} };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      state.activities = parsed.activities || {};
-      state.extras = parsed.extras || {};
-      state.priorities = parsed.priorities || {};
+      if (parsed && typeof parsed === 'object') {
+        state.activities = parsed.activities && typeof parsed.activities === 'object' ? parsed.activities : {};
+        state.extras = parsed.extras && typeof parsed.extras === 'object' ? parsed.extras : {};
+        state.priorities = parsed.priorities && typeof parsed.priorities === 'object' ? parsed.priorities : {};
+      }
     }
   } catch (error) {
     state = { activities: {}, extras: {}, priorities: {} };
   }
+  migrateLegacyState();
 }
 
 function saveState() {
@@ -699,6 +721,112 @@ function saveState() {
   status.classList.add('visible');
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => status.classList.remove('visible'), 1600);
+}
+
+function migrateLegacyState() {
+  try {
+    if (localStorage.getItem(MIGRATION_FLAG_KEY)) return;
+    const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (!legacyRaw) return;
+    const legacyState = JSON.parse(legacyRaw);
+    if (!legacyState || typeof legacyState !== 'object') {
+      localStorage.setItem(MIGRATION_FLAG_KEY, 'done');
+      return;
+    }
+    let imported = false;
+    Object.keys(legacyState).forEach(yearKey => {
+      const weeks = legacyState[yearKey];
+      if (!weeks || typeof weeks !== 'object') return;
+      Object.keys(weeks).forEach(weekKey => {
+        const weekData = weeks[weekKey];
+        if (!weekData || typeof weekData !== 'object') return;
+        const year = Number(yearKey);
+        const week = Number(weekKey);
+        if (!Number.isFinite(year) || !Number.isFinite(week)) return;
+        const weekStart = getISOWeekStart(year, week);
+        if (Number.isNaN(weekStart.getTime())) return;
+
+        const mapDayToDate = (dayIndex) => {
+          const base = new Date(weekStart);
+          const offset = dayIndex === 0 ? 6 : dayIndex - 1;
+          base.setDate(weekStart.getDate() + offset);
+          base.setHours(0, 0, 0, 0);
+          return base;
+        };
+
+        const plan = weekData.plan && typeof weekData.plan === 'object' ? weekData.plan : {};
+        Object.keys(plan).forEach(dayKey => {
+          const dayIndex = Number(dayKey);
+          if (!Number.isFinite(dayIndex)) return;
+          const date = mapDayToDate(dayIndex);
+          const dateString = toYYYYMMDD(date);
+          ensureDay(dateString);
+          const activities = Array.isArray(plan[dayKey]) ? plan[dayKey] : [];
+          activities.forEach(activity => {
+            if (!activity || !activity.type || !GOAL_DEFINITIONS[activity.type]) return;
+            if (state.activities[dateString].some(item => item.id === activity.id)) return;
+            const plannedValue = activity.type === 'gym' ? 1 : Number(activity.plannedValue) || 0;
+            const loggedValue = activity.type === 'gym'
+              ? (activity.completed ? 1 : 0)
+              : Number(activity.loggedValue) || (activity.completed ? plannedValue : 0);
+            state.activities[dateString].push({
+              id: activity.id || `act_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+              type: activity.type,
+              plannedValue,
+              loggedValue,
+              completed: Boolean(activity.completed),
+              createdAt: activity.createdAt || Date.now()
+            });
+            imported = true;
+          });
+        });
+
+        const extras = weekData.extras && typeof weekData.extras === 'object' ? weekData.extras : {};
+        Object.keys(extras).forEach(dayKey => {
+          const dayIndex = Number(dayKey);
+          if (!Number.isFinite(dayIndex)) return;
+          const date = mapDayToDate(dayIndex);
+          const dateString = toYYYYMMDD(date);
+          ensureDay(dateString);
+          const list = Array.isArray(extras[dayKey]) ? extras[dayKey] : [];
+          list.forEach(extra => {
+            if (!extra || !extra.title) return;
+            if (state.extras[dateString].some(item => item.id === extra.id)) return;
+            state.extras[dateString].push({
+              id: extra.id || `extra_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+              title: extra.title,
+              category: extra.category || 'other',
+              completed: Boolean(extra.completed),
+              createdAt: extra.createdAt || Date.now()
+            });
+            imported = true;
+          });
+        });
+
+        const priorities = Array.isArray(weekData.priorities) ? weekData.priorities : [];
+        priorities.forEach(priority => {
+          if (!priority || !priority.title) return;
+          const monthKey = getMonthKey(mapDayToDate(1));
+          ensurePriorityMonth(monthKey);
+          if (state.priorities[monthKey].some(item => item.id === priority.id)) return;
+          state.priorities[monthKey].push({
+            id: priority.id || `prio_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+            title: priority.title,
+            impact: priority.impact || 'high',
+            completed: Boolean(priority.completed),
+            createdAt: priority.createdAt || Date.now()
+          });
+          imported = true;
+        });
+      });
+    });
+    if (imported) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    localStorage.setItem(MIGRATION_FLAG_KEY, 'done');
+  } catch (error) {
+    console.error('Legacy trainings migration failed', error);
+  }
 }
 
 function getMonthKey(date) {
@@ -730,7 +858,6 @@ function calculateMonthlyStats(monthDate) {
   const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
   const totalDays = lastDay.getDate();
   const totals = { planned: 0, completed: 0 };
-  const goalProgress = { gym: 0, running: 0, reading: 0 };
   const activeDays = new Set();
   const upcoming = [];
   const today = normalizeDate(new Date());
@@ -743,8 +870,6 @@ function calculateMonthlyStats(monthDate) {
     activities.forEach(activity => {
       if (activity.completed) {
         totals.completed += 1;
-        if (activity.type === 'gym') goalProgress.gym += 1;
-        else goalProgress[activity.type] += Number(activity.loggedValue) || Number(activity.plannedValue) || 0;
       } else if (normalizeDate(date) >= today) {
         const goal = GOAL_DEFINITIONS[activity.type];
         if (!goal) return;
@@ -791,60 +916,90 @@ function calculateMonthlyStats(monthDate) {
     return a.type.localeCompare(b.type);
   });
 
-  const goalPercents = {};
-  Object.keys(GOAL_DEFINITIONS).forEach(type => {
-    const progressValue = goalProgress[type] || 0;
-    const target = GOAL_DEFINITIONS[type].target;
-    const percent = target > 0 ? Math.min(100, Math.round((progressValue / target) * 100)) : 0;
-    goalPercents[type] = {
-      percent,
-      progress: progressValue,
-      target
-    };
-  });
-  const averageGoalPercent = Math.round(Object.values(goalPercents).reduce((acc, info) => acc + info.percent, 0) / Object.keys(GOAL_DEFINITIONS).length) || 0;
-
   return {
     plannedCount: totals.planned,
     completedCount: totals.completed,
     activeDays: activeDays.size,
     totalDays,
-    goalPercents,
-    averageGoalPercent,
     nextActivity: upcoming.length ? { label: upcoming[0].label, dateLabel: upcoming[0].dateLabel } : null,
     upcoming,
     range: { start: firstDay, end: lastDay }
   };
 }
 
+function calculateWeeklyGoalStats(referenceDate) {
+  const base = referenceDate ? new Date(referenceDate) : new Date();
+  const weekStart = startOfWeek(base);
+  const weekEnd = addDays(weekStart, 6);
+  const totals = { gym: 0, running: 0, reading: 0 };
+
+  Object.entries(state.activities).forEach(([dateString, activities]) => {
+    const date = parseDate(dateString);
+    const normalized = normalizeDate(date);
+    if (normalized < weekStart || normalized > weekEnd) return;
+    activities.forEach(activity => {
+      if (!activity || !GOAL_DEFINITIONS[activity.type] || !activity.completed) return;
+      if (activity.type === 'gym') {
+        totals.gym += 1;
+      } else {
+        const logged = Number(activity.loggedValue);
+        const planned = Number(activity.plannedValue);
+        const value = !Number.isNaN(logged) && logged > 0
+          ? logged
+          : (!Number.isNaN(planned) ? planned : 0);
+        totals[activity.type] += value;
+      }
+    });
+  });
+
+  const goalPercents = {};
+  Object.keys(GOAL_DEFINITIONS).forEach(type => {
+    const progress = totals[type] || 0;
+    const target = GOAL_DEFINITIONS[type].target;
+    const percent = target > 0 ? Math.min(100, Math.round((progress / target) * 100)) : 0;
+    goalPercents[type] = { percent, progress, target };
+  });
+
+  const averageGoalPercent = Math.round(
+    Object.values(goalPercents).reduce((acc, info) => acc + info.percent, 0) /
+    Object.keys(GOAL_DEFINITIONS).length
+  ) || 0;
+
+  return { goalPercents, averageGoalPercent, range: { start: weekStart, end: weekEnd } };
+}
+
 function render() {
   ensureSelectionInMonth();
-  const stats = calculateMonthlyStats(currentMonth);
-  renderHeader(stats);
+  const monthStats = calculateMonthlyStats(currentMonth);
+  const weekStats = calculateWeeklyGoalStats(parseDate(selectedDate));
+  renderHeader(monthStats, weekStats);
   renderCalendar();
   renderDayDetail();
-  renderUpcoming(stats.upcoming);
+  renderUpcoming(monthStats.upcoming);
   renderPriorities();
-  renderGoalProgress(stats.goalPercents);
+  renderGoalProgress(weekStats.goalPercents);
   renderHeatmap();
   lucide.createIcons();
 }
 
-function renderHeader(stats) {
+function renderHeader(monthStats, weekStats) {
   const monthLabel = formatMonth(currentMonth);
   document.getElementById('header-month-chip').textContent = monthLabel;
   document.getElementById('current-month-label').textContent = monthLabel;
-  document.getElementById('current-month-range').textContent = `${formatRange(stats.range.start, stats.range.end)} ${currentMonth.getFullYear()}`;
+  document.getElementById('current-month-range').textContent = `${formatRange(monthStats.range.start, monthStats.range.end)} ${currentMonth.getFullYear()}`;
   const todayButton = document.getElementById('today-month-btn');
   if (sameMonth(new Date(), currentMonth)) todayButton.style.display = 'none';
   else todayButton.style.display = 'inline-flex';
-
-  document.getElementById('metric-goal-progress').textContent = `${stats.averageGoalPercent}%`;
-  document.getElementById('metric-plan-completion').textContent = `${stats.completedCount}/${stats.plannedCount}`;
-  document.getElementById('metric-active-days').textContent = `${stats.activeDays}/${stats.totalDays}`;
-  if (stats.nextActivity) {
-    document.getElementById('metric-next-activity').textContent = stats.nextActivity.label;
-    document.getElementById('metric-next-activity-date').textContent = stats.nextActivity.dateLabel;
+  document.getElementById('metric-goal-progress').textContent = `${weekStats.averageGoalPercent}%`;
+  const goalProgressSub = document.getElementById('metric-goal-progress-sub');
+  if (goalProgressSub && weekStats && weekStats.range) {
+    goalProgressSub.textContent = `Cele tygodniowe · ${formatRange(weekStats.range.start, weekStats.range.end)}`;
+  }
+  document.getElementById('metric-plan-completion').textContent = `${monthStats.completedCount}/${monthStats.plannedCount}`;
+  document.getElementById('metric-active-days').textContent = `${monthStats.activeDays}/${monthStats.totalDays}`;
+  if (monthStats.nextActivity) {
+    document.getElementById('metric-next-activity').textContent = monthStats.nextActivity.label;
+    document.getElementById('metric-next-activity-date').textContent = monthStats.nextActivity.dateLabel;
   } else {
     document.getElementById('metric-next-activity').textContent = 'Brak';
     document.getElementById('metric-next-activity-date').textContent = '--';
@@ -1080,6 +1235,7 @@ function renderPriorities() {
 function renderGoalProgress(goalPercents) {
   const container = document.getElementById('goal-progress-list');
   container.innerHTML = '';
+  if (!goalPercents) return;
   Object.entries(goalPercents).forEach(([type, info]) => {
     const def = GOAL_DEFINITIONS[type];
     const item = document.createElement('div');
