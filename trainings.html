@@ -29,7 +29,7 @@
     }
     *, *::before, *::after { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 20%, #f8fafc 100%); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-    .wrap { max-width: 1240px; margin: 0 auto; padding: 48px 24px 64px; }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 32px 24px 56px; }
     .grid { display: grid; gap: 16px; }
     .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -60,23 +60,28 @@
     .row { display: flex; justify-content: space-between; align-items: center; }
 
     /* Header */
-    .page-header { display: grid; gap: 24px; margin-bottom: 40px; }
-    .page-header-main { display: flex; flex-direction: column; gap: 24px; padding: 32px; border-radius: 28px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(14, 165, 233, 0.05) 100%); border: 1px solid rgba(148, 163, 184, 0.25); position: relative; overflow: hidden; box-shadow: var(--shadow); }
-    .page-header-main::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(59,130,246,0.16), transparent 55%); pointer-events: none; }
+    .page-header { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: 24px; margin-bottom: 32px; align-items: stretch; }
+    @media(max-width: 1100px) { .page-header { grid-template-columns: 1fr; } }
+    .page-header-main { display: flex; flex-direction: column; gap: 18px; padding: 24px; border-radius: 22px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(14, 165, 233, 0.03) 100%); border: 1px solid rgba(148, 163, 184, 0.2); position: relative; overflow: hidden; box-shadow: var(--shadow-sm); }
+    .page-header-main::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(59,130,246,0.14), transparent 60%); pointer-events: none; }
     .page-header-main > * { position: relative; z-index: 1; }
-    .header-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    .page-header-copy { display: flex; flex-direction: column; gap: 16px; }
-    .page-header-copy h1 { font-size: 34px; margin: 0; font-weight: 800; letter-spacing: -0.5px; }
-    .header-subtitle { max-width: 580px; font-size: 15px; }
+    .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .header-title-block { display: flex; flex-direction: column; gap: 6px; }
+    .header-title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .header-title-row h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.3px; }
+    .header-subtitle { max-width: 600px; font-size: 14px; margin: 0; }
+    .header-week-range { font-size: 13px; color: var(--muted); }
+    .week-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+    .header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .eyebrow { text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; font-weight: 600; color: var(--blue); }
-    .header-insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
-    .insight-card { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 18px; padding: 16px; box-shadow: var(--shadow); backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 6px; }
+    .header-insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .insight-card { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 16px; padding: 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 6px; }
     .insight-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); font-weight: 600; }
-    .insight-value { font-size: 22px; font-weight: 700; color: var(--ink); }
+    .insight-value { font-size: 20px; font-weight: 700; color: var(--ink); }
     .insight-sub { font-size: 12px; color: var(--muted); }
-    .header-kpis { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); padding: 24px; }
-    .kpi-item { text-align: left; display: flex; flex-direction: column; gap: 4px; }
-    .kpi-value { font-size: 26px; font-weight: 800; line-height: 1.1; }
+    .header-kpis { display: flex; flex-direction: column; gap: 18px; padding: 24px; }
+    .kpi-item { text-align: left; display: flex; flex-direction: column; gap: 6px; }
+    .kpi-value { font-size: 24px; font-weight: 800; line-height: 1.1; }
     .kpi-note { margin: 0; color: var(--muted); }
     .weekly-overview-card { position: relative; overflow: visible; display: flex; flex-direction: column; gap: 20px; }
     .overview-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
@@ -95,7 +100,7 @@
     .goal-card.goal-gym { background: var(--gym-soft); border-color: var(--gym-border); }
     .goal-card.goal-running { background: var(--run-soft); border-color: var(--run-border); }
     .goal-card.goal-reading { background: var(--read-soft); border-color: var(--read-border); }
-    .page-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: flex-start; }
+    .page-layout { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); gap: 24px; align-items: flex-start; }
     .layout-main, .layout-side { display: flex; flex-direction: column; gap: 24px; }
     @media(max-width: 1100px) { .page-layout { grid-template-columns: 1fr; } }
     .insights-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
@@ -120,24 +125,26 @@
     .next-action-date { font-size: 12px; color: var(--muted); }
     .next-action-badge { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: rgba(37, 99, 235, 0.12); border-radius: 999px; padding: 4px 8px; }
     @media(max-width: 640px) {
-      .header-top { width: 100%; justify-content: flex-start; }
+      .header-top { width: 100%; flex-direction: column; align-items: flex-start; }
+      .header-actions { width: 100%; justify-content: flex-start; }
       .back-btn { width: 100%; }
     }
 
     /* Planner */
-    .planner-card { padding: 28px; }
+    .planner-card { padding: 24px; overflow: visible; }
     .planner-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
     .planner-title { display: flex; flex-direction: column; gap: 4px; }
     .planner-title .title { margin: 0; font-size: 20px; }
     .planner-range { font-size: 13px; color: var(--muted); }
     .planner-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     .week-nav { display: flex; gap: 8px; }
-    .planner-meta { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+    .planner-meta { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
     .planner-status { font-weight: 600; font-size: 13px; }
     .planner-instructions { display: none; margin: 0; margin-top: 12px; padding: 12px 16px; border-radius: 12px; background: var(--blue-soft); color: var(--blue); font-weight: 500; }
     .btn.small { padding: 6px 12px; font-size: 12px; border-radius: 10px; }
-    .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 20px; }
-    .day-column { position: relative; background: var(--bg); border-radius: 12px; padding: 12px; transition: var(--transition-fast); border: 2px solid transparent; }
+    .planner-grid-wrapper { margin-top: 20px; overflow-x: auto; padding-bottom: 12px; }
+    .planner-grid { display: grid; grid-template-columns: repeat(7, minmax(160px, 1fr)); gap: 16px; min-width: 1120px; }
+    .day-column { position: relative; background: var(--bg); border-radius: 12px; padding: 12px; transition: var(--transition-fast); border: 2px solid transparent; min-width: 160px; }
     .day-header { font-weight: 600; text-align: center; font-size: 13px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
     .day-header.today { color: var(--blue); }
     .activities-container { min-height: 120px; display: flex; flex-direction: column; gap: 8px; }
@@ -203,8 +210,10 @@
     .planning-mode .day-column:hover { border-color: var(--blue); background: var(--blue-soft); }
 
     /* Stats */
-    .heatmap-container { margin-top: 16px; overflow-x: auto; padding-bottom: 10px; }
-    .heatmap { display: grid; grid-template-rows: repeat(7, 1fr); grid-auto-flow: column; gap: 4px; }
+    .heatmap-container { margin-top: 16px; overflow-x: auto; padding-bottom: 12px; }
+    .heatmap { display: flex; gap: 4px; min-width: max-content; align-items: flex-start; }
+    .heatmap-week { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+    .heatmap-week-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
     .heatmap-cell { width: 15px; height: 15px; background: var(--line); border-radius: 3px; position: relative; }
     .heatmap-cell[data-level="1"] { background: #9be9a8; }
     .heatmap-cell[data-level="2"] { background: #40c463; }
@@ -224,28 +233,34 @@
     <header class="page-header">
       <div class="page-header-main">
         <div class="header-top">
-          <a href="./index.html" class="btn soft back-btn"><i data-lucide="arrow-left" class="icon"></i> Powrót</a>
+          <div class="header-title-block">
+            <span class="eyebrow">Strategiczne zarządzanie rozwojem</span>
+            <div class="header-title-row">
+              <h1>Panel treningów</h1>
+              <span class="week-chip" id="header-week-label">Tydzień --</span>
+            </div>
+            <span class="header-week-range" id="header-week-range">--</span>
+          </div>
+          <div class="header-actions">
+            <a href="./index.html" class="btn soft back-btn"><i data-lucide="arrow-left" class="icon"></i> Powrót</a>
+          </div>
         </div>
-        <div class="page-header-copy">
-          <span class="eyebrow">Strategiczne zarządzanie rozwojem</span>
-          <h1>Panel treningów</h1>
-          <p class="muted header-subtitle">Planowanie, realizacja i analiza Twoich kluczowych celów w jednym miejscu. Profesjonalny rytm tygodnia zaczyna się tutaj.</p>
-          <div class="header-insights">
-            <div class="insight-card">
-              <span class="insight-label">Aktualny tydzień</span>
-              <span class="insight-value" id="header-week-label">Tydzień --</span>
-              <span class="insight-sub" id="header-week-range">--</span>
-            </div>
-            <div class="insight-card">
-              <span class="insight-label">Realizacja celów</span>
-              <span class="insight-value" id="header-week-progress">0%</span>
-              <span class="insight-sub">Średni postęp celów głównych</span>
-            </div>
-            <div class="insight-card">
-              <span class="insight-label">Aktywności tygodnia</span>
-              <span class="insight-value" id="header-planned-activities">0/0</span>
-              <span class="insight-sub">ukończone / zaplanowane</span>
-            </div>
+        <p class="muted header-subtitle">Planowanie, realizacja i analiza Twoich kluczowych celów w jednym miejscu.</p>
+        <div class="header-insights">
+          <div class="insight-card">
+            <span class="insight-label">Realizacja celów</span>
+            <span class="insight-value" id="header-week-progress">0%</span>
+            <span class="insight-sub">Średni postęp celów głównych</span>
+          </div>
+          <div class="insight-card">
+            <span class="insight-label">Aktywności tygodnia</span>
+            <span class="insight-value" id="header-planned-activities">0/0</span>
+            <span class="insight-sub">ukończone / zaplanowane</span>
+          </div>
+          <div class="insight-card">
+            <span class="insight-label">Status planu</span>
+            <span class="insight-value" id="header-plan-status">W trakcie</span>
+            <span class="insight-sub" id="header-plan-status-hint">Uzupełnij plan, aby zamknąć cele tygodnia.</span>
           </div>
         </div>
       </div>
@@ -290,7 +305,9 @@
             <button id="cancel-planning-btn" class="btn soft small" style="display: none;">Zakończ planowanie</button>
           </div>
           <p id="planning-instructions" class="planner-instructions"></p>
-          <div class="planner-grid"></div>
+          <div class="planner-grid-wrapper">
+            <div class="planner-grid"></div>
+          </div>
           <div id="empty-planner-placeholder" class="empty-planner" style="display: none;">
             <h4 style="margin: 0 0 4px 0;">Brak zaplanowanych działań</h4>
             <p class="muted" style="margin: 0;">Dodaj cele z panelu obok lub użyj szybkich przycisków w kalendarzu.</p>
@@ -683,9 +700,9 @@ function render() {
 
     const weekRangeLabel = formatWeekRange(startOfWeek);
     const headerWeekLabel = document.getElementById('header-week-label');
-    if (headerWeekLabel) headerWeekLabel.textContent = `Tydzień ${week} (${year})`;
+    if (headerWeekLabel) headerWeekLabel.textContent = `Tydzień ${week}`;
     const headerWeekRange = document.getElementById('header-week-range');
-    if (headerWeekRange) headerWeekRange.textContent = weekRangeLabel;
+    if (headerWeekRange) headerWeekRange.textContent = `${weekRangeLabel} · ${year}`;
     const plannerRangeEl = document.getElementById('planner-week-range');
     if (plannerRangeEl) plannerRangeEl.textContent = weekRangeLabel;
 
@@ -932,7 +949,8 @@ function renderHeaderKPIs(year, nextUpcoming) {
 
 function renderPlanningStatus(plan) {
     const statusEl = document.getElementById('planning-status');
-    if (!statusEl) return;
+    const headerPlanStatus = document.getElementById('header-plan-status');
+    const headerPlanHint = document.getElementById('header-plan-status-hint');
     const plannedTotals = { gym: 0, running: 0, reading: 0 };
     Object.values(plan).flat().forEach(activity => {
         plannedTotals[activity.type] += activity.completed ? activity.loggedValue : (activity.plannedValue || 0);
@@ -940,12 +958,26 @@ function renderPlanningStatus(plan) {
 
     const allGoalsPlanned = Object.keys(GOAL_DEFINITIONS).every(type => plannedTotals[type] >= GOAL_DEFINITIONS[type].target);
 
-    if (allGoalsPlanned) {
-        statusEl.textContent = '✅ Wszystkie cele mają zaplanowane działania.';
-        statusEl.style.color = 'var(--green)';
-    } else {
-        statusEl.textContent = '🧭 Zaplanuj brakujące działania, aby domknąć tydzień.';
-        statusEl.style.color = 'var(--orange)';
+    if (statusEl) {
+        if (allGoalsPlanned) {
+            statusEl.textContent = '✅ Wszystkie cele mają zaplanowane działania.';
+            statusEl.style.color = 'var(--green)';
+        } else {
+            statusEl.textContent = '🧭 Zaplanuj brakujące działania, aby domknąć tydzień.';
+            statusEl.style.color = 'var(--orange)';
+        }
+    }
+
+    if (headerPlanStatus && headerPlanHint) {
+        if (allGoalsPlanned) {
+            headerPlanStatus.textContent = 'Gotowy';
+            headerPlanStatus.style.color = 'var(--green)';
+            headerPlanHint.textContent = 'Cele mają pełny plan działania.';
+        } else {
+            headerPlanStatus.textContent = 'W trakcie';
+            headerPlanStatus.style.color = 'var(--orange)';
+            headerPlanHint.textContent = 'Uzupełnij plan, aby zamknąć cele tygodnia.';
+        }
     }
 }
 
@@ -1548,26 +1580,47 @@ function renderStats() {
     const heatmap = document.createElement('div');
     heatmap.className = 'heatmap';
 
-    for(let i=0; i < 53 * 7; i++) { // Renderuj pełne 53 kolumny dla spójności
-        const dateString = toYYYYMMDD(currentDay);
-        const cell = document.createElement('div');
-        cell.className = 'heatmap-cell';
-        
-        if (currentDay.getFullYear() === year) {
-            const count = activitiesByDay[dateString] || 0;
-            let level = 0;
-            if(count > 0) level = 1;
-            if(count > 1) level = 2;
-            if(count > 2) level = 3;
-            if(count > 3) level = 4;
-            cell.dataset.level = level;
-            cell.title = `${dateString}: ${count} ukończone aktywności`;
-        } else {
-             cell.style.background = 'transparent'; // Dni spoza roku są puste
+    const totalWeeks = 53;
+    for (let weekIndex = 0; weekIndex < totalWeeks; weekIndex++) {
+        const weekColumn = document.createElement('div');
+        weekColumn.className = 'heatmap-week';
+        const weekStart = new Date(currentDay);
+
+        for (let day = 0; day < 7; day++) {
+            const dateString = toYYYYMMDD(currentDay);
+            const cell = document.createElement('div');
+            cell.className = 'heatmap-cell';
+
+            if (currentDay.getFullYear() === year) {
+                const count = activitiesByDay[dateString] || 0;
+                let level = 0;
+                if(count > 0) level = 1;
+                if(count > 1) level = 2;
+                if(count > 2) level = 3;
+                if(count > 3) level = 4;
+                cell.dataset.level = level;
+                cell.title = `${dateString}: ${count} ukończone aktywności`;
+            } else {
+                 cell.style.background = 'transparent';
+            }
+
+            weekColumn.appendChild(cell);
+            currentDay.setDate(currentDay.getDate() + 1);
         }
-        heatmap.appendChild(cell);
-        currentDay.setDate(currentDay.getDate() + 1);
+
+        const label = document.createElement('span');
+        label.className = 'heatmap-week-label';
+        if (weekStart.getFullYear() === year) {
+            const monthLabel = weekStart.toLocaleDateString('pl-PL', { month: 'short' }).replace('.', '').toUpperCase();
+            label.textContent = monthLabel;
+            label.title = `${formatWeekRange(weekStart)} ${weekStart.getFullYear()}`;
+        } else {
+            label.textContent = ' ';
+        }
+        weekColumn.appendChild(label);
+        heatmap.appendChild(weekColumn);
     }
+
     heatmapContainer.appendChild(heatmap);
 }
 
