@@ -97,7 +97,7 @@ a { color: inherit; text-decoration: none; }
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 12px;
 }
 
@@ -166,11 +166,6 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   gap: 18px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
 }
 
 .page-header-top {
@@ -262,9 +257,109 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(160deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.05));
 }
 
+.metric-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metric-card--donut,
+.metric-card--visual {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+
+.metric-card--donut .metric-text,
+.metric-card--visual .metric-text {
+  flex: 1;
+}
+
 .metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); font-weight: 600; }
 .metric-value { font-size: 22px; font-weight: 700; }
 .metric-sub { font-size: 11px; color: var(--muted); }
+
+.metric-donut {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.metric-donut svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.metric-donut circle {
+  fill: none;
+  stroke-width: 3.6;
+}
+
+.metric-donut .donut-bg {
+  stroke: rgba(148, 163, 184, 0.28);
+}
+
+.metric-donut .donut-value {
+  stroke: var(--primary);
+  stroke-linecap: round;
+  stroke-dasharray: 0 100;
+  transition: stroke-dasharray 0.4s ease;
+}
+
+.metric-donut span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.metric-visual {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--primary);
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.metric-visual .icon {
+  width: 24px;
+  height: 24px;
+}
+
+.metric-card--visual[data-activity-type="gym"] .metric-visual {
+  background: rgba(91, 33, 182, 0.12);
+  color: var(--gym-color);
+}
+
+.metric-card--visual[data-activity-type="running"] .metric-visual {
+  background: rgba(4, 120, 87, 0.12);
+  color: var(--run-color);
+}
+
+.metric-card--visual[data-activity-type="reading"] .metric-visual {
+  background: rgba(29, 78, 216, 0.12);
+  color: var(--read-color);
+}
+
+.metric-card--visual[data-activity-type="extra"] .metric-visual {
+  background: rgba(14, 165, 233, 0.14);
+  color: var(--extra-color);
+}
+
+.metric-card--visual[data-activity-type="none"] .metric-visual {
+  background: rgba(148, 163, 184, 0.18);
+  color: var(--muted);
+}
 
 
 .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
@@ -550,6 +645,8 @@ a { color: inherit; text-decoration: none; }
 .modal-card h3 { font-size: 18px; font-weight: 700; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
 .modal-card input, .modal-card textarea, .modal-card select { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-family: inherit; font-size: 13px; }
+.modal-field { display: flex; flex-direction: column; gap: 6px; }
+.modal-field-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .modal-options { display: flex; flex-direction: column; gap: 10px; }
 .option-label { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: var(--transition); }
 .option-label:hover { border-color: var(--primary); background: var(--primary-soft); }
@@ -631,24 +728,47 @@ a { color: inherit; text-decoration: none; }
         </div>
         <div class="metrics-grid">
           <div class="metric-card">
-            <span class="metric-label">Realizacja celów</span>
-            <span class="metric-value" id="metric-goal-progress">0%</span>
-            <span class="metric-sub" id="metric-goal-progress-sub">Cele tygodniowe</span>
+            <div class="metric-text">
+              <span class="metric-label">Realizacja celów</span>
+              <span class="metric-value" id="metric-goal-progress">0%</span>
+              <span class="metric-sub" id="metric-goal-progress-sub">Cele tygodniowe</span>
+            </div>
+          </div>
+          <div class="metric-card metric-card--donut">
+            <div class="metric-donut">
+              <svg viewBox="0 0 36 36" aria-hidden="true">
+                <circle class="donut-bg" cx="18" cy="18" r="16"></circle>
+                <circle class="donut-value" id="metric-weekly-complete-circle" cx="18" cy="18" r="16" stroke-dasharray="0 100"></circle>
+              </svg>
+              <span id="metric-weekly-complete-percent">0%</span>
+            </div>
+            <div class="metric-text">
+              <span class="metric-label">Zaliczone tygodnie</span>
+              <span class="metric-value" id="metric-weekly-complete-count">0/0</span>
+              <span class="metric-sub" id="metric-weekly-complete-sub">Rok --</span>
+            </div>
           </div>
           <div class="metric-card">
-            <span class="metric-label">Zamknięte działania</span>
-            <span class="metric-value" id="metric-plan-completion">0/0</span>
-            <span class="metric-sub">Ukończone vs zaplanowane</span>
+            <div class="metric-text">
+              <span class="metric-label">Zamknięte działania</span>
+              <span class="metric-value" id="metric-plan-completion">0/0</span>
+              <span class="metric-sub">Ukończone vs zaplanowane</span>
+            </div>
           </div>
           <div class="metric-card">
-            <span class="metric-label">Aktywne dni</span>
-            <span class="metric-value" id="metric-active-days">0/0</span>
-            <span class="metric-sub">Dni z planem w miesiącu</span>
+            <div class="metric-text">
+              <span class="metric-label">Aktywne dni</span>
+              <span class="metric-value" id="metric-active-days">0/0</span>
+              <span class="metric-sub">Dni z planem w miesiącu</span>
+            </div>
           </div>
-          <div class="metric-card">
-            <span class="metric-label">Najbliższa aktywność</span>
-            <span class="metric-value" id="metric-next-activity">Brak</span>
-            <span class="metric-sub" id="metric-next-activity-date">--</span>
+          <div class="metric-card metric-card--visual" id="metric-next-activity-card" data-activity-type="none">
+            <div class="metric-visual" id="metric-next-activity-visual"><i data-lucide="calendar" class="icon"></i></div>
+            <div class="metric-text">
+              <span class="metric-label">Najbliższa aktywność</span>
+              <span class="metric-value" id="metric-next-activity">Brak</span>
+              <span class="metric-sub" id="metric-next-activity-date">--</span>
+            </div>
           </div>
         </div>
       </section>
@@ -705,6 +825,7 @@ a { color: inherit; text-decoration: none; }
         <div class="detail-actions">
           <button id="add-training-btn" class="btn"><i data-lucide="plus" class="icon"></i>Zaplanuj treningi</button>
           <button id="add-extra-btn" class="btn ghost"><i data-lucide="sparkles" class="icon"></i>Dodaj aktywność</button>
+          <button id="plan-vacation-range-btn" class="btn ghost"><i data-lucide="calendar-range" class="icon"></i>Zaplanuj urlop</button>
         </div>
       </section>
     </div>
@@ -824,6 +945,7 @@ const ACTIVITY_UNIT_SHORT = { running: 'km', reading: 'str.' };
 const MAX_CALENDAR_TAGS = 4;
 const DEFAULT_PLANNING_META = 'Wybierz typ treningu, aby rozpocząć tryb planowania wielu dni.';
 const DAY_MS = 24 * 60 * 60 * 1000;
+const DONUT_CIRCUMFERENCE = 2 * Math.PI * 16;
 
 let state = { activities: {}, extras: {}, priorities: {}, vacations: {} };
 let currentMonth = startOfMonth(new Date());
@@ -944,6 +1066,27 @@ function toggleVacationDay(dateString) {
   render();
 }
 
+function planVacationRange(startDateString, endDateString) {
+  if (!startDateString || !endDateString) return;
+  const start = parseDate(startDateString);
+  const end = parseDate(endDateString);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return;
+  const normalizedStart = normalizeDate(start);
+  const normalizedEnd = normalizeDate(end);
+  if (normalizedEnd < normalizedStart) return;
+  if (!state.vacations) state.vacations = {};
+  const cursor = new Date(normalizedStart);
+  let guard = 0;
+  while (cursor.getTime() <= normalizedEnd.getTime() && guard < 370) {
+    const key = toYYYYMMDD(cursor);
+    state.vacations[key] = true;
+    cursor.setDate(cursor.getDate() + 1);
+    guard += 1;
+  }
+  saveState();
+  render();
+}
+
 let dragPayload = null;
 
 function enableDrag(element, payload) {
@@ -1028,6 +1171,18 @@ function getISOWeekStart(year, week) {
   const diff = (day === 0 ? -6 : 1) - day;
   simple.setUTCDate(simple.getUTCDate() + diff);
   return new Date(simple.getUTCFullYear(), simple.getUTCMonth(), simple.getUTCDate());
+}
+
+function getISOWeekInfo(date) {
+  const target = new Date(date);
+  target.setHours(0, 0, 0, 0);
+  const dayNumber = (target.getDay() + 6) % 7;
+  target.setDate(target.getDate() - dayNumber + 3);
+  const isoYear = target.getFullYear();
+  const firstWeekStart = getISOWeekStart(isoYear, 1);
+  const diffDays = Math.round((target.getTime() - firstWeekStart.getTime()) / DAY_MS);
+  const week = 1 + Math.floor(diffDays / 7);
+  return { year: isoYear, week: Math.max(1, week) };
 }
 
 function loadState() {
@@ -1200,12 +1355,13 @@ function calculateMonthlyStats(monthDate) {
   Object.entries(state.activities).forEach(([dateString, activities]) => {
     const date = parseDate(dateString);
     if (!sameMonth(date, monthDate)) return;
+    const normalized = normalizeDate(date);
     if (activities.length) activeDays.add(dateString);
     totals.planned += activities.length;
     activities.forEach(activity => {
       if (activity.completed) {
         totals.completed += 1;
-      } else if (normalizeDate(date) >= today) {
+      } else if (normalized >= today) {
         const goal = GOAL_DEFINITIONS[activity.type];
         if (!goal) return;
         let label = goal.label;
@@ -1217,8 +1373,9 @@ function calculateMonthlyStats(monthDate) {
           label,
           badge: 'Trening',
           icon: goal.icon || 'activity',
-          date,
-          dateLabel: formatDateWithDay(date)
+          date: normalized,
+          dateLabel: formatDateWithDay(normalized),
+          relative: getRelativeLabel(normalized, today)
         });
       }
     });
@@ -1227,19 +1384,21 @@ function calculateMonthlyStats(monthDate) {
   Object.entries(state.extras).forEach(([dateString, extras]) => {
     const date = parseDate(dateString);
     if (!sameMonth(date, monthDate)) return;
+    const normalized = normalizeDate(date);
     if (extras.length) activeDays.add(dateString);
     totals.planned += extras.length;
     extras.forEach(extra => {
       if (extra.completed) {
         totals.completed += 1;
-      } else if (normalizeDate(date) >= today) {
+      } else if (normalized >= today) {
         upcoming.push({
           type: 'extra',
           label: extra.title,
           badge: EXTRA_CATEGORY_LABELS[extra.category] || 'Aktywność',
           icon: 'sparkles',
-          date,
-          dateLabel: formatDateWithDay(date)
+          date: normalized,
+          dateLabel: formatDateWithDay(normalized),
+          relative: getRelativeLabel(normalized, today)
         });
       }
     });
@@ -1256,7 +1415,7 @@ function calculateMonthlyStats(monthDate) {
     completedCount: totals.completed,
     activeDays: activeDays.size,
     totalDays,
-    nextActivity: upcoming.length ? { label: upcoming[0].label, dateLabel: upcoming[0].dateLabel } : null,
+    nextActivity: upcoming.length ? upcoming[0] : null,
     upcoming,
     range: { start: firstDay, end: lastDay }
   };
@@ -1301,6 +1460,25 @@ function calculateWeeklyGoalStats(referenceDate) {
   ) || 0;
 
   return { goalPercents, averageGoalPercent, range: { start: weekStart, end: weekEnd } };
+}
+
+function calculateWeekCompletionToDate() {
+  const today = normalizeDate(new Date());
+  const info = getISOWeekInfo(today);
+  const totalWeeks = Math.max(0, info.week - 1);
+  let completedWeeks = 0;
+
+  for (let week = 1; week < info.week; week++) {
+    const weekStart = getISOWeekStart(info.year, week);
+    const stats = calculateWeeklyGoalStats(weekStart);
+    const goals = Object.values(stats.goalPercents || {});
+    if (goals.length && goals.every(goal => Number(goal.percent || 0) >= 100)) {
+      completedWeeks += 1;
+    }
+  }
+
+  const percent = totalWeeks > 0 ? Math.round((completedWeeks / totalWeeks) * 100) : 0;
+  return { completedWeeks, totalWeeks, percent, currentWeek: info.week, isoYear: info.year };
 }
 
 function getRelativeLabel(targetDate, today) {
@@ -1375,7 +1553,8 @@ function render() {
   const monthStats = calculateMonthlyStats(currentMonth);
   const weekStats = calculateWeeklyGoalStats(parseDate(selectedDate));
   const upcomingWindow = calculateUpcomingWindow();
-  renderHeader(monthStats, weekStats, upcomingWindow);
+  const yearStats = calculateWeekCompletionToDate();
+  renderHeader(monthStats, weekStats, upcomingWindow, yearStats);
   renderCalendar();
   renderDayDetail();
   renderUpcoming(upcomingWindow);
@@ -1386,7 +1565,7 @@ function render() {
   lucide.createIcons();
 }
 
-function renderHeader(monthStats, weekStats, upcomingWindow) {
+function renderHeader(monthStats, weekStats, upcomingWindow, yearStats) {
   const monthLabel = formatMonth(currentMonth);
   document.getElementById('header-month-chip').textContent = monthLabel;
   document.getElementById('current-month-label').textContent = monthLabel;
@@ -1401,13 +1580,45 @@ function renderHeader(monthStats, weekStats, upcomingWindow) {
   }
   document.getElementById('metric-plan-completion').textContent = `${monthStats.completedCount}/${monthStats.plannedCount}`;
   document.getElementById('metric-active-days').textContent = `${monthStats.activeDays}/${monthStats.totalDays}`;
+  if (yearStats) {
+    const countEl = document.getElementById('metric-weekly-complete-count');
+    if (countEl) {
+      const completedLabel = `${yearStats.completedWeeks.toLocaleString('pl-PL')}/${yearStats.totalWeeks.toLocaleString('pl-PL')}`;
+      countEl.textContent = completedLabel;
+    }
+    const subEl = document.getElementById('metric-weekly-complete-sub');
+    if (subEl) {
+      if (yearStats.totalWeeks > 0) {
+        const uptoWeek = Math.max(0, yearStats.currentWeek - 1);
+        subEl.textContent = `Rok ${yearStats.isoYear} · Do tygodnia ${uptoWeek.toLocaleString('pl-PL')}`;
+      } else {
+        subEl.textContent = `Rok ${yearStats.isoYear} · Start sezonu`;
+      }
+    }
+    const percentEl = document.getElementById('metric-weekly-complete-percent');
+    if (percentEl) percentEl.textContent = `${yearStats.percent.toLocaleString('pl-PL')}%`;
+    const circle = document.getElementById('metric-weekly-complete-circle');
+    if (circle) {
+      const safePercent = Math.max(0, Math.min(100, yearStats.percent));
+      const dash = (safePercent / 100) * DONUT_CIRCUMFERENCE;
+      circle.setAttribute('stroke-dasharray', `${dash} ${DONUT_CIRCUMFERENCE - dash}`);
+    }
+  }
   const metricNext = upcomingWindow && upcomingWindow.length ? upcomingWindow[0] : monthStats.nextActivity;
+  const nextCard = document.getElementById('metric-next-activity-card');
+  const nextVisual = document.getElementById('metric-next-activity-visual');
+  const nextLabel = document.getElementById('metric-next-activity');
+  const nextDate = document.getElementById('metric-next-activity-date');
   if (metricNext) {
-    document.getElementById('metric-next-activity').textContent = metricNext.label;
-    document.getElementById('metric-next-activity-date').textContent = metricNext.relative || metricNext.dateLabel;
+    if (nextLabel) nextLabel.textContent = metricNext.label;
+    if (nextDate) nextDate.textContent = metricNext.relative || metricNext.dateLabel || '--';
+    if (nextCard) nextCard.dataset.activityType = metricNext.type || 'none';
+    if (nextVisual) nextVisual.innerHTML = `<i data-lucide="${metricNext.icon || 'calendar'}" class="icon"></i>`;
   } else {
-    document.getElementById('metric-next-activity').textContent = 'Brak';
-    document.getElementById('metric-next-activity-date').textContent = '--';
+    if (nextLabel) nextLabel.textContent = 'Brak';
+    if (nextDate) nextDate.textContent = '--';
+    if (nextCard) nextCard.dataset.activityType = 'none';
+    if (nextVisual) nextVisual.innerHTML = '<i data-lucide="calendar-x" class="icon"></i>';
   }
   document.getElementById('priority-month-label').textContent = monthLabel;
 }
@@ -2053,6 +2264,42 @@ function showAddExtraModal() {
   });
 }
 
+function showVacationRangeModal() {
+  showModal({
+    title: 'Plan urlopu',
+    text: 'Oznacz cały zakres dat jako urlop, aby kalendarz uwzględnił przerwę.',
+    inputs: [
+      { type: 'date', value: selectedDate, label: 'Początek urlopu', key: 'start' },
+      { type: 'date', value: selectedDate, label: 'Koniec urlopu', key: 'end' }
+    ],
+    buttons: [
+      { text: 'Anuluj', class: 'btn soft', action: 'close' },
+      { text: 'Zapisz', class: 'btn', action: (value) => {
+          if (!value || !value.start || !value.end) return false;
+          if (value.end < value.start) return false;
+          planVacationRange(value.start, value.end);
+        } }
+    ],
+    onShow: ({ inputs }) => {
+      if (!inputs || inputs.length < 2) return;
+      const [startField, endField] = inputs;
+      if (!startField || !endField) return;
+      endField.min = startField.value;
+      endField.addEventListener('change', () => {
+        if (endField.value < startField.value) {
+          endField.value = startField.value;
+        }
+      });
+      startField.addEventListener('change', () => {
+        if (endField.value < startField.value) {
+          endField.value = startField.value;
+        }
+        endField.min = startField.value;
+      });
+    }
+  });
+}
+
 function showPriorityModal() {
   const monthKey = getMonthKey(currentMonth);
   ensurePriorityMonth(monthKey);
@@ -2084,26 +2331,54 @@ function showModal(config) {
   optionsContainer.innerHTML = '';
   actions.innerHTML = '';
 
-  if (config.input) {
+  const inputConfigs = [];
+  if (Array.isArray(config.inputs)) inputConfigs.push(...config.inputs);
+  if (config.input) inputConfigs.push(config.input);
+
+  inputConfigs.forEach(inputConfig => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'modal-field';
+    if (inputConfig.label) {
+      const label = document.createElement('span');
+      label.className = 'modal-field-label';
+      label.textContent = inputConfig.label;
+      wrapper.appendChild(label);
+    }
     const input = document.createElement('input');
-    input.type = config.input.type || 'text';
-    if (config.input.placeholder) input.placeholder = config.input.placeholder;
-    if (config.input.value !== undefined) input.value = config.input.value;
-    if (config.input.min !== undefined) input.min = config.input.min;
-    if (config.input.step !== undefined) input.step = config.input.step;
-    if (config.input.disabled) input.disabled = true;
+    input.type = inputConfig.type || 'text';
+    if (inputConfig.placeholder) input.placeholder = inputConfig.placeholder;
+    if (inputConfig.value !== undefined) input.value = inputConfig.value;
+    if (inputConfig.min !== undefined) input.min = inputConfig.min;
+    if (inputConfig.max !== undefined) input.max = inputConfig.max;
+    if (inputConfig.step !== undefined) input.step = inputConfig.step;
+    if (inputConfig.disabled) input.disabled = true;
+    if (inputConfig.required) input.required = true;
     input.autocomplete = 'off';
     input.dataset.modalInput = 'true';
-    inputContainer.appendChild(input);
-  }
+    if (inputConfig.key) input.dataset.modalKey = inputConfig.key;
+    if (inputConfig.name) input.name = inputConfig.name;
+    wrapper.appendChild(input);
+    inputContainer.appendChild(wrapper);
+  });
 
   if (config.textarea) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'modal-field';
+    if (config.textarea.label) {
+      const label = document.createElement('span');
+      label.className = 'modal-field-label';
+      label.textContent = config.textarea.label;
+      wrapper.appendChild(label);
+    }
     const textarea = document.createElement('textarea');
     textarea.placeholder = config.textarea.placeholder || '';
     textarea.value = config.textarea.value || '';
     textarea.rows = config.textarea.rows || 4;
+    textarea.autocomplete = 'off';
     textarea.dataset.modalInput = 'true';
-    inputContainer.appendChild(textarea);
+    if (config.textarea.key) textarea.dataset.modalKey = config.textarea.key;
+    wrapper.appendChild(textarea);
+    inputContainer.appendChild(wrapper);
   }
 
   if (config.options) {
@@ -2127,9 +2402,18 @@ function showModal(config) {
         overlay.classList.remove('visible');
         return;
       }
-      const field = inputContainer.querySelector('[data-modal-input]');
+      const fields = Array.from(inputContainer.querySelectorAll('[data-modal-input]'));
       const selectedOption = optionsContainer.querySelector('input[name="modal-option"]:checked')?.value;
-      const value = field ? field.value : '';
+      let value = '';
+      if (fields.length === 1) {
+        value = fields[0].value;
+      } else if (fields.length > 1) {
+        value = {};
+        fields.forEach((field, index) => {
+          const key = field.dataset.modalKey || field.name || `field${index + 1}`;
+          value[key] = field.value;
+        });
+      }
       const result = btn.action(value, selectedOption);
       if (result === false) return;
       overlay.classList.remove('visible');
@@ -2139,7 +2423,8 @@ function showModal(config) {
 
   overlay.classList.add('visible');
   if (typeof config.onShow === 'function') {
-    config.onShow({ overlay, input: inputContainer.querySelector('[data-modal-input]'), optionsContainer });
+    const inputs = Array.from(inputContainer.querySelectorAll('[data-modal-input]'));
+    config.onShow({ overlay, input: inputs[0] || null, inputs, optionsContainer, inputContainer });
   }
   const focusTarget = inputContainer.querySelector('[data-modal-input]');
   if (focusTarget && !focusTarget.disabled) focusTarget.focus();
@@ -2169,6 +2454,7 @@ function setupEventListeners() {
   });
   document.getElementById('stop-planning-btn').addEventListener('click', () => stopPlanningMode());
   document.getElementById('add-extra-btn').addEventListener('click', showAddExtraModal);
+  document.getElementById('plan-vacation-range-btn').addEventListener('click', showVacationRangeModal);
   document.getElementById('toggle-vacation-btn').addEventListener('click', () => toggleVacationDay(selectedDate));
   document.getElementById('priority-add-btn').addEventListener('click', showPriorityModal);
 
