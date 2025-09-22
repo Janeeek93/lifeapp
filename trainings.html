@@ -155,13 +155,6 @@ a { color: inherit; text-decoration: none; }
   padding: 14px 16px;
 }
 
-.bottom-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-  gap: 20px;
-  align-items: stretch;
-}
-
 .page-header {
   display: flex;
   flex-direction: column;
@@ -277,7 +270,9 @@ a { color: inherit; text-decoration: none; }
 
 .metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); font-weight: 600; }
 .metric-value { font-size: 22px; font-weight: 700; }
-.metric-sub { font-size: 11px; color: var(--muted); }
+.metric-sub { font-size: 11px; color: var(--muted); display: block; }
+.metric-sub--stacked { display: flex; flex-direction: column; gap: 2px; }
+.metric-subline { display: block; }
 
 .metric-donut {
   position: relative;
@@ -304,8 +299,9 @@ a { color: inherit; text-decoration: none; }
 .metric-donut .donut-value {
   stroke: var(--primary);
   stroke-linecap: round;
-  stroke-dasharray: 0 100;
-  transition: stroke-dasharray 0.4s ease;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 0.4s ease;
 }
 
 .metric-donut span {
@@ -514,14 +510,6 @@ a { color: inherit; text-decoration: none; }
 .calendar-card--planning { border-color: var(--primary); box-shadow: var(--shadow-sm); }
 .calendar-grid.is-planning .calendar-day { cursor: crosshair; }
 
-.upcoming-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.upcoming-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.25); background: rgba(248, 250, 252, 0.7); }
-.upcoming-body { display: flex; flex-direction: column; gap: 6px; }
-.upcoming-when { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
-.upcoming-item strong { display: block; font-size: 13px; }
-.upcoming-item .meta { display: flex; gap: 8px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
-.upcoming-item .badge { background: rgba(37, 99, 235, 0.12); color: var(--primary); border-radius: 999px; padding: 2px 8px; font-weight: 600; }
-
 .empty-state {
   font-size: 12px;
   color: var(--muted);
@@ -578,17 +566,6 @@ a { color: inherit; text-decoration: none; }
 
 .detail-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 
-.priority-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.priority-item { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.3); background: rgba(248, 250, 252, 0.8); transition: var(--transition); }
-.priority-item.completed { background: var(--success-soft); border-color: var(--success-border); }
-.priority-body { display: flex; flex-direction: column; gap: 4px; }
-.priority-title { font-weight: 600; font-size: 13px; }
-.priority-meta { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-.priority-item.completed .priority-title { text-decoration: line-through; }
-.priority-actions { display: flex; gap: 8px; }
-.priority-btn { border: none; background: rgba(148, 163, 184, 0.16); border-radius: 10px; padding: 6px 8px; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; transition: var(--transition); }
-.priority-btn:hover { background: rgba(37, 99, 235, 0.15); color: var(--primary); }
-
 .goal-progress-list { display: flex; flex-direction: column; gap: 14px; }
 .goal-progress-item { display: flex; flex-direction: column; gap: 8px; }
 .goal-progress-label { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -598,7 +575,7 @@ a { color: inherit; text-decoration: none; }
 .goal-progress-bar span { display: block; height: 100%; border-radius: 999px; transition: width .3s ease; }
 
 .heatmap-card { display: flex; flex-direction: column; gap: 16px; }
-.heatmap { display: flex; gap: 3px; overflow: hidden; padding-bottom: 8px; flex-wrap: nowrap; }
+.heatmap { display: flex; gap: 3px; overflow-x: auto; padding-bottom: 8px; flex-wrap: nowrap; }
 .heatmap-week { display: grid; grid-template-rows: repeat(7, 11px) auto; gap: 3px; align-items: center; }
 .heatmap-cell { width: 11px; height: 11px; border-radius: 3px; background: #e2e8f0; }
 .heatmap-cell[data-level="0"] { background: #e2e8f0; }
@@ -731,21 +708,27 @@ a { color: inherit; text-decoration: none; }
             <div class="metric-text">
               <span class="metric-label">Realizacja celów</span>
               <span class="metric-value" id="metric-goal-progress">0%</span>
-              <span class="metric-sub" id="metric-goal-progress-sub">Cele tygodniowe</span>
+              <div class="metric-sub metric-sub--stacked" id="metric-goal-progress-sub">
+                <span class="metric-subline">Cele tygodniowe</span>
+                <span class="metric-subline">--</span>
+              </div>
             </div>
           </div>
           <div class="metric-card metric-card--donut">
             <div class="metric-donut">
               <svg viewBox="0 0 36 36" aria-hidden="true">
                 <circle class="donut-bg" cx="18" cy="18" r="16"></circle>
-                <circle class="donut-value" id="metric-weekly-complete-circle" cx="18" cy="18" r="16" stroke-dasharray="0 100"></circle>
+                <circle class="donut-value" id="metric-weekly-complete-circle" cx="18" cy="18" r="16"></circle>
               </svg>
               <span id="metric-weekly-complete-percent">0%</span>
             </div>
             <div class="metric-text">
               <span class="metric-label">Zaliczone tygodnie</span>
               <span class="metric-value" id="metric-weekly-complete-count">0/0</span>
-              <span class="metric-sub" id="metric-weekly-complete-sub">Rok --</span>
+              <div class="metric-sub metric-sub--stacked" id="metric-weekly-complete-sub">
+                <span class="metric-subline">Rok --</span>
+                <span class="metric-subline">--</span>
+              </div>
             </div>
           </div>
           <div class="metric-card">
@@ -766,8 +749,9 @@ a { color: inherit; text-decoration: none; }
             <div class="metric-visual" id="metric-next-activity-visual"><i data-lucide="calendar" class="icon"></i></div>
             <div class="metric-text">
               <span class="metric-label">Najbliższa aktywność</span>
-              <span class="metric-value" id="metric-next-activity">Brak</span>
-              <span class="metric-sub" id="metric-next-activity-date">--</span>
+              <div class="metric-sub metric-sub--stacked">
+                <span class="metric-subline" id="metric-next-activity-date">Brak terminu</span>
+              </div>
             </div>
           </div>
         </div>
@@ -850,52 +834,27 @@ a { color: inherit; text-decoration: none; }
       <div id="calendar-grid" class="calendar-grid"></div>
     </section>
 
-    <section class="card upcoming-card">
+    <section class="card heatmap-card">
       <div class="card-header">
         <div>
-          <h3>Najbliższe działania</h3>
-          <p class="muted tiny">Plan na kolejne 7 dni</p>
+          <h3>Historia aktywności</h3>
+          <p class="muted tiny">Podsumowanie ukończonych zadań w ciągu roku</p>
         </div>
+        <span class="month-chip" id="heatmap-year-label">--</span>
       </div>
-      <ul id="upcoming-list" class="upcoming-list"></ul>
-      <p id="upcoming-empty" class="empty-state">Brak zaplanowanych aktywności w nadchodzącym tygodniu.</p>
+      <div id="heatmap" class="heatmap"></div>
+      <div class="heatmap-legend">
+        <span>Brak</span>
+        <div class="heatmap-legend-scale">
+          <span data-level="0"></span>
+          <span data-level="1"></span>
+          <span data-level="2"></span>
+          <span data-level="3"></span>
+          <span data-level="4"></span>
+        </div>
+        <span>Intensywnie</span>
+      </div>
     </section>
-
-    <div class="bottom-grid">
-      <section class="card priorities-card">
-        <div class="card-header">
-          <div>
-            <h3>Priorytety miesiąca</h3>
-            <p class="muted tiny" id="priority-month-label">--</p>
-          </div>
-        </div>
-        <ul id="priority-list" class="priority-list"></ul>
-        <p id="priority-empty" class="empty-state">Ustal maksymalnie trzy kluczowe priorytety, które dociągniesz do końca miesiąca.</p>
-        <button id="priority-add-btn" class="btn soft"><i data-lucide="plus-circle" class="icon"></i>Dodaj priorytet</button>
-      </section>
-
-      <section class="card heatmap-card">
-        <div class="card-header">
-          <div>
-            <h3>Historia aktywności</h3>
-            <p class="muted tiny">Podsumowanie ukończonych zadań w ciągu roku</p>
-          </div>
-          <span class="month-chip" id="heatmap-year-label">--</span>
-        </div>
-        <div id="heatmap" class="heatmap"></div>
-        <div class="heatmap-legend">
-          <span>Brak</span>
-          <div class="heatmap-legend-scale">
-            <span data-level="0"></span>
-            <span data-level="1"></span>
-            <span data-level="2"></span>
-            <span data-level="3"></span>
-            <span data-level="4"></span>
-          </div>
-          <span>Intensywnie</span>
-        </div>
-      </section>
-    </div>
   </main>
 </div>
 
@@ -930,16 +889,6 @@ const EXTRA_CATEGORY_LABELS = EXTRA_ACTIVITY_CATEGORIES.reduce((acc, item) => {
   acc[item.value] = item.label;
   return acc;
 }, {});
-const PRIORITY_IMPACT_OPTIONS = [
-  { value: 'high', label: 'Wysoki wpływ' },
-  { value: 'medium', label: 'Średni wpływ' },
-  { value: 'low', label: 'Lekki wpływ' }
-];
-const PRIORITY_IMPACT_LABELS = PRIORITY_IMPACT_OPTIONS.reduce((acc, opt) => {
-  acc[opt.value] = opt.label;
-  return acc;
-}, {});
-const MAX_PRIORITIES = 3;
 const ACTIVITY_TAG_SHORT = { gym: 'Siła', running: 'Bieg', reading: 'Czyt.' };
 const ACTIVITY_UNIT_SHORT = { running: 'km', reading: 'str.' };
 const MAX_CALENDAR_TAGS = 4;
@@ -947,7 +896,7 @@ const DEFAULT_PLANNING_META = 'Wybierz typ treningu, aby rozpocząć tryb planow
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DONUT_CIRCUMFERENCE = 2 * Math.PI * 16;
 
-let state = { activities: {}, extras: {}, priorities: {}, vacations: {} };
+let state = { activities: {}, extras: {}, vacations: {} };
 let currentMonth = startOfMonth(new Date());
 let selectedDate = toYYYYMMDD(new Date());
 let planningMode = null;
@@ -1045,10 +994,6 @@ function startOfWeek(date) {
 function ensureDay(dateString) {
   if (!state.activities[dateString]) state.activities[dateString] = [];
   if (!state.extras[dateString]) state.extras[dateString] = [];
-}
-
-function ensurePriorityMonth(monthKey) {
-  if (!state.priorities[monthKey]) state.priorities[monthKey] = [];
 }
 
 function isVacationDay(dateString) {
@@ -1186,7 +1131,7 @@ function getISOWeekInfo(date) {
 }
 
 function loadState() {
-  state = { activities: {}, extras: {}, priorities: {}, vacations: {} };
+  state = { activities: {}, extras: {}, vacations: {} };
   planningMode = null;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -1195,12 +1140,11 @@ function loadState() {
       if (parsed && typeof parsed === 'object') {
         state.activities = parsed.activities && typeof parsed.activities === 'object' ? parsed.activities : {};
         state.extras = parsed.extras && typeof parsed.extras === 'object' ? parsed.extras : {};
-        state.priorities = parsed.priorities && typeof parsed.priorities === 'object' ? parsed.priorities : {};
         state.vacations = parsed.vacations && typeof parsed.vacations === 'object' ? parsed.vacations : {};
       }
     }
   } catch (error) {
-    state = { activities: {}, extras: {}, priorities: {}, vacations: {} };
+    state = { activities: {}, extras: {}, vacations: {} };
   }
   migrateLegacyState();
 }
@@ -1293,21 +1237,6 @@ function migrateLegacyState() {
           });
         });
 
-        const priorities = Array.isArray(weekData.priorities) ? weekData.priorities : [];
-        priorities.forEach(priority => {
-          if (!priority || !priority.title) return;
-          const monthKey = getMonthKey(mapDayToDate(1));
-          ensurePriorityMonth(monthKey);
-          if (state.priorities[monthKey].some(item => item.id === priority.id)) return;
-          state.priorities[monthKey].push({
-            id: priority.id || `prio_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-            title: priority.title,
-            impact: priority.impact || 'high',
-            completed: Boolean(priority.completed),
-            createdAt: priority.createdAt || Date.now()
-          });
-          imported = true;
-        });
       });
     });
     if (imported) {
@@ -1557,8 +1486,6 @@ function render() {
   renderHeader(monthStats, weekStats, upcomingWindow, yearStats);
   renderCalendar();
   renderDayDetail();
-  renderUpcoming(upcomingWindow);
-  renderPriorities();
   renderGoalProgress(weekStats.goalPercents);
   renderHeatmap();
   renderPlanningIndicator();
@@ -1575,52 +1502,59 @@ function renderHeader(monthStats, weekStats, upcomingWindow, yearStats) {
   else todayButton.style.display = 'inline-flex';
   document.getElementById('metric-goal-progress').textContent = `${weekStats.averageGoalPercent}%`;
   const goalProgressSub = document.getElementById('metric-goal-progress-sub');
-  if (goalProgressSub && weekStats && weekStats.range) {
-    goalProgressSub.textContent = `Cele tygodniowe · ${formatRange(weekStats.range.start, weekStats.range.end)}`;
+  if (goalProgressSub) {
+    if (weekStats && weekStats.range) {
+      goalProgressSub.innerHTML = `<span class="metric-subline">Cele tygodniowe</span><span class="metric-subline">${formatRange(weekStats.range.start, weekStats.range.end)}</span>`;
+    } else {
+      goalProgressSub.innerHTML = `<span class="metric-subline">Cele tygodniowe</span><span class="metric-subline">--</span>`;
+    }
   }
   document.getElementById('metric-plan-completion').textContent = `${monthStats.completedCount}/${monthStats.plannedCount}`;
   document.getElementById('metric-active-days').textContent = `${monthStats.activeDays}/${monthStats.totalDays}`;
-  if (yearStats) {
-    const countEl = document.getElementById('metric-weekly-complete-count');
-    if (countEl) {
-      const completedLabel = `${yearStats.completedWeeks.toLocaleString('pl-PL')}/${yearStats.totalWeeks.toLocaleString('pl-PL')}`;
-      countEl.textContent = completedLabel;
+  const countEl = document.getElementById('metric-weekly-complete-count');
+  if (countEl && yearStats) {
+    const completedLabel = `${yearStats.completedWeeks.toLocaleString('pl-PL')}/${yearStats.totalWeeks.toLocaleString('pl-PL')}`;
+    countEl.textContent = completedLabel;
+  } else if (countEl) {
+    countEl.textContent = '0/0';
+  }
+  const subEl = document.getElementById('metric-weekly-complete-sub');
+  if (subEl) {
+    if (yearStats && yearStats.totalWeeks > 0) {
+      const uptoWeek = Math.max(0, yearStats.currentWeek - 1);
+      subEl.innerHTML = `<span class="metric-subline">Rok ${yearStats.isoYear}</span><span class="metric-subline">Do tygodnia ${uptoWeek.toLocaleString('pl-PL')}</span>`;
+    } else if (yearStats) {
+      subEl.innerHTML = `<span class="metric-subline">Rok ${yearStats.isoYear}</span><span class="metric-subline">Start sezonu</span>`;
+    } else {
+      subEl.innerHTML = `<span class="metric-subline">Rok --</span><span class="metric-subline">--</span>`;
     }
-    const subEl = document.getElementById('metric-weekly-complete-sub');
-    if (subEl) {
-      if (yearStats.totalWeeks > 0) {
-        const uptoWeek = Math.max(0, yearStats.currentWeek - 1);
-        subEl.textContent = `Rok ${yearStats.isoYear} · Do tygodnia ${uptoWeek.toLocaleString('pl-PL')}`;
-      } else {
-        subEl.textContent = `Rok ${yearStats.isoYear} · Start sezonu`;
-      }
-    }
-    const percentEl = document.getElementById('metric-weekly-complete-percent');
-    if (percentEl) percentEl.textContent = `${yearStats.percent.toLocaleString('pl-PL')}%`;
-    const circle = document.getElementById('metric-weekly-complete-circle');
-    if (circle) {
-      const safePercent = Math.max(0, Math.min(100, yearStats.percent));
-      const dash = (safePercent / 100) * DONUT_CIRCUMFERENCE;
-      circle.setAttribute('stroke-dasharray', `${dash} ${DONUT_CIRCUMFERENCE - dash}`);
-    }
+  }
+  const percentEl = document.getElementById('metric-weekly-complete-percent');
+  if (percentEl) {
+    const value = yearStats ? yearStats.percent : 0;
+    const formatted = Number(value).toLocaleString('pl-PL', { maximumFractionDigits: 0 });
+    percentEl.textContent = `${formatted}%`;
+  }
+  const circle = document.getElementById('metric-weekly-complete-circle');
+  if (circle) {
+    const safePercent = yearStats ? Math.max(0, Math.min(100, yearStats.percent)) : 0;
+    const dashOffset = DONUT_CIRCUMFERENCE * (1 - safePercent / 100);
+    circle.setAttribute('stroke-dasharray', DONUT_CIRCUMFERENCE);
+    circle.setAttribute('stroke-dashoffset', dashOffset);
   }
   const metricNext = upcomingWindow && upcomingWindow.length ? upcomingWindow[0] : monthStats.nextActivity;
   const nextCard = document.getElementById('metric-next-activity-card');
   const nextVisual = document.getElementById('metric-next-activity-visual');
-  const nextLabel = document.getElementById('metric-next-activity');
   const nextDate = document.getElementById('metric-next-activity-date');
   if (metricNext) {
-    if (nextLabel) nextLabel.textContent = metricNext.label;
-    if (nextDate) nextDate.textContent = metricNext.relative || metricNext.dateLabel || '--';
+    if (nextDate) nextDate.textContent = metricNext.relative || metricNext.dateLabel || 'Najbliższe dni';
     if (nextCard) nextCard.dataset.activityType = metricNext.type || 'none';
     if (nextVisual) nextVisual.innerHTML = `<i data-lucide="${metricNext.icon || 'calendar'}" class="icon"></i>`;
   } else {
-    if (nextLabel) nextLabel.textContent = 'Brak';
-    if (nextDate) nextDate.textContent = '--';
+    if (nextDate) nextDate.textContent = 'Brak terminu';
     if (nextCard) nextCard.dataset.activityType = 'none';
     if (nextVisual) nextVisual.innerHTML = '<i data-lucide="calendar-x" class="icon"></i>';
   }
-  document.getElementById('priority-month-label').textContent = monthLabel;
 }
 
 function renderCalendar() {
@@ -1900,75 +1834,6 @@ function renderDayExtras(extras) {
   });
 }
 
-function renderUpcoming(upcoming) {
-  const list = document.getElementById('upcoming-list');
-  const empty = document.getElementById('upcoming-empty');
-  list.innerHTML = '';
-  if (!upcoming.length) {
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-  upcoming.forEach(item => {
-    const li = document.createElement('li');
-    li.className = 'upcoming-item';
-    const whenLabel = item.relative || item.dateLabel;
-    li.innerHTML = `
-      <div class="detail-icon ${item.type === 'extra' ? 'extra' : item.type}"><i data-lucide="${item.icon}" class="icon"></i></div>
-      <div class="upcoming-body">
-        <span class="upcoming-when">${whenLabel}</span>
-        <strong>${item.label}</strong>
-        <div class="meta">
-          <span class="badge">${item.badge}</span>
-          <span>${item.dateLabel}</span>
-        </div>
-      </div>
-    `;
-    list.appendChild(li);
-  });
-}
-
-function renderPriorities() {
-  const monthKey = getMonthKey(currentMonth);
-  ensurePriorityMonth(monthKey);
-  const list = document.getElementById('priority-list');
-  const empty = document.getElementById('priority-empty');
-  const addBtn = document.getElementById('priority-add-btn');
-  const items = [...state.priorities[monthKey]];
-  items.sort((a, b) => {
-    if (a.completed !== b.completed) return a.completed ? 1 : -1;
-    return (a.createdAt || 0) - (b.createdAt || 0);
-  });
-  list.innerHTML = '';
-  if (!items.length) empty.style.display = 'block';
-  else empty.style.display = 'none';
-
-  items.forEach(priority => {
-    const li = document.createElement('li');
-    li.className = 'priority-item';
-    if (priority.completed) li.classList.add('completed');
-    li.innerHTML = `
-      <div class="priority-body">
-        <span class="priority-title">${priority.title}</span>
-        <span class="priority-meta">${PRIORITY_IMPACT_LABELS[priority.impact] || ''}</span>
-      </div>
-      <div class="priority-actions">
-        <button class="priority-btn" data-action="toggle-priority" data-month-key="${monthKey}" data-priority-id="${priority.id}"><i data-lucide="${priority.completed ? 'rotate-ccw' : 'check'}" class="icon"></i></button>
-        <button class="priority-btn" data-action="delete-priority" data-month-key="${monthKey}" data-priority-id="${priority.id}"><i data-lucide="trash-2" class="icon"></i></button>
-      </div>
-    `;
-    list.appendChild(li);
-  });
-
-  if (items.length >= MAX_PRIORITIES) {
-    addBtn.disabled = true;
-    addBtn.innerHTML = '<i data-lucide="check" class="icon"></i>Limit priorytetów';
-  } else {
-    addBtn.disabled = false;
-    addBtn.innerHTML = '<i data-lucide="plus-circle" class="icon"></i>Dodaj priorytet';
-  }
-}
-
 function renderGoalProgress(goalPercents) {
   const container = document.getElementById('goal-progress-list');
   container.innerHTML = '';
@@ -2083,37 +1948,6 @@ function addExtra(dateString, title, category) {
     createdAt: Date.now()
   });
   if (state.vacations && state.vacations[dateString]) delete state.vacations[dateString];
-  saveState();
-  render();
-}
-
-function addPriority(title, impact) {
-  const monthKey = getMonthKey(currentMonth);
-  ensurePriorityMonth(monthKey);
-  if (state.priorities[monthKey].length >= MAX_PRIORITIES) return;
-  state.priorities[monthKey].push({
-    id: `prio_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-    title,
-    impact,
-    completed: false,
-    createdAt: Date.now()
-  });
-  saveState();
-  render();
-}
-
-function togglePriority(id, monthKey) {
-  const list = state.priorities[monthKey] || [];
-  const priority = list.find(p => p.id === id);
-  if (!priority) return;
-  priority.completed = !priority.completed;
-  saveState();
-  render();
-}
-
-function deletePriority(id, monthKey) {
-  if (!state.priorities[monthKey]) return;
-  state.priorities[monthKey] = state.priorities[monthKey].filter(p => p.id !== id);
   saveState();
   render();
 }
@@ -2300,26 +2134,6 @@ function showVacationRangeModal() {
   });
 }
 
-function showPriorityModal() {
-  const monthKey = getMonthKey(currentMonth);
-  ensurePriorityMonth(monthKey);
-  if (state.priorities[monthKey].length >= MAX_PRIORITIES) return;
-  showModal({
-    title: 'Nowy priorytet',
-    text: `Określ priorytet na ${formatMonth(currentMonth)}.`,
-    textarea: { placeholder: 'Opisz priorytet' },
-    options: PRIORITY_IMPACT_OPTIONS.map((opt, index) => ({ value: opt.value, label: opt.label, checked: index === 0 })),
-    buttons: [
-      { text: 'Anuluj', class: 'btn soft', action: 'close' },
-      { text: 'Dodaj', class: 'btn', action: (value, selected) => {
-          const textValue = (value || '').trim();
-          if (!textValue) return false;
-          addPriority(textValue, selected || 'high');
-        } }
-    ]
-  });
-}
-
 function showModal(config) {
   const overlay = document.getElementById('modal-overlay');
   document.getElementById('modal-title').textContent = config.title || '';
@@ -2456,7 +2270,6 @@ function setupEventListeners() {
   document.getElementById('add-extra-btn').addEventListener('click', showAddExtraModal);
   document.getElementById('plan-vacation-range-btn').addEventListener('click', showVacationRangeModal);
   document.getElementById('toggle-vacation-btn').addEventListener('click', () => toggleVacationDay(selectedDate));
-  document.getElementById('priority-add-btn').addEventListener('click', showPriorityModal);
 
   document.getElementById('day-plan-list').addEventListener('click', (event) => {
     const target = event.target.closest('[data-action]');
@@ -2478,16 +2291,6 @@ function setupEventListeners() {
     const action = target.dataset.action;
     if (action === 'toggle-extra') toggleExtra(day, id);
     if (action === 'delete-extra') deleteExtra(day, id);
-  });
-
-  document.getElementById('priority-list').addEventListener('click', (event) => {
-    const target = event.target.closest('[data-action]');
-    if (!target) return;
-    const monthKey = target.dataset.monthKey;
-    const id = target.dataset.priorityId;
-    const action = target.dataset.action;
-    if (action === 'toggle-priority') togglePriority(id, monthKey);
-    if (action === 'delete-priority') deletePriority(id, monthKey);
   });
 
   document.getElementById('modal-overlay').addEventListener('click', (event) => {
