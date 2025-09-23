@@ -145,6 +145,9 @@
     .calendar-task-pill.task-done::before { content: '✓'; font-weight: 700; color: var(--green); font-size: 12px; }
     .calendar-task-pill.task-done span { text-decoration: line-through; }
     .calendar-task-pill.task-done:hover { opacity: 0.85; }
+    .calendar-task-pill { cursor: grab; }
+    .calendar-task-pill.dragging { opacity: 0.6; cursor: grabbing; }
+    .calendar-day.drop-target { background: rgba(37, 99, 235, 0.08); outline: 2px dashed var(--accent); outline-offset: -4px; }
     
     /* Segmented Control */
     .segmented-control { display: flex; background: var(--surface); border-radius: 10px; padding: 4px; }
@@ -303,6 +306,7 @@ let tempSubtasks = [];
 let currentCalendarDate = new Date();
 let expandedTasks = new Set(); // Przechowuje ID rozwiniętych zadań
 let collapsedGroups = new Set();
+let draggedTaskId = null;
 const statsState = { range: 7, category: 'all' };
 
 // --- STAN APLIKACJI ---
@@ -397,30 +401,39 @@ function renderTaskList() {
 
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
+    const tomorrowDate = new Date(today);
+    tomorrowDate.setUTCDate(tomorrowDate.getUTCDate() + 1);
 
     const overdue = [];
     const todayTasks = [];
+    const tomorrowTasks = [];
     const upcoming = [];
     const completedOverdue = [];
 
     for (const task of filteredTasks) {
         const dueDate = parseDate(task.dueDate);
         const isOverdue = dueDate && dueDate < today;
+        const isToday = dueDate && dueDate.getTime() === today.getTime();
+        const isTomorrow = dueDate && dueDate.getTime() === tomorrowDate.getTime();
 
         if (task.status === 'done') {
             if (hideCompleted) continue;
             if (isOverdue) {
                 completedOverdue.push(task);
-            } else if (dueDate && dueDate.getTime() === today.getTime()) {
+            } else if (isToday) {
                 todayTasks.push(task);
+            } else if (isTomorrow) {
+                tomorrowTasks.push(task);
             } else {
                 upcoming.push(task);
             }
         } else {
             if (isOverdue) {
                 overdue.push(task);
-            } else if (dueDate && dueDate.getTime() === today.getTime()) {
+            } else if (isToday) {
                 todayTasks.push(task);
+            } else if (isTomorrow) {
+                tomorrowTasks.push(task);
             } else {
                 upcoming.push(task);
             }
@@ -447,12 +460,14 @@ function renderTaskList() {
 
     overdue.sort(sortFn);
     todayTasks.sort(sortFn).sort((a, b) => (a.status === 'done' ? 1 : -1) - (b.status === 'done' ? 1 : -1));
+    tomorrowTasks.sort(sortFn).sort((a, b) => (a.status === 'done' ? 1 : -1) - (b.status === 'done' ? 1 : -1));
     upcoming.sort(sortFn).sort((a, b) => (a.status === 'done' ? 1 : -1) - (b.status === 'done' ? 1 : -1));
     completedOverdue.sort((a, b) => (parseDate(b.dueDate) || 0) - (parseDate(a.dueDate) || 0));
 
     const groups = [
         { key: 'overdue', label: 'Zaległe', className: 'overdue-header', tasks: overdue },
         { key: 'today', label: 'Dzisiaj', className: '', tasks: todayTasks },
+        { key: 'tomorrow', label: 'Jutro', className: '', tasks: tomorrowTasks },
         { key: 'upcoming', label: 'Nadchodzące', className: '', tasks: upcoming },
         { key: 'completedOverdue', label: 'Ukończone (Zaległe)', className: 'completed-header', tasks: completedOverdue }
     ];
@@ -594,20 +609,33 @@ function appendTaskRow(task, container) {
 function getTask(id) { return state.tasks.find(t => t.id === id); }
 function getTaskIndex(id) { return state.tasks.findIndex(t => t.id === id); }
 
-function handleTaskStatusChange(e) {
-    const taskId = e.target.dataset.id, isChecked = e.target.checked;
+function updateTaskStatus(taskId, shouldBeDone) {
     const task = getTask(taskId);
     if (!task) return;
-    task.status = isChecked ? 'done' : 'todo';
-    if (isChecked && task.recurrence !== 'none' && task.dueDate) {
+    const wasDone = task.status === 'done';
+    if (shouldBeDone === wasDone) return;
+    task.status = shouldBeDone ? 'done' : 'todo';
+    if (shouldBeDone && task.recurrence !== 'none' && task.dueDate) {
         const d = parseDate(task.dueDate);
         if (task.recurrence === 'daily') d.setUTCDate(d.getUTCDate() + 1);
         if (task.recurrence === 'weekly') d.setUTCDate(d.getUTCDate() + 7);
         if (task.recurrence === 'monthly') d.setUTCMonth(d.getUTCMonth() + 1);
-        state.tasks.push({...task, id: `task_${Date.now()}`, dueDate: toYYYYMMDD(d), status: 'todo', subtasks: task.subtasks.map(st => ({ ...st, done: false })) });
+        state.tasks.push({
+            ...task,
+            id: `task_${Date.now()}`,
+            dueDate: toYYYYMMDD(d),
+            status: 'todo',
+            createdAt: new Date().toISOString(),
+            subtasks: task.subtasks.map(st => ({ ...st, done: false }))
+        });
     }
     saveState();
     render();
+}
+
+function handleTaskStatusChange(e) {
+    const taskId = e.target.dataset.id, isChecked = e.target.checked;
+    updateTaskStatus(taskId, isChecked);
 }
 
 function startEdit(id) {
@@ -691,12 +719,79 @@ function renderCalendar() {
         
         let tasksHtml = tasksForDay.map(t => {
             const statusClass = t.status === 'done' ? 'task-done' : 'task-todo';
-            return `<div class="calendar-task-pill ${t.category} prio-${t.priority || 'low'} ${statusClass}" title="${t.title}"><span>${t.title}</span></div>`;
+            return `<div class="calendar-task-pill ${t.category} prio-${t.priority || 'low'} ${statusClass}" title="${t.title}" draggable="true" data-task-id="${t.id}"><span>${t.title}</span></div>`;
         }).join('');
-        
-        html += `<div class="calendar-day"><div class="day-number">${day}</div><div class="calendar-tasks">${tasksHtml}</div></div>`;
+
+        html += `<div class="calendar-day" data-date="${dateStr}"><div class="day-number">${day}</div><div class="calendar-tasks">${tasksHtml}</div></div>`;
     }
     getEl('calendar-container').innerHTML = html + `</div>`;
+    setupCalendarInteractions();
+}
+
+function setupCalendarInteractions() {
+    const taskElements = document.querySelectorAll('.calendar-task-pill[data-task-id]');
+    taskElements.forEach(el => {
+        el.addEventListener('click', handleCalendarTaskClick);
+        el.addEventListener('dragstart', handleTaskDragStart);
+        el.addEventListener('dragend', handleTaskDragEnd);
+    });
+
+    document.querySelectorAll('.calendar-day[data-date]').forEach(dayEl => {
+        dayEl.addEventListener('dragover', handleDayDragOver);
+        dayEl.addEventListener('drop', handleDayDrop);
+        dayEl.addEventListener('dragleave', handleDayDragLeave);
+    });
+}
+
+function handleCalendarTaskClick(e) {
+    e.preventDefault();
+    if (draggedTaskId) return;
+    const taskId = e.currentTarget.dataset.taskId;
+    const task = getTask(taskId);
+    if (!task) return;
+    updateTaskStatus(taskId, task.status !== 'done');
+}
+
+function handleTaskDragStart(e) {
+    const taskId = e.currentTarget.dataset.taskId;
+    if (!taskId) return;
+    draggedTaskId = taskId;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', taskId);
+    requestAnimationFrame(() => e.currentTarget.classList.add('dragging'));
+}
+
+function handleTaskDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    document.querySelectorAll('.calendar-day.drop-target').forEach(day => day.classList.remove('drop-target'));
+    draggedTaskId = null;
+}
+
+function handleDayDragOver(e) {
+    if (!draggedTaskId || !e.currentTarget.dataset.date) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    e.currentTarget.classList.add('drop-target');
+}
+
+function handleDayDragLeave(e) {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+        e.currentTarget.classList.remove('drop-target');
+    }
+}
+
+function handleDayDrop(e) {
+    e.preventDefault();
+    const date = e.currentTarget.dataset.date;
+    if (!draggedTaskId || !date) return;
+    const task = getTask(draggedTaskId);
+    if (task) {
+        task.dueDate = date;
+        saveState();
+    }
+    e.currentTarget.classList.remove('drop-target');
+    draggedTaskId = null;
+    render();
 }
 
 // --- STATYSTYKI ---
