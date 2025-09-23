@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LifeOS — Zadania Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root, [data-theme="light"]{
+      --accent-h: 222; --accent-s: 83%; --accent-l: 53%;
+      --accent: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+      --accent-weak: hsl(var(--accent-h) 60% 94%);
+      --bg:#f6f7fb; --card:#ffffff; --ink:#0f172a; --muted:#667085; --line:#e7eaf0;
+      --surface:#f9fafb;
+      --green:#059669;--red:#dc2626;--orange:#ea580c;--blue:#2563eb;--purple:#7c3aed;--yellow:#eab308;
+      --prio-high-bg: #fee2e2; --prio-high-text: #b91c1c;
+      --prio-medium-bg: #ffedd5; --prio-medium-text: #c2410c;
+      --prio-low-bg: #f1f5f9; --prio-low-text: #475569;
+      --cat-work-bg: #f5f3ff; --cat-work-text: #5b21b6; --cat-work-border: #8b5cf6;
+      --cat-private-bg: #f0fdf4; --cat-private-text: #166534; --cat-private-border: #22c55e;
+      --shadow-sm:0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow:0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+      --shadow-md:0 6px 16px -6px rgb(0 0 0 / 0.12);
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: scale(0.95); } }
+    .task-enter { animation: fadeIn 0.3s ease-out forwards; }
+    .task-exit { animation: fadeOut 0.3s ease-in forwards; }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family: 'Inter', system-ui,-apple-system,Segoe UI,Roboto; font-size: 12px; line-height: 1.5;}
+    .wrap{max-width:1200px;margin:0 auto;padding:32px 24px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow: var(--shadow); transition: all .3s ease;}
+    .row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+    .muted{color:var(--muted)}
+    .title{margin:0 0 8px 0;font-weight:700; font-size: 15px;}
+    .btn{display:inline-flex;gap:8px;align-items:center;justify-content:center;border-radius:12px;padding:10px 16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer; text-decoration: none; font-weight: 600; transition: all .2s ease;}
+    .btn:hover{transform: translateY(-1px); box-shadow: var(--shadow-sm); border-color:hsl(var(--accent-h) 30% 75% / .6)}
+    .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+    .btn.danger{background:#fee2e2;border-color:#fecdd3;color:#b91c1c}
+    .btn.danger:hover{background:#fecdd3}
+    .btn svg { width: 16px; height: 16px; }
+    input,select,textarea{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card);color:var(--ink);width:100%; font-family: inherit; font-size: 12px; transition: border-color .2s, box-shadow .2s;}
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px hsl(var(--accent-h) 90% 60% / .35); }
+    .grid{display:grid;gap:16px}
+    .g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media(max-width:900px){.g-3{grid-template-columns:1fr}}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap; margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 8px;}
+    .tab{padding:8px 14px;border-radius:8px; cursor:pointer; font-weight: 600; border: 1px solid transparent; color: var(--muted); transition: all .2s;}
+    .tab:hover{background: var(--surface); color: var(--ink);}
+    .tab.active{background:var(--card);color:var(--ink);border-color:var(--line); box-shadow: var(--shadow-sm);}
+    
+    /* Task table styles */
+    .task-table { width: 100%; border-collapse: collapse; }
+    .task-table th, .task-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid var(--line); transition: background-color .2s; vertical-align: middle; }
+    .task-table th { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 600;}
+    .task-table tr:last-child td { border-bottom: none; }
+    .task-table .task-title-cell { font-weight: 600; cursor: pointer; }
+    .task-table .subtasks-row { display: none; }
+    .task-table .subtasks-content { background: var(--surface); padding: 12px; }
+    .task-table input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
+    .task-table tbody tr:not(.task-group-header):hover { background-color: var(--surface); }
+    .task-title.task-done { text-decoration: line-through; color: var(--muted); font-weight: 400; }
+    .task-group-header td { background-color: var(--surface); color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 10px; padding: 6px 8px; border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); }
+    .task-group-header.overdue-header td { background-color: #fff1f2; color: var(--red); }
+    .task-group-header.completed-header td { background-color: #f0fdf4; color: var(--green); }
+    .task-actions .btn { padding: 6px; }
+
+    /* Tags & Pills */
+    .pill { display:inline-block;padding:3px 10px;border-radius:999px;font-size:10px; font-weight: 600; }
+    .pill.prio-high { background-color: var(--prio-high-bg); color: var(--prio-high-text); }
+    .pill.prio-medium { background-color: var(--prio-medium-bg); color: var(--prio-medium-text); }
+    .pill.prio-low { background-color: var(--prio-low-bg); color: var(--prio-low-text); }
+    .pill.cat-work { background-color: var(--cat-work-bg); color: var(--cat-work-text); }
+    .pill.cat-private { background-color: var(--cat-private-bg); color: var(--cat-private-text); }
+    .tags-container { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tag-pill { background-color: var(--accent-weak); color: var(--accent); padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+    
+    /* Subtasks */
+    .subtask-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+    .subtask-item { display: flex; align-items: center; gap: 8px; font-size: 11px; background: var(--card); padding: 8px; border-radius: 8px; }
+    .subtask-item input[type="checkbox"] { width: 16px; height: 16px; }
+    .subtask-item.done span { text-decoration: line-through; color: var(--muted); }
+    .progress-bar-container { width: 100px; height: 8px; background-color: var(--line); border-radius: 4px; overflow: hidden; }
+    .progress-bar { height: 100%; background-color: var(--accent); transition: width .3s ease; }
+    
+    /* Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); animation: fadeIn 0.2s ease-out; }
+    .modal-card { background: var(--card); padding: 24px; border-radius: 16px; box-shadow: var(--shadow-md); max-width: 400px; width: 90%; text-align: center; }
+    #modal-text { font-size: 13px; margin: 0 0 20px 0; color: var(--ink); }
+    .modal-actions { margin-top: 20px; display: flex; justify-content: center; gap: 8px; }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    @media(max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
+    .chart-container { position: relative; }
+
+    /* Calendar */
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;}
+    .calendar-header { text-align: center; padding: 8px; background: var(--surface); font-weight: 600; font-size: 11px; border-bottom: 1px solid var(--line); }
+    .calendar-day { border-right: 1px solid var(--line); border-top: 1px solid var(--line); padding: 4px; font-size: 11px; display: flex; flex-direction: column; min-height: 100px; }
+    .calendar-day:nth-child(-n+7) { border-top: none; }
+    .calendar-day:nth-child(7n) { border-right: none; }
+    .day-number { font-weight: 600; margin-bottom: 4px; }
+    .calendar-tasks { display: flex; flex-direction: column; gap: 4px; }
+    .calendar-task-pill { padding: 2px 8px; border-radius: 6px; font-size: 10px; white-space: normal; word-break: break-word; cursor: pointer; border-left: 3px solid transparent; }
+    .calendar-task-pill.work { border-left-color: var(--cat-work-border); }
+    .calendar-task-pill.private { border-left-color: var(--cat-private-border); }
+    .calendar-task-pill.prio-high { background-color: var(--prio-high-bg); color: var(--prio-high-text); }
+    .calendar-task-pill.prio-medium { background-color: var(--prio-medium-bg); color: var(--prio-medium-text); }
+    .calendar-task-pill.prio-low { background-color: var(--prio-low-bg); color: var(--prio-low-text); }
+    .calendar-task-pill.task-done { text-decoration: line-through; opacity: 0.7; }
+    
+    /* Segmented Control */
+    .segmented-control { display: flex; background: var(--surface); border-radius: 10px; padding: 4px; }
+    .segment { flex: 1; text-align: center; padding: 6px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: background .2s, color .2s; }
+    .segment.active { background: var(--card); box-shadow: var(--shadow-sm); color: var(--ink); }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="row" style="margin-bottom: 24px;">
+      <div class="row" style="gap:16px">
+        <a href="./index.html" class="btn">← Powrót</a>
+        <div>
+          <h1 style="font-size: 24px; font-weight: 800; margin:0;">Zadania Pro</h1>
+          <div class="muted">Zarządzaj swoimi obowiązkami w jednym miejscu.</div>
+        </div>
+      </div>
+      <button id="clear-all-btn" class="btn danger">Wyczyść wszystko</button>
+    </header>
+
+    <div class="card" style="margin-top:16px;">
+      <h3 class="title" id="form-title" style="margin-bottom: 16px;">Nowe zadanie</h3>
+      <input type="hidden" id="task-id">
+      <div class="grid" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px;">
+        <div><label class="muted" style="font-size:11px; display:block; margin-bottom: 4px;">Tytuł zadania</label><input type="text" id="task-title" placeholder="Np. Przygotować raport kwartalny"></div>
+        <div><label class="muted" style="font-size:11px; display:block; margin-bottom: 4px;">Notatki</label><textarea id="task-notes" placeholder="Szczegóły, linki, wymagania..."></textarea></div>
+      </div>
+      <div class="grid g-3">
+        <div><label class="muted" style="font-size:11px; display:block; margin-bottom: 4px;">Kategoria</label>
+          <div id="task-category-selector" class="segmented-control">
+              <div class="segment active" data-value="work">Praca</div>
+              <div class="segment" data-value="private">Prywatne</div>
+          </div>
+        </div>
+        <div><label class="muted" style="font-size:11px; display:block; margin-bottom: 4px;">Priorytet</label><select id="task-priority"><option value="low">Niski</option><option value="medium">Średni</option><option value="high">Wysoki</option></select></div>
+        <div><label class="muted" style="font-size:11px; display:block; margin-bottom: 4px;">Termin</label><input type="date" id="task-due-date"></div>
+        <div style="grid-column: 1 / -1;"><label class="muted" style="font-size:11px; display:block; margin-bottom: 4px;">Tagi (oddzielone przecinkiem)</label><input type="text" id="task-tags" placeholder="np. praca, pilne, projekt-x"></div>
+        <div><label class="muted" style="font-size:11px; display:block; margin-bottom: 4px;">Powtarzalność</label><select id="task-recurrence"><option value="none">Nigdy</option><option value="daily">Codziennie</option><option value="weekly">Co tydzień</option><option value="monthly">Co miesiąc</option></select></div>
+        <div style="grid-column: 2 / -1;">
+             <label class="muted" style="font-size:11px; display:block; margin-bottom: 4px;">Podzadania</label>
+             <div style="display:flex; gap: 8px;">
+                 <input type="text" id="subtask-input" placeholder="Dodaj krok do wykonania...">
+                 <button id="add-subtask-btn" class="btn" style="white-space:nowrap;">Dodaj</button>
+             </div>
+             <ul id="subtask-list-form" style="list-style:none; padding: 0; margin: 8px 0 0 0; display:flex; flex-direction:column; gap: 4px;"></ul>
+        </div>
+      </div>
+       <div style="display:flex; gap: 8px; justify-content:flex-end; margin-top: 16px;">
+          <button id="cancel-edit-btn" class="btn" style="display:none;">Anuluj</button>
+          <button id="add-task-btn" class="btn primary"><span id="add-task-btn-text">Dodaj zadanie</span></button>
+       </div>
+    </div>
+    
+    <div class="tabs" style="margin-top: 24px;">
+        <div class="tab active" data-tab="list">Lista Zadań</div>
+        <div class="tab" data-tab="calendar">Kalendarz</div>
+        <div class="tab" data-tab="stats">Statystyki</div>
+    </div>
+
+    <div id="tab-content-list" class="card">
+        <div class="row" style="gap: 8px; padding-bottom: 12px;">
+            <div class="row" style="gap: 8px; flex-grow: 1;">
+              <select id="category-filter" style="width:auto;"></select>
+              <select id="date-filter" style="width:auto;"></select>
+              <select id="task-priority-filter" style="width:auto;"></select>
+              <input type="text" id="tag-filter" placeholder="Filtruj po tagach..." style="width: 150px; flex-grow: 1;">
+            </div>
+            <div class="row" style="gap: 8px;">
+              <select id="sort-by" style="width:auto;"></select>
+              <button id="sort-direction" class="btn" style="padding: 10px;">↑</button>
+              <label style="display:flex; align-items:center; gap: 6px; font-size: 11px; white-space: nowrap;"><input type="checkbox" id="hide-completed-filter" checked style="width: 16px; height: 16px;"> Ukryj wykonane</label>
+            </div>
+        </div>
+        <table class="task-table">
+            <thead>
+                <tr>
+                    <th style="width: 40px;"></th><th>Zadanie</th><th>Kategoria</th><th>Priorytet</th><th>Tagi</th><th>Termin</th><th>Postęp</th><th style="width: 120px;">Akcje</th>
+                </tr>
+            </thead>
+            <tbody id="task-table-body"></tbody>
+        </table>
+    </div>
+
+    <div id="tab-content-calendar" class="card" style="display:none;">
+        <div class="row">
+            <h3 class="title" id="calendar-title">Kalendarz</h3>
+            <div>
+                <button id="cal-prev" class="btn">←</button>
+                <button id="cal-next" class="btn">→</button>
+            </div>
+        </div>
+        <div id="calendar-container" style="margin-top: 16px;"></div>
+    </div>
+    <div id="tab-content-stats" class="card" style="display:none;">
+        <h3 class="title">Statystyki Produktywności</h3>
+        <div id="stats-grid" class="stats-grid">
+            <div class="chart-container"><canvas id="completed-tasks-chart"></canvas></div>
+            <div class="chart-container"><canvas id="tasks-by-prio-chart"></canvas></div>
+            <div class="chart-container"><canvas id="tasks-by-tag-chart"></canvas></div>
+        </div>
+    </div>
+  </div>
+
+<div id="modal-overlay" class="modal-overlay" style="display: none;">
+  <div class="modal-card"><p id="modal-text"></p><div id="modal-actions" class="modal-actions"></div></div>
+</div>
+
+<script>
+// --- KONFIGURACJA ---
+const TASKS_STORAGE_KEY = 'lifeos_tasks_pro_v2';
+let state = { tasks: [] };
+let charts = {};
+let tempSubtasks = [];
+let currentCalendarDate = new Date();
+let expandedTasks = new Set(); // Przechowuje ID rozwiniętych zadań
+
+// --- STAN APLIKACJI ---
+function loadState() {
+    const proDataRaw = localStorage.getItem(TASKS_STORAGE_KEY);
+    state = proDataRaw ? JSON.parse(proDataRaw) : { tasks: [] };
+}
+function saveState() { localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(state)); }
+
+// --- ELEMENTY DOM ---
+const getEl = (id) => document.getElementById(id);
+const taskIdInput = getEl('task-id'), taskTitleInput = getEl('task-title'), taskNotesInput = getEl('task-notes');
+const taskDueDateInput = getEl('task-due-date'), taskPriorityInput = getEl('task-priority');
+const taskCategorySelector = getEl('task-category-selector');
+const taskRecurrenceInput = getEl('task-recurrence'), taskTagsInput = getEl('task-tags');
+const addTaskBtn = getEl('add-task-btn'), cancelEditBtn = getEl('cancel-edit-btn'), clearAllBtn = getEl('clear-all-btn');
+const taskTableBody = getEl('task-table-body');
+const subtaskInput = getEl('subtask-input'), subtaskListForm = getEl('subtask-list-form'), addSubtaskBtn = getEl('add-subtask-btn');
+const hideCompletedFilter = getEl('hide-completed-filter'), tagFilterInput = getEl('tag-filter');
+const priorityFilter = getEl('task-priority-filter'), categoryFilter = getEl('category-filter'), dateFilter = getEl('date-filter');
+const sortBySelect = getEl('sort-by'), sortDirectionBtn = getEl('sort-direction');
+const modalOverlay = getEl('modal-overlay'), modalText = getEl('modal-text'), modalActions = getEl('modal-actions');
+
+// --- GŁÓWNE FUNKCJE ---
+function render() { renderTaskList(); }
+
+function parseDate(dateString) {
+    if (!dateString) return null;
+    const parts = dateString.split('-').map(Number);
+    return new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+}
+
+function toYYYYMMDD(date) {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function renderTaskList() {
+    const catFilterVal = categoryFilter.value;
+    const dateFilterVal = dateFilter.value;
+    const prioFilterVal = priorityFilter.value;
+    const tagFilterVal = tagFilterInput.value.toLowerCase().trim();
+    const hideCompleted = hideCompletedFilter.checked;
+    const sortBy = sortBySelect.value;
+    const sortAsc = sortDirectionBtn.textContent === '↑';
+
+    let filteredTasks = state.tasks;
+
+    // Apply text/select filters first
+    if (catFilterVal !== 'all') filteredTasks = filteredTasks.filter(t => t.category === catFilterVal);
+    if (prioFilterVal !== 'all') filteredTasks = filteredTasks.filter(t => t.priority === prioFilterVal);
+    if (tagFilterVal) filteredTasks = filteredTasks.filter(t => t.tags.some(tag => tag.toLowerCase().includes(tagFilterVal)));
+
+    // Apply date range filter (only for active tasks view)
+    if (dateFilterVal !== 'all') {
+        const now = new Date();
+        const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        let startDate, endDate;
+        if (dateFilterVal === 'this_week') {
+            const dayOfWeek = now.getUTCDay() === 0 ? 6 : now.getUTCDay() - 1;
+            startDate = new Date(today);
+            startDate.setUTCDate(startDate.getUTCDate() - dayOfWeek);
+            endDate = new Date(startDate);
+            endDate.setUTCDate(endDate.getUTCDate() + 6);
+        } else if (dateFilterVal === 'next_week') {
+            const dayOfWeek = now.getUTCDay() === 0 ? 6 : now.getUTCDay() - 1;
+            startDate = new Date(today);
+            startDate.setUTCDate(startDate.getUTCDate() - dayOfWeek + 7);
+            endDate = new Date(startDate);
+            endDate.setUTCDate(endDate.getUTCDate() + 6);
+        }
+        if (startDate && endDate) {
+            filteredTasks = filteredTasks.filter(t => {
+                if (t.status === 'done') return true; // Keep all completed tasks regardless of date filter
+                if (!t.dueDate) return false;
+                const dueDate = parseDate(t.dueDate);
+                return dueDate >= startDate && dueDate <= endDate;
+            });
+        }
+    }
+
+    taskTableBody.innerHTML = '';
+    
+    const today = new Date(); 
+    today.setUTCHours(0, 0, 0, 0);
+
+    // Create groups
+    const overdue = [];
+    const todayTasks = [];
+    const upcoming = [];
+    const completedOverdue = [];
+
+    for (const task of filteredTasks) {
+        const dueDate = parseDate(task.dueDate);
+        const isOverdue = dueDate && dueDate < today;
+
+        if (task.status === 'done') {
+            if (hideCompleted) {
+                continue; // Skip if we hide completed
+            }
+            if (isOverdue) {
+                completedOverdue.push(task);
+            } else {
+                if (dueDate && dueDate.getTime() === today.getTime()) {
+                    todayTasks.push(task);
+                } else { 
+                    upcoming.push(task);
+                }
+            }
+        } else { // Task is active
+            if (isOverdue) {
+                overdue.push(task);
+            } else if (dueDate && dueDate.getTime() === today.getTime()) {
+                todayTasks.push(task);
+            } else {
+                upcoming.push(task);
+            }
+        }
+    }
+
+    // Sorting function
+    const priorityOrder = { 'high': 1, 'medium': 2, 'low': 3 };
+    const sortFn = (a, b) => {
+        let comparison = 0;
+        switch(sortBy) {
+            case 'dueDate':
+                if (a.dueDate && b.dueDate) comparison = parseDate(a.dueDate) - parseDate(b.dueDate);
+                else if (a.dueDate) comparison = -1; else if (b.dueDate) comparison = 1;
+                break;
+            case 'priority':
+                comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
+                break;
+            case 'category':
+                comparison = a.category.localeCompare(b.category);
+                break;
+        }
+        return sortAsc ? comparison : -comparison;
+    };
+    
+    // Sort each group
+    overdue.sort(sortFn);
+    todayTasks.sort(sortFn).sort((a,b) => (a.status === 'done' ? 1 : -1) - (b.status === 'done' ? 1 : -1));
+    upcoming.sort(sortFn).sort((a,b) => (a.status === 'done' ? 1 : -1) - (b.status === 'done' ? 1 : -1));
+    completedOverdue.sort((a, b) => (parseDate(b.dueDate) || 0) - (parseDate(a.dueDate) || 0));
+
+    if ([overdue, todayTasks, upcoming, completedOverdue].every(g => g.length === 0)) {
+         taskTableBody.innerHTML = `<tr><td colspan="8" class="muted" style="text-align:center; padding: 40px 0;">Brak zadań pasujących do filtrów.</td></tr>`;
+         return;
+    }
+
+    const createHeaderRow = (title, className = '') => `<tr class="task-group-header ${className}"><td colspan="8">${title}</td></tr>`;
+    
+    if (overdue.length > 0) {
+        taskTableBody.innerHTML += createHeaderRow('Zaległe', 'overdue-header');
+        overdue.forEach(t => appendTaskRow(t));
+    }
+    if (todayTasks.length > 0) {
+         taskTableBody.innerHTML += createHeaderRow('Dzisiaj');
+         todayTasks.forEach(t => appendTaskRow(t));
+    }
+    if (upcoming.length > 0) {
+        taskTableBody.innerHTML += createHeaderRow('Nadchodzące');
+        upcoming.forEach(t => appendTaskRow(t));
+    }
+    if (completedOverdue.length > 0) {
+        taskTableBody.innerHTML += createHeaderRow('Ukończone (Zaległe)', 'completed-header');
+        completedOverdue.forEach(t => appendTaskRow(t));
+    }
+    
+    addEventListenersToRows();
+}
+
+
+function addEventListenersToRows() {
+    taskTableBody.querySelectorAll('[data-id]').forEach(el => el.addEventListener('change', handleTaskStatusChange));
+    taskTableBody.querySelectorAll('[data-del-id]').forEach(el => el.addEventListener('click', (e) => deleteTask(e.currentTarget.dataset.delId)));
+    taskTableBody.querySelectorAll('[data-edit-id]').forEach(el => el.addEventListener('click', (e) => startEdit(e.currentTarget.dataset.editId)));
+    taskTableBody.querySelectorAll('.task-title-cell').forEach(el => el.addEventListener('click', (e) => {
+        const taskId = e.currentTarget.closest('tr').querySelector('[data-id]').dataset.id;
+        const subtaskRow = e.currentTarget.closest('tr').nextElementSibling;
+        if (subtaskRow) {
+            const isVisible = subtaskRow.style.display === 'table-row';
+            subtaskRow.style.display = isVisible ? 'none' : 'table-row';
+            if (isVisible) expandedTasks.delete(taskId); else expandedTasks.add(taskId);
+        }
+    }));
+    taskTableBody.querySelectorAll('.subtask-checkbox').forEach(el => el.addEventListener('change', (e) => {
+        const [taskId, subtaskId] = e.target.dataset.subtask.split(':');
+        toggleSubtask(taskId, subtaskId, e.target.checked);
+    }));
+}
+
+function appendTaskRow(task) {
+    const today = new Date(); today.setUTCHours(0, 0, 0, 0);
+    const dueDate = parseDate(task.dueDate);
+    const daysDiff = dueDate ? Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24)) : null;
+    let dueDateInfo = 'Brak terminu';
+    if (daysDiff !== null) {
+        if (daysDiff < 0) dueDateInfo = `<span style="color:var(--red); font-weight: 600;">Po terminie ${Math.abs(daysDiff)} dni</span>`;
+        else if (daysDiff === 0) dueDateInfo = `<span style="color: var(--orange); font-weight: 600;">Termin dzisiaj</span>`;
+        else dueDateInfo = `Zostało ${daysDiff} dni`;
+    }
+
+    const subtasksDone = task.subtasks.filter(st => st.done).length;
+    const progress = task.subtasks.length > 0 ? (subtasksDone / task.subtasks.length) * 100 : 0;
+    const tagsHtml = task.tags.length > 0 ? `<div class="tags-container">${task.tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : '—';
+
+    const row = document.createElement('tr');
+    row.className = 'task-enter';
+    row.innerHTML = `
+        <td><input type="checkbox" data-id="${task.id}" ${task.status === 'done' ? 'checked' : ''}/></td>
+        <td class="task-title-cell">
+            <span class="task-title ${task.status === 'done' ? 'task-done' : ''}">${task.title}</span>
+        </td>
+        <td><span class="pill cat-${task.category}">${task.category === 'work' ? 'Praca' : 'Prywatne'}</span></td>
+        <td><span class="pill prio-${task.priority}">${task.priority === 'high' ? 'Wysoki' : (task.priority === 'medium' ? 'Średni' : 'Niski')}</span></td>
+        <td>${tagsHtml}</td>
+        <td>${task.dueDate ? `${task.dueDate} <br><span class="muted" style="font-size:10px">${dueDateInfo}</span>` : '—'}</td>
+        <td>
+            <div class="progress-bar-container" title="${subtasksDone}/${task.subtasks.length} ukończono">
+                <div class="progress-bar" style="width: ${progress}%;"></div>
+            </div>
+        </td>
+        <td class="task-actions">
+            <button class="btn" data-edit-id="${task.id}" title="Edytuj">✏️</button>
+            <button class="btn danger" data-del-id="${task.id}" title="Usuń">🗑️</button>
+        </td>
+    `;
+    const subtaskRow = document.createElement('tr');
+    subtaskRow.className = 'subtasks-row';
+    if (expandedTasks.has(task.id)) subtaskRow.style.display = 'table-row';
+    subtaskRow.innerHTML = `<td colspan="8" class="subtasks-content">
+        <p class="muted" style="font-weight: 600; margin: 0 0 8px 0;">Podzadania:</p>
+        ${task.subtasks.length > 0 ? `
+            <ul class="subtask-list">
+                ${task.subtasks.map(st => `
+                    <li class="subtask-item ${st.done ? 'done' : ''}">
+                       <input type="checkbox" class="subtask-checkbox" data-subtask="${task.id}:${st.id}" ${st.done ? 'checked' : ''}>
+                       <span>${st.text}</span>
+                    </li>
+                `).join('')}
+            </ul>` : '<span class="muted" style="font-size:11px;">Brak podzadań.</span>'}
+    </td>`;
+    taskTableBody.appendChild(row);
+    taskTableBody.appendChild(subtaskRow);
+}
+
+// --- ZARZĄDZANIE ZADANIAMI ---
+function getTask(id) { return state.tasks.find(t => t.id === id); }
+function getTaskIndex(id) { return state.tasks.findIndex(t => t.id === id); }
+
+function handleTaskStatusChange(e) {
+    const taskId = e.target.dataset.id, isChecked = e.target.checked;
+    const task = getTask(taskId);
+    if (!task) return;
+    task.status = isChecked ? 'done' : 'todo';
+    if (isChecked && task.recurrence !== 'none' && task.dueDate) {
+        const d = parseDate(task.dueDate);
+        if (task.recurrence === 'daily') d.setUTCDate(d.getUTCDate() + 1);
+        if (task.recurrence === 'weekly') d.setUTCDate(d.getUTCDate() + 7);
+        if (task.recurrence === 'monthly') d.setUTCMonth(d.getUTCMonth() + 1);
+        state.tasks.push({...task, id: `task_${Date.now()}`, dueDate: toYYYYMMDD(d), status: 'todo', subtasks: task.subtasks.map(st => ({ ...st, done: false })) });
+    }
+    saveState();
+    render();
+}
+
+function startEdit(id) {
+    const task = getTask(id);
+    if (!task) return;
+    taskIdInput.value = task.id;
+    taskTitleInput.value = task.title;
+    taskNotesInput.value = task.notes;
+    taskDueDateInput.value = task.dueDate;
+    taskPriorityInput.value = task.priority;
+    taskRecurrenceInput.value = task.recurrence;
+    taskTagsInput.value = task.tags.join(', ');
+    taskCategorySelector.querySelectorAll('.segment').forEach(s => s.classList.toggle('active', s.dataset.value === task.category));
+    tempSubtasks = [...task.subtasks];
+    renderSubtaskListForm();
+    getEl('add-task-btn-text').textContent = "Zapisz zmiany";
+    cancelEditBtn.style.display = 'inline-flex';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function deleteTask(id) {
+    showConfirm('Na pewno usunąć to zadanie?', () => {
+        expandedTasks.delete(id);
+        const row = taskTableBody.querySelector(`[data-id="${id}"]`).closest('tr');
+        if (row) {
+            row.classList.add('task-exit');
+            row.nextElementSibling?.classList.add('task-exit');
+            setTimeout(() => {
+                state.tasks = state.tasks.filter(t => t.id !== id);
+                saveState();
+                render();
+            }, 300);
+        }
+    });
+}
+
+function resetForm() {
+    [taskIdInput, taskTitleInput, taskNotesInput, taskDueDateInput, taskTagsInput].forEach(el => el.value = '');
+    [taskPriorityInput, taskRecurrenceInput].forEach(el => el.value = el.options[0].value);
+    taskCategorySelector.querySelectorAll('.segment').forEach((s, i) => s.classList.toggle('active', i === 0));
+    tempSubtasks = [];
+    renderSubtaskListForm();
+    getEl('add-task-btn-text').textContent = "Dodaj zadanie";
+    cancelEditBtn.style.display = 'none';
+}
+
+// --- PODZADANIA ---
+function renderSubtaskListForm() {
+    subtaskListForm.innerHTML = tempSubtasks.map((st, index) => `
+        <li class="subtask-item"><span>${st.text}</span><button class="btn danger" style="padding: 4px; margin-left: auto;" data-index="${index}" onclick="removeTempSubtask(event)">🗑️</button></li>
+    `).join('');
+}
+function addTempSubtask() {
+    const text = subtaskInput.value.trim();
+    if (text) {
+        tempSubtasks.push({ id: `st_${Date.now()}`, text, done: false });
+        subtaskInput.value = '';
+        renderSubtaskListForm();
+    }
+}
+function removeTempSubtask(e) { e.preventDefault(); tempSubtasks.splice(e.currentTarget.dataset.index, 1); renderSubtaskListForm(); }
+function toggleSubtask(taskId, subtaskId, isDone) {
+    const task = getTask(taskId);
+    const subtask = task?.subtasks.find(st => st.id === subtaskId);
+    if (subtask) { subtask.done = isDone; saveState(); render(); }
+}
+
+// --- KALENDARZ ---
+function renderCalendar() {
+    const year = currentCalendarDate.getFullYear(), month = currentCalendarDate.getMonth();
+    getEl('calendar-title').textContent = currentCalendarDate.toLocaleString('pl-PL', { month: 'long', year: 'numeric' });
+    const firstDay = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
+    const dayOfWeek = (firstDay === 0) ? 6 : firstDay - 1;
+    let html = `<div class="calendar-grid">`;
+    ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz'].forEach(day => html += `<div class="calendar-header">${day}</div>`);
+    for (let i = 0; i < dayOfWeek; i++) html += `<div class="calendar-day"></div>`;
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const tasksForDay = state.tasks.filter(t => t.dueDate === dateStr);
+        tasksForDay.sort((a,b) => (a.status === 'done' ? 1 : -1) - (b.status === 'done' ? 1 : -1));
+        
+        let tasksHtml = tasksForDay.map(t => `<div class="calendar-task-pill ${t.category} prio-${t.priority || 'low'} ${t.status === 'done' ? 'task-done' : ''}" title="${t.title}">${t.title}</div>`).join('');
+        
+        html += `<div class="calendar-day"><div class="day-number">${day}</div><div class="calendar-tasks">${tasksHtml}</div></div>`;
+    }
+    getEl('calendar-container').innerHTML = html + `</div>`;
+}
+
+// --- STATYSTYKI ---
+function renderStats() {
+    Object.values(charts).forEach(chart => chart.destroy());
+    const last7Days = Array(7).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return toYYYYMMDD(d); }).reverse();
+    const completedCounts = last7Days.map(day => state.tasks.filter(t => t.status === 'done' && t.dueDate === day).length);
+    charts.completed = new Chart(getEl('completed-tasks-chart'), { type: 'bar', data: { labels: last7Days.map(d => d.slice(5)), datasets: [{ label: 'Ukończone zadania', data: completedCounts, backgroundColor: 'var(--accent-weak)', borderColor: 'var(--accent)', borderWidth: 1 }] }, options: { responsive: true, plugins: { legend: { display: false }, title: { display: true, text: 'Aktywność w ostatnim tygodniu' } } } });
+    const activeTasks = state.tasks.filter(t => t.status !== 'done');
+    const prioCounts = { high: 0, medium: 0, low: 0 };
+    activeTasks.forEach(t => prioCounts[t.priority]++);
+    charts.prio = new Chart(getEl('tasks-by-prio-chart'), { type: 'doughnut', data: { labels: ['Wysoki', 'Średni', 'Niski'], datasets: [{ data: Object.values(prioCounts), backgroundColor: ['#b91c1c', '#c2410c', '#475569'] }] }, options: { responsive: true, plugins: { title: { display: true, text: 'Aktywne zadania wg priorytetu' } } } });
+    const tagCounts = {};
+    activeTasks.forEach(t => t.tags.forEach(tag => tagCounts[tag] = (tagCounts[tag] || 0) + 1));
+    charts.tags = new Chart(getEl('tasks-by-tag-chart'), { type: 'pie', data: { labels: Object.keys(tagCounts), datasets: [{ data: Object.values(tagCounts), backgroundColor: ['#3b82f6', '#84cc16', '#f97316', '#a855f7', '#ec4899', '#10b981', '#f59e0b'] }] }, options: { responsive: true, plugins: { title: { display: true, text: 'Aktywne zadania wg tagów' } } } });
+}
+
+// --- MODALE ---
+function showModal(text, buttons) {
+    modalText.textContent = text;
+    modalActions.innerHTML = '';
+    buttons.forEach(btnConfig => { const button = document.createElement('button'); button.textContent = btnConfig.text; button.className = btnConfig.class; button.onclick = () => { modalOverlay.style.display = 'none'; if (btnConfig.onClick) btnConfig.onClick(); }; modalActions.appendChild(button); });
+    modalOverlay.style.display = 'flex';
+}
+function showAlert(message) { showModal(message, [{ text: 'OK', class: 'btn primary' }]); }
+function showConfirm(message, onConfirm) { showModal(message, [{ text: 'Anuluj', class: 'btn' }, { text: 'Potwierdź', class: 'btn danger', onClick: onConfirm }]); }
+
+// --- INICJALIZACJA I EVENT LISTENERS ---
+function init() {
+    categoryFilter.innerHTML = `<option value="all">Wszystkie kategorie</option><option value="work">Praca</option><option value="private">Prywatne</option>`;
+    dateFilter.innerHTML = `<option value="all">Wszystkie terminy</option><option value="this_week">Bieżący tydzień</option><option value="next_week">Kolejny tydzień</option>`;
+    priorityFilter.innerHTML = `<option value="all">Wszystkie priorytety</option><option value="high">Wysoki</option><option value="medium">Średni</option><option value="low">Niski</option>`;
+    sortBySelect.innerHTML = `<option value="dueDate">Sortuj wg Terminu</option><option value="priority">Sortuj wg Priorytetu</option><option value="category">Sortuj wg Kategorii</option>`;
+
+    addTaskBtn.addEventListener('click', () => {
+        const title = taskTitleInput.value.trim();
+        if (!title) { showAlert('Tytuł zadania jest wymagany.'); return; }
+        const taskData = { title, notes: taskNotesInput.value.trim(), dueDate: taskDueDateInput.value, priority: taskPriorityInput.value, category: taskCategorySelector.querySelector('.segment.active').dataset.value, recurrence: taskRecurrenceInput.value, tags: taskTagsInput.value.split(',').map(t => t.trim()).filter(Boolean), subtasks: [...tempSubtasks] };
+        const id = taskIdInput.value;
+        if (id) { const index = getTaskIndex(id); if (index > -1) state.tasks[index] = { ...state.tasks[index], ...taskData }; } 
+        else { state.tasks.push({ ...taskData, id: `task_${Date.now()}`, status: 'todo', createdAt: new Date().toISOString() }); }
+        saveState(); resetForm(); render();
+    });
+
+    taskCategorySelector.addEventListener('click', (e) => {
+        if (e.target.classList.contains('segment')) {
+            taskCategorySelector.querySelectorAll('.segment').forEach(s => s.classList.remove('active'));
+            e.target.classList.add('active');
+        }
+    });
+    
+    [categoryFilter, dateFilter, priorityFilter, tagFilterInput, hideCompletedFilter, sortBySelect].forEach(el => el.addEventListener('change', renderTaskList));
+    tagFilterInput.addEventListener('keyup', renderTaskList);
+    sortDirectionBtn.addEventListener('click', () => { sortDirectionBtn.textContent = sortDirectionBtn.textContent === '↑' ? '↓' : '↑'; renderTaskList(); });
+    addSubtaskBtn.addEventListener('click', addTempSubtask);
+    subtaskInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTempSubtask(); }});
+    cancelEditBtn.addEventListener('click', resetForm);
+    clearAllBtn.addEventListener('click', () => showConfirm('Na pewno usunąć WSZYSTKIE zadania?', () => { state.tasks = []; saveState(); render(); showAlert('Wszystkie zadania zostały usunięte.'); }));
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (e) => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        const tabName = e.target.dataset.tab;
+        ['list', 'calendar', 'stats'].forEach(t => getEl(`tab-content-${t}`).style.display = t === tabName ? 'block' : 'none');
+        if (tabName === 'stats') renderStats();
+        if (tabName === 'calendar') renderCalendar();
+    }));
+    getEl('cal-prev').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); renderCalendar(); });
+    getEl('cal-next').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
+
+    loadState();
+    render();
+}
+
+init();
+</script>
+</body>
+</html>
