@@ -63,9 +63,17 @@
     .task-table input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
     .task-table tbody tr:not(.task-group-header):hover { background-color: var(--surface); }
     .task-title.task-done { text-decoration: line-through; color: var(--muted); font-weight: 400; }
-    .task-group-header td { background-color: var(--surface); color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 10px; padding: 6px 8px; border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); }
+    .task-group-header td { background-color: var(--surface); color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 10px; padding: 6px 8px; border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); cursor: pointer; }
     .task-group-header.overdue-header td { background-color: #fff1f2; color: var(--red); }
     .task-group-header.completed-header td { background-color: #f0fdf4; color: var(--green); }
+    .group-header-content { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .group-header-main { display:flex; align-items:center; gap:8px; letter-spacing:.05em; }
+    .group-arrow { width:20px; height:20px; border-radius:8px; background:var(--card); display:inline-flex; align-items:center; justify-content:center; font-size:12px; box-shadow: var(--shadow-sm); transition: background .2s ease, color .2s ease; }
+    .task-group-header .group-count { font-size: 10px; font-weight: 600; color: var(--muted); }
+    .task-group-header.collapsed .group-count { color: var(--ink); }
+    .group-summary { font-size: 10px; font-weight: 600; color: var(--muted); }
+    .task-group-header.collapsed .group-summary { color: var(--ink); }
+    .task-group-header td:hover .group-arrow { background: var(--accent); color: #fff; }
     .task-actions .btn { padding: 6px; }
 
     /* Tags & Pills */
@@ -93,9 +101,22 @@
     .modal-actions { margin-top: 20px; display: flex; justify-content: center; gap: 8px; }
 
     /* Stats */
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-    @media(max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
-    .chart-container { position: relative; }
+    .analytics-header { gap: 24px; }
+    .analytics-controls { display:flex; gap:12px; flex-wrap:wrap; margin-left:auto; align-items:flex-end; }
+    .analytics-controls label { display:block; font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+    .analytics-controls select { width:auto; min-width:140px; }
+    .insight-cards { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:16px; margin-bottom:24px; }
+    .insight-card { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:6px; }
+    .insight-label { font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+    .insight-value { font-size:24px; font-weight:800; color:var(--ink); }
+    .insight-subtitle { font-size:11px; color:var(--muted); }
+    .analytics-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:24px; }
+    .chart-card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:12px; }
+    .chart-card-header { display:flex; flex-direction:column; gap:2px; }
+    .chart-card-header h4 { margin:0; font-size:14px; font-weight:700; }
+    .chart-card canvas { width:100%; min-height:240px; }
+    .chart-empty-state { display:flex; align-items:center; justify-content:center; text-align:center; font-size:12px; color:var(--muted); background:var(--card); border:1px dashed var(--line); border-radius:12px; padding:24px; }
+    @media(max-width: 768px) { .analytics-grid { grid-template-columns:1fr; } }
 
     /* Calendar */
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;}
@@ -105,13 +126,19 @@
     .calendar-day:nth-child(7n) { border-right: none; }
     .day-number { font-weight: 600; margin-bottom: 4px; }
     .calendar-tasks { display: flex; flex-direction: column; gap: 4px; }
-    .calendar-task-pill { padding: 2px 8px; border-radius: 6px; font-size: 10px; white-space: normal; word-break: break-word; cursor: pointer; border-left: 3px solid transparent; }
+    .calendar-task-pill { padding: 4px 10px; border-radius: 8px; font-size: 11px; white-space: normal; word-break: break-word; cursor: pointer; border:1px solid transparent; display:flex; align-items:center; gap:8px; transition: transform .2s ease, box-shadow .2s ease; }
+    .calendar-task-pill:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
     .calendar-task-pill.work { border-left-color: var(--cat-work-border); }
     .calendar-task-pill.private { border-left-color: var(--cat-private-border); }
     .calendar-task-pill.prio-high { background-color: var(--prio-high-bg); color: var(--prio-high-text); }
     .calendar-task-pill.prio-medium { background-color: var(--prio-medium-bg); color: var(--prio-medium-text); }
     .calendar-task-pill.prio-low { background-color: var(--prio-low-bg); color: var(--prio-low-text); }
-    .calendar-task-pill.task-done { text-decoration: line-through; opacity: 0.7; }
+    .calendar-task-pill.task-open { border-color: rgba(37, 99, 235, 0.2); }
+    .calendar-task-pill.task-done { background: rgba(5, 150, 105, 0.12); border-color: rgba(5, 150, 105, 0.4); color: var(--green); font-weight: 600; }
+    .calendar-task-pill .calendar-task-text { flex:1; }
+    .calendar-status-icon { width: 18px; height: 18px; border-radius: 999px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
+    .calendar-status-icon.open { border:1px solid var(--line); background:#fff; color: var(--muted); }
+    .calendar-status-icon.done { background: var(--green); color:#fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.5); }
     
     /* Segmented Control */
     .segmented-control { display: flex; background: var(--surface); border-radius: 10px; padding: 4px; }
@@ -207,11 +234,82 @@
         <div id="calendar-container" style="margin-top: 16px;"></div>
     </div>
     <div id="tab-content-stats" class="card" style="display:none;">
-        <h3 class="title">Statystyki Produktywności</h3>
-        <div id="stats-grid" class="stats-grid">
-            <div class="chart-container"><canvas id="completed-tasks-chart"></canvas></div>
-            <div class="chart-container"><canvas id="tasks-by-prio-chart"></canvas></div>
-            <div class="chart-container"><canvas id="tasks-by-tag-chart"></canvas></div>
+        <div class="row analytics-header" style="align-items:flex-end; margin-bottom: 16px;">
+            <div>
+                <h3 class="title" style="margin-bottom: 4px;">Centrum Analityczne</h3>
+                <div class="muted" style="font-size: 12px;">Dynamiczny przegląd Twojej produktywności.</div>
+            </div>
+            <div class="analytics-controls">
+                <div>
+                    <label for="stats-timeframe">Zakres czasowy</label>
+                    <select id="stats-timeframe">
+                        <option value="7">Ostatnie 7 dni</option>
+                        <option value="14">Ostatnie 14 dni</option>
+                        <option value="30">Ostatnie 30 dni</option>
+                        <option value="90">Ostatnie 90 dni</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="stats-breakdown">Podział danych</label>
+                    <select id="stats-breakdown">
+                        <option value="category">Kategoria</option>
+                        <option value="priority">Priorytet</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="insight-cards">
+            <div class="insight-card">
+                <div class="insight-label">Wszystkie zadania</div>
+                <div class="insight-value" id="insight-total">0</div>
+                <div class="insight-subtitle">Aktywne + ukończone</div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-label">Aktywne teraz</div>
+                <div class="insight-value" id="insight-active">0</div>
+                <div class="insight-subtitle">Pozostałe do wykonania</div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-label">Dodane w okresie</div>
+                <div class="insight-value" id="insight-created-window">0</div>
+                <div class="insight-subtitle">Nowe zadania w wybranym zakresie</div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-label">Ukończone w okresie</div>
+                <div class="insight-value" id="insight-completed-window">0</div>
+                <div class="insight-subtitle">Wskaźnik ukończenia: <span id="insight-completion-rate">0%</span></div>
+            </div>
+        </div>
+        <div class="analytics-grid">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h4>Aktywność dzienna</h4>
+                    <span class="muted" style="font-size: 11px;">Dodane vs ukończone zadania</span>
+                </div>
+                <canvas id="productivity-trend-chart" height="260"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h4>Struktura statusów</h4>
+                    <span class="muted" style="font-size: 11px;">Ogólny podział zadań</span>
+                </div>
+                <canvas id="completion-ratio-chart" height="260"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h4 id="breakdown-chart-title">Podział według kategorii</h4>
+                    <span class="muted" style="font-size: 11px;" id="breakdown-chart-subtitle">Zadania w wybranym okresie</span>
+                </div>
+                <canvas id="breakdown-chart" height="260"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h4>Najpopularniejsze tagi</h4>
+                    <span class="muted" style="font-size: 11px;">Top 5 w okresie</span>
+                </div>
+                <div id="top-tags-empty" class="chart-empty-state" style="display:none;">Brak tagów do wyświetlenia.</div>
+                <canvas id="top-tags-chart" height="260"></canvas>
+            </div>
         </div>
     </div>
   </div>
@@ -228,11 +326,44 @@ let charts = {};
 let tempSubtasks = [];
 let currentCalendarDate = new Date();
 let expandedTasks = new Set(); // Przechowuje ID rozwiniętych zadań
+const GROUP_STATE_STORAGE_KEY = 'lifeos_task_groups_state_v1';
+const DEFAULT_GROUP_STATE = { overdue: true, today: true, upcoming: true, completedOverdue: true };
+
+function loadGroupState() {
+    try {
+        const stored = JSON.parse(localStorage.getItem(GROUP_STATE_STORAGE_KEY));
+        return { ...DEFAULT_GROUP_STATE, ...stored };
+    } catch (error) {
+        return { ...DEFAULT_GROUP_STATE };
+    }
+}
+
+let groupState = loadGroupState();
+function saveGroupState() { localStorage.setItem(GROUP_STATE_STORAGE_KEY, JSON.stringify(groupState)); }
 
 // --- STAN APLIKACJI ---
 function loadState() {
     const proDataRaw = localStorage.getItem(TASKS_STORAGE_KEY);
     state = proDataRaw ? JSON.parse(proDataRaw) : { tasks: [] };
+    if (!Array.isArray(state.tasks)) state.tasks = [];
+    state.tasks = state.tasks.map((task) => {
+        const tags = Array.isArray(task.tags)
+            ? task.tags
+            : typeof task.tags === 'string'
+                ? task.tags.split(',').map(t => t.trim()).filter(Boolean)
+                : [];
+        const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+        const normalizedSubtasks = subtasks.map((subtask, index) => ({
+            ...subtask,
+            id: subtask.id || `st_${Date.now()}_${index}`
+        }));
+        return {
+            ...task,
+            tags,
+            subtasks: normalizedSubtasks,
+            createdAt: task.createdAt || (task.dueDate ? new Date(task.dueDate).toISOString() : new Date().toISOString())
+        };
+    });
 }
 function saveState() { localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(state)); }
 
@@ -249,9 +380,18 @@ const hideCompletedFilter = getEl('hide-completed-filter'), tagFilterInput = get
 const priorityFilter = getEl('task-priority-filter'), categoryFilter = getEl('category-filter'), dateFilter = getEl('date-filter');
 const sortBySelect = getEl('sort-by'), sortDirectionBtn = getEl('sort-direction');
 const modalOverlay = getEl('modal-overlay'), modalText = getEl('modal-text'), modalActions = getEl('modal-actions');
+const statsTimeframeSelect = getEl('stats-timeframe'), statsBreakdownSelect = getEl('stats-breakdown');
 
 // --- GŁÓWNE FUNKCJE ---
-function render() { renderTaskList(); }
+function render() {
+    renderTaskList();
+    if (document.querySelector('.tab[data-tab="calendar"].active')) {
+        renderCalendar();
+    }
+    if (document.querySelector('.tab[data-tab="stats"].active')) {
+        renderStats();
+    }
+}
 
 function parseDate(dateString) {
     if (!dateString) return null;
@@ -264,6 +404,29 @@ function toYYYYMMDD(date) {
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const day = String(date.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+}
+
+function normalizeDate(value) {
+    if (!value) return null;
+    const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+    date.setHours(0, 0, 0, 0);
+    return date;
+}
+
+function isDateInRange(value, start, end) {
+    const date = normalizeDate(value);
+    if (!date) return false;
+    return date >= start && date <= end;
+}
+
+function countTasksByDate(tasks, field, targetDate) {
+    const normalizedTarget = normalizeDate(targetDate);
+    if (!normalizedTarget) return 0;
+    return tasks.reduce((acc, task) => {
+        const date = normalizeDate(task[field]);
+        return date && date.getTime() === normalizedTarget.getTime() ? acc + 1 : acc;
+    }, 0);
 }
 
 function renderTaskList() {
@@ -374,30 +537,20 @@ function renderTaskList() {
     upcoming.sort(sortFn).sort((a,b) => (a.status === 'done' ? 1 : -1) - (b.status === 'done' ? 1 : -1));
     completedOverdue.sort((a, b) => (parseDate(b.dueDate) || 0) - (parseDate(a.dueDate) || 0));
 
-    if ([overdue, todayTasks, upcoming, completedOverdue].every(g => g.length === 0)) {
+    const groups = [
+        { key: 'overdue', title: 'Zaległe', className: 'overdue-header', tasks: overdue },
+        { key: 'today', title: 'Dzisiaj', className: '', tasks: todayTasks },
+        { key: 'upcoming', title: 'Nadchodzące', className: '', tasks: upcoming },
+        { key: 'completedOverdue', title: 'Ukończone (Zaległe)', className: 'completed-header', tasks: completedOverdue }
+    ].filter(group => group.tasks.length > 0);
+
+    if (groups.length === 0) {
          taskTableBody.innerHTML = `<tr><td colspan="8" class="muted" style="text-align:center; padding: 40px 0;">Brak zadań pasujących do filtrów.</td></tr>`;
          return;
     }
 
-    const createHeaderRow = (title, className = '') => `<tr class="task-group-header ${className}"><td colspan="8">${title}</td></tr>`;
-    
-    if (overdue.length > 0) {
-        taskTableBody.innerHTML += createHeaderRow('Zaległe', 'overdue-header');
-        overdue.forEach(t => appendTaskRow(t));
-    }
-    if (todayTasks.length > 0) {
-         taskTableBody.innerHTML += createHeaderRow('Dzisiaj');
-         todayTasks.forEach(t => appendTaskRow(t));
-    }
-    if (upcoming.length > 0) {
-        taskTableBody.innerHTML += createHeaderRow('Nadchodzące');
-        upcoming.forEach(t => appendTaskRow(t));
-    }
-    if (completedOverdue.length > 0) {
-        taskTableBody.innerHTML += createHeaderRow('Ukończone (Zaległe)', 'completed-header');
-        completedOverdue.forEach(t => appendTaskRow(t));
-    }
-    
+    groups.forEach(group => appendGroupSection(group));
+
     addEventListenersToRows();
 }
 
@@ -419,6 +572,13 @@ function addEventListenersToRows() {
         const [taskId, subtaskId] = e.target.dataset.subtask.split(':');
         toggleSubtask(taskId, subtaskId, e.target.checked);
     }));
+    taskTableBody.querySelectorAll('.task-group-header').forEach(row => row.addEventListener('click', (e) => {
+        const groupKey = e.currentTarget.dataset.group;
+        if (!groupKey) return;
+        groupState[groupKey] = !(groupState[groupKey] ?? true);
+        saveGroupState();
+        renderTaskList();
+    }));
 }
 
 function appendTaskRow(task) {
@@ -432,9 +592,12 @@ function appendTaskRow(task) {
         else dueDateInfo = `Zostało ${daysDiff} dni`;
     }
 
-    const subtasksDone = task.subtasks.filter(st => st.done).length;
-    const progress = task.subtasks.length > 0 ? (subtasksDone / task.subtasks.length) * 100 : 0;
-    const tagsHtml = task.tags.length > 0 ? `<div class="tags-container">${task.tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : '—';
+    const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+    const subtasksDone = subtasks.filter(st => st.done).length;
+    const progress = subtasks.length > 0 ? (subtasksDone / subtasks.length) * 100 : 0;
+    const tags = Array.isArray(task.tags) ? task.tags : [];
+    const tagsHtml = tags.length > 0 ? `<div class="tags-container">${tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : '—';
+    const categoryLabel = task.category === 'work' ? 'Praca' : task.category === 'private' ? 'Prywatne' : (task.category || 'Inne');
 
     const row = document.createElement('tr');
     row.className = 'task-enter';
@@ -443,12 +606,12 @@ function appendTaskRow(task) {
         <td class="task-title-cell">
             <span class="task-title ${task.status === 'done' ? 'task-done' : ''}">${task.title}</span>
         </td>
-        <td><span class="pill cat-${task.category}">${task.category === 'work' ? 'Praca' : 'Prywatne'}</span></td>
+        <td><span class="pill cat-${task.category}">${categoryLabel}</span></td>
         <td><span class="pill prio-${task.priority}">${task.priority === 'high' ? 'Wysoki' : (task.priority === 'medium' ? 'Średni' : 'Niski')}</span></td>
         <td>${tagsHtml}</td>
         <td>${task.dueDate ? `${task.dueDate} <br><span class="muted" style="font-size:10px">${dueDateInfo}</span>` : '—'}</td>
         <td>
-            <div class="progress-bar-container" title="${subtasksDone}/${task.subtasks.length} ukończono">
+            <div class="progress-bar-container" title="${subtasksDone}/${subtasks.length} ukończono">
                 <div class="progress-bar" style="width: ${progress}%;"></div>
             </div>
         </td>
@@ -462,9 +625,9 @@ function appendTaskRow(task) {
     if (expandedTasks.has(task.id)) subtaskRow.style.display = 'table-row';
     subtaskRow.innerHTML = `<td colspan="8" class="subtasks-content">
         <p class="muted" style="font-weight: 600; margin: 0 0 8px 0;">Podzadania:</p>
-        ${task.subtasks.length > 0 ? `
+        ${subtasks.length > 0 ? `
             <ul class="subtask-list">
-                ${task.subtasks.map(st => `
+                ${subtasks.map(st => `
                     <li class="subtask-item ${st.done ? 'done' : ''}">
                        <input type="checkbox" class="subtask-checkbox" data-subtask="${task.id}:${st.id}" ${st.done ? 'checked' : ''}>
                        <span>${st.text}</span>
@@ -476,6 +639,32 @@ function appendTaskRow(task) {
     taskTableBody.appendChild(subtaskRow);
 }
 
+function appendGroupSection({ key, title, className, tasks }) {
+    const isExpanded = groupState[key] !== false;
+    const workCount = tasks.filter(t => t.category === 'work').length;
+    const privateCount = tasks.filter(t => t.category === 'private').length;
+    const headerRow = document.createElement('tr');
+    const headerClass = ['task-group-header', className, isExpanded ? '' : 'collapsed'].filter(Boolean).join(' ');
+    headerRow.className = headerClass;
+    headerRow.dataset.group = key;
+    headerRow.innerHTML = `
+        <td colspan="8">
+            <div class="group-header-content">
+                <div class="group-header-main">
+                    <span class="group-arrow">${isExpanded ? '▾' : '▸'}</span>
+                    <span>${title}</span>
+                    <span class="group-count">(${tasks.length})</span>
+                </div>
+                <div class="group-summary">Praca: ${workCount} • Prywatne: ${privateCount}</div>
+            </div>
+        </td>
+    `;
+    taskTableBody.appendChild(headerRow);
+    if (isExpanded) {
+        tasks.forEach(t => appendTaskRow(t));
+    }
+}
+
 // --- ZARZĄDZANIE ZADANIAMI ---
 function getTask(id) { return state.tasks.find(t => t.id === id); }
 function getTaskIndex(id) { return state.tasks.findIndex(t => t.id === id); }
@@ -485,12 +674,28 @@ function handleTaskStatusChange(e) {
     const task = getTask(taskId);
     if (!task) return;
     task.status = isChecked ? 'done' : 'todo';
+    if (isChecked) {
+        task.completedAt = new Date().toISOString();
+    } else {
+        delete task.completedAt;
+    }
     if (isChecked && task.recurrence !== 'none' && task.dueDate) {
         const d = parseDate(task.dueDate);
-        if (task.recurrence === 'daily') d.setUTCDate(d.getUTCDate() + 1);
-        if (task.recurrence === 'weekly') d.setUTCDate(d.getUTCDate() + 7);
-        if (task.recurrence === 'monthly') d.setUTCMonth(d.getUTCMonth() + 1);
-        state.tasks.push({...task, id: `task_${Date.now()}`, dueDate: toYYYYMMDD(d), status: 'todo', subtasks: task.subtasks.map(st => ({ ...st, done: false })) });
+        if (d) {
+            if (task.recurrence === 'daily') d.setUTCDate(d.getUTCDate() + 1);
+            if (task.recurrence === 'weekly') d.setUTCDate(d.getUTCDate() + 7);
+            if (task.recurrence === 'monthly') d.setUTCMonth(d.getUTCMonth() + 1);
+            const newTask = {
+                ...task,
+                id: `task_${Date.now()}`,
+                dueDate: toYYYYMMDD(d),
+                status: 'todo',
+                createdAt: new Date().toISOString(),
+                completedAt: null,
+                subtasks: (Array.isArray(task.subtasks) ? task.subtasks : []).map(st => ({ ...st, done: false }))
+            };
+            state.tasks.push(newTask);
+        }
     }
     saveState();
     render();
@@ -575,8 +780,16 @@ function renderCalendar() {
         const tasksForDay = state.tasks.filter(t => t.dueDate === dateStr);
         tasksForDay.sort((a,b) => (a.status === 'done' ? 1 : -1) - (b.status === 'done' ? 1 : -1));
         
-        let tasksHtml = tasksForDay.map(t => `<div class="calendar-task-pill ${t.category} prio-${t.priority || 'low'} ${t.status === 'done' ? 'task-done' : ''}" title="${t.title}">${t.title}</div>`).join('');
-        
+        const tasksHtml = tasksForDay.map(t => {
+            const statusClass = t.status === 'done' ? 'task-done' : 'task-open';
+            const statusIcon = t.status === 'done' ? '✓' : '○';
+            const iconClass = t.status === 'done' ? 'done' : 'open';
+            return `<div class="calendar-task-pill ${t.category} prio-${t.priority || 'low'} ${statusClass}" title="${t.title}">
+                        <span class="calendar-status-icon ${iconClass}">${statusIcon}</span>
+                        <span class="calendar-task-text">${t.title}</span>
+                    </div>`;
+        }).join('');
+
         html += `<div class="calendar-day"><div class="day-number">${day}</div><div class="calendar-tasks">${tasksHtml}</div></div>`;
     }
     getEl('calendar-container').innerHTML = html + `</div>`;
@@ -584,17 +797,170 @@ function renderCalendar() {
 
 // --- STATYSTYKI ---
 function renderStats() {
+    if (!getEl('productivity-trend-chart')) return;
     Object.values(charts).forEach(chart => chart.destroy());
-    const last7Days = Array(7).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return toYYYYMMDD(d); }).reverse();
-    const completedCounts = last7Days.map(day => state.tasks.filter(t => t.status === 'done' && t.dueDate === day).length);
-    charts.completed = new Chart(getEl('completed-tasks-chart'), { type: 'bar', data: { labels: last7Days.map(d => d.slice(5)), datasets: [{ label: 'Ukończone zadania', data: completedCounts, backgroundColor: 'var(--accent-weak)', borderColor: 'var(--accent)', borderWidth: 1 }] }, options: { responsive: true, plugins: { legend: { display: false }, title: { display: true, text: 'Aktywność w ostatnim tygodniu' } } } });
-    const activeTasks = state.tasks.filter(t => t.status !== 'done');
-    const prioCounts = { high: 0, medium: 0, low: 0 };
-    activeTasks.forEach(t => prioCounts[t.priority]++);
-    charts.prio = new Chart(getEl('tasks-by-prio-chart'), { type: 'doughnut', data: { labels: ['Wysoki', 'Średni', 'Niski'], datasets: [{ data: Object.values(prioCounts), backgroundColor: ['#b91c1c', '#c2410c', '#475569'] }] }, options: { responsive: true, plugins: { title: { display: true, text: 'Aktywne zadania wg priorytetu' } } } });
+    charts = {};
+
+    const timeframeRaw = parseInt(statsTimeframeSelect?.value || '7', 10);
+    const timeframe = Number.isNaN(timeframeRaw) ? 7 : Math.max(timeframeRaw, 1);
+    const breakdownMode = statsBreakdownSelect?.value || 'category';
+
+    const endDate = normalizeDate(new Date());
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - (timeframe - 1));
+
+    const days = Array.from({ length: timeframe }, (_, index) => {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + index);
+        return date;
+    });
+
+    const labels = days.map(day => day.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' }));
+    const createdCounts = days.map(day => countTasksByDate(state.tasks, 'createdAt', day));
+    const completedCounts = days.map(day => countTasksByDate(state.tasks, 'completedAt', day));
+
+    const totalTasks = state.tasks.length;
+    const activeTasksCount = state.tasks.filter(t => t.status !== 'done').length;
+    const createdInWindow = state.tasks.filter(t => isDateInRange(t.createdAt, startDate, endDate)).length;
+    const completedInWindow = state.tasks.filter(t => isDateInRange(t.completedAt, startDate, endDate)).length;
+    const completionRatio = totalTasks === 0 ? 0 : Math.round(((totalTasks - activeTasksCount) / totalTasks) * 100);
+
+    getEl('insight-total').textContent = totalTasks;
+    getEl('insight-active').textContent = activeTasksCount;
+    getEl('insight-created-window').textContent = createdInWindow;
+    getEl('insight-completed-window').textContent = completedInWindow;
+    getEl('insight-completion-rate').textContent = `${completionRatio}%`;
+
+    const trendCtx = getEl('productivity-trend-chart').getContext('2d');
+    charts.trend = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                { label: 'Dodane zadania', data: createdCounts, tension: 0.3, fill: true, borderColor: 'var(--accent)', backgroundColor: 'rgba(37, 99, 235, 0.15)', pointRadius: 3 },
+                { label: 'Ukończone zadania', data: completedCounts, tension: 0.3, fill: true, borderColor: 'var(--green)', backgroundColor: 'rgba(5, 150, 105, 0.18)', pointRadius: 3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+            },
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    const completionCtx = getEl('completion-ratio-chart').getContext('2d');
+    charts.completion = new Chart(completionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Ukończone', 'Do zrobienia'],
+            datasets: [{ data: [totalTasks - activeTasksCount, activeTasksCount], backgroundColor: ['var(--green)', 'var(--accent-weak)'], borderWidth: 0 }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    const tasksInWindow = state.tasks.filter(task => isDateInRange(task.createdAt, startDate, endDate) || isDateInRange(task.completedAt, startDate, endDate));
+    const hasWindowData = tasksInWindow.length > 0;
+    const breakdownSource = hasWindowData ? tasksInWindow : state.tasks;
+    const groupOrder = breakdownMode === 'category' ? ['work', 'private', 'other'] : ['high', 'medium', 'low', 'none'];
+    const labelMap = breakdownMode === 'category'
+        ? { work: 'Praca', private: 'Prywatne', other: 'Inne' }
+        : { high: 'Wysoki', medium: 'Średni', low: 'Niski', none: 'Brak' };
+    const groupFn = breakdownMode === 'category'
+        ? (task) => (task.category === 'work' || task.category === 'private') ? task.category : 'other'
+        : (task) => (['high', 'medium', 'low'].includes(task.priority)) ? task.priority : 'none';
+    const groupsData = {};
+    groupOrder.forEach(key => { groupsData[key] = { todo: 0, done: 0 }; });
+    breakdownSource.forEach(task => {
+        const key = groupFn(task);
+        if (!groupsData[key]) groupsData[key] = { todo: 0, done: 0 };
+        if (task.status === 'done') groupsData[key].done += 1; else groupsData[key].todo += 1;
+    });
+
+    const breakdownLabels = [];
+    const todoData = [];
+    const doneData = [];
+    groupOrder.forEach(key => {
+        if (!groupsData[key]) return;
+        breakdownLabels.push(labelMap[key] || key);
+        todoData.push(groupsData[key].todo);
+        doneData.push(groupsData[key].done);
+    });
+    if (breakdownLabels.length === 0) {
+        breakdownLabels.push('Brak danych');
+        todoData.push(0);
+        doneData.push(0);
+    }
+
+    const breakdownTitleEl = getEl('breakdown-chart-title');
+    const breakdownSubtitleEl = getEl('breakdown-chart-subtitle');
+    if (breakdownTitleEl) breakdownTitleEl.textContent = breakdownMode === 'category' ? 'Podział według kategorii' : 'Podział według priorytetu';
+    if (breakdownSubtitleEl) breakdownSubtitleEl.textContent = hasWindowData ? 'Zadania w wybranym okresie' : 'Brak aktywności w okresie — pokazano dane łączne';
+
+    const breakdownCtx = getEl('breakdown-chart').getContext('2d');
+    charts.breakdown = new Chart(breakdownCtx, {
+        type: 'bar',
+        data: {
+            labels: breakdownLabels,
+            datasets: [
+                { label: 'Do zrobienia', data: todoData, backgroundColor: 'var(--accent-weak)', stack: 'status' },
+                { label: 'Ukończone', data: doneData, backgroundColor: 'var(--green)', stack: 'status' }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
+            },
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    const tagsCanvas = getEl('top-tags-chart');
+    const tagsEmpty = getEl('top-tags-empty');
+    const tagsSource = hasWindowData ? tasksInWindow : state.tasks;
     const tagCounts = {};
-    activeTasks.forEach(t => t.tags.forEach(tag => tagCounts[tag] = (tagCounts[tag] || 0) + 1));
-    charts.tags = new Chart(getEl('tasks-by-tag-chart'), { type: 'pie', data: { labels: Object.keys(tagCounts), datasets: [{ data: Object.values(tagCounts), backgroundColor: ['#3b82f6', '#84cc16', '#f97316', '#a855f7', '#ec4899', '#10b981', '#f59e0b'] }] }, options: { responsive: true, plugins: { title: { display: true, text: 'Aktywne zadania wg tagów' } } } });
+    tagsSource.forEach(task => {
+        const tags = Array.isArray(task.tags) ? task.tags : [];
+        tags.forEach(tag => {
+            const key = tag.trim();
+            if (!key) return;
+            tagCounts[key] = (tagCounts[key] || 0) + 1;
+        });
+    });
+    const topTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    if (tagsEmpty) tagsEmpty.style.display = topTags.length ? 'none' : 'flex';
+    if (tagsCanvas) tagsCanvas.style.display = topTags.length ? 'block' : 'none';
+    if (topTags.length && tagsCanvas) {
+        const tagsCtx = tagsCanvas.getContext('2d');
+        charts.tags = new Chart(tagsCtx, {
+            type: 'bar',
+            data: {
+                labels: topTags.map(([tag]) => tag),
+                datasets: [{ label: 'Liczba zadań', data: topTags.map(([, count]) => count), backgroundColor: 'var(--purple)' }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, ticks: { precision: 0, stepSize: 1 } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
 }
 
 // --- MODALE ---
@@ -638,6 +1004,8 @@ function init() {
     subtaskInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTempSubtask(); }});
     cancelEditBtn.addEventListener('click', resetForm);
     clearAllBtn.addEventListener('click', () => showConfirm('Na pewno usunąć WSZYSTKIE zadania?', () => { state.tasks = []; saveState(); render(); showAlert('Wszystkie zadania zostały usunięte.'); }));
+    statsTimeframeSelect?.addEventListener('change', renderStats);
+    statsBreakdownSelect?.addEventListener('change', renderStats);
     document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (e) => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
