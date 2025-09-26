@@ -63,9 +63,14 @@
     .task-table input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
     .task-table tbody tr:not(.task-group-header):hover { background-color: var(--surface); }
     .task-title.task-done { text-decoration: line-through; color: var(--muted); font-weight: 400; }
-    .task-group-header td { background-color: var(--surface); color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 10px; padding: 6px 8px; border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); }
+    .task-group-header td { background-color: var(--surface); color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 10px; padding: 0; border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); cursor: pointer; }
     .task-group-header.overdue-header td { background-color: #fff1f2; color: var(--red); }
     .task-group-header.completed-header td { background-color: #f0fdf4; color: var(--green); }
+    .group-header-content { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; }
+    .group-header-left { display: flex; align-items: center; gap: 8px; font-size: 11px; color: inherit; text-transform: none; }
+    .group-toggle-icon { width: 20px; height: 20px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; background: rgba(15, 23, 42, 0.08); color: inherit; transition: transform .2s ease; }
+    .task-group-header[data-collapsed="true"] .group-toggle-icon { transform: rotate(-90deg); }
+    .group-summary { font-size: 10px; color: inherit; opacity: 0.8; }
     .task-actions .btn { padding: 6px; }
 
     /* Tags & Pills */
@@ -93,9 +98,33 @@
     .modal-actions { margin-top: 20px; display: flex; justify-content: center; gap: 8px; }
 
     /* Stats */
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-    @media(max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
-    .chart-container { position: relative; }
+    .stats-header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 24px; }
+    .stats-subtitle { margin: 4px 0 0 0; font-size: 11px; }
+    .stats-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .segmented-control.small .segment { padding: 6px 12px; font-size: 11px; }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 11px; font-weight: 600; background: var(--surface); color: var(--muted); cursor: pointer; transition: all .2s ease; }
+    .chip:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+    @media(max-width: 1024px) { .metrics-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media(max-width: 600px) { .metrics-grid { grid-template-columns: 1fr; } }
+    .metric-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow-sm); }
+    .metric-card h4 { margin: 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .metric-value { font-size: 24px; font-weight: 700; color: var(--ink); }
+    .metric-subtext { font-size: 11px; color: var(--muted); }
+    .metric-delta { align-self: flex-start; border-radius: 999px; padding: 4px 8px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .metric-delta.positive { background: #dcfce7; color: #166534; }
+    .metric-delta.negative { background: #fee2e2; color: #b91c1c; }
+    .metric-delta.neutral { background: var(--surface); color: var(--muted); }
+    .analytics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    @media(max-width: 900px) { .analytics-grid { grid-template-columns: 1fr; } }
+    .chart-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; }
+    .chart-panel-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .chart-panel-title { margin: 0; font-size: 14px; font-weight: 700; }
+    .chart-panel-description { margin: 0; font-size: 11px; color: var(--muted); }
+    .chart-panel canvas { width: 100% !important; }
+    .chart-legend { font-size: 10px; color: var(--muted); }
 
     /* Calendar */
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;}
@@ -104,14 +133,23 @@
     .calendar-day:nth-child(-n+7) { border-top: none; }
     .calendar-day:nth-child(7n) { border-right: none; }
     .day-number { font-weight: 600; margin-bottom: 4px; }
-    .calendar-tasks { display: flex; flex-direction: column; gap: 4px; }
-    .calendar-task-pill { padding: 2px 8px; border-radius: 6px; font-size: 10px; white-space: normal; word-break: break-word; cursor: pointer; border-left: 3px solid transparent; }
+    .calendar-tasks { display: flex; flex-direction: column; gap: 6px; }
+    .calendar-task-pill { padding: 6px 10px; border-radius: 10px; font-size: 11px; white-space: normal; word-break: break-word; cursor: pointer; border: 1px solid var(--line); display: flex; align-items: center; gap: 8px; background: #fff; transition: transform .2s ease, box-shadow .2s ease; border-left: 4px solid transparent; }
+    .calendar-task-pill:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
     .calendar-task-pill.work { border-left-color: var(--cat-work-border); }
     .calendar-task-pill.private { border-left-color: var(--cat-private-border); }
-    .calendar-task-pill.prio-high { background-color: var(--prio-high-bg); color: var(--prio-high-text); }
-    .calendar-task-pill.prio-medium { background-color: var(--prio-medium-bg); color: var(--prio-medium-text); }
-    .calendar-task-pill.prio-low { background-color: var(--prio-low-bg); color: var(--prio-low-text); }
-    .calendar-task-pill.task-done { text-decoration: line-through; opacity: 0.7; }
+    .calendar-task-pill.prio-high { box-shadow: inset 0 0 0 1px rgba(220,38,38,0.25); }
+    .calendar-task-pill.prio-medium { box-shadow: inset 0 0 0 1px rgba(234,88,12,0.2); }
+    .calendar-task-pill.prio-low { box-shadow: inset 0 0 0 1px rgba(71,85,105,0.18); }
+    .calendar-task-pill.status-pending { background: #fff; color: var(--ink); }
+    .calendar-task-pill.status-pending .status-icon { background: var(--surface); color: var(--muted); }
+    .calendar-task-pill.status-done { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+    .calendar-task-pill.status-done .status-icon { background: var(--green); color: #fff; }
+    .status-icon { width: 18px; height: 18px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+    .calendar-task-text { display: flex; flex-direction: column; gap: 2px; }
+    .calendar-task-title { font-weight: 600; }
+    .calendar-task-meta { font-size: 9px; color: var(--muted); }
+    .calendar-task-pill.status-done .calendar-task-meta { color: #16a34a; }
     
     /* Segmented Control */
     .segmented-control { display: flex; background: var(--surface); border-radius: 10px; padding: 4px; }
@@ -207,11 +245,92 @@
         <div id="calendar-container" style="margin-top: 16px;"></div>
     </div>
     <div id="tab-content-stats" class="card" style="display:none;">
-        <h3 class="title">Statystyki Produktywności</h3>
-        <div id="stats-grid" class="stats-grid">
-            <div class="chart-container"><canvas id="completed-tasks-chart"></canvas></div>
-            <div class="chart-container"><canvas id="tasks-by-prio-chart"></canvas></div>
-            <div class="chart-container"><canvas id="tasks-by-tag-chart"></canvas></div>
+        <div class="stats-header">
+            <div>
+                <h3 class="title" style="margin-bottom: 4px;">Centrum analityczne</h3>
+                <p class="muted stats-subtitle">Monitoruj tempo pracy i odkrywaj wąskie gardła.</p>
+            </div>
+            <div class="stats-controls">
+                <div id="stats-range-control" class="segmented-control small">
+                    <div class="segment active" data-range="7">7 dni</div>
+                    <div class="segment" data-range="14">14 dni</div>
+                    <div class="segment" data-range="30">30 dni</div>
+                </div>
+                <div id="stats-category-chips" class="chip-group">
+                    <button class="chip active" data-category="work">Praca</button>
+                    <button class="chip active" data-category="private">Prywatne</button>
+                </div>
+            </div>
+        </div>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4>Ukończone</h4>
+                    <span id="metric-completed-delta" class="metric-delta neutral">0</span>
+                </div>
+                <span class="metric-value" id="metric-completed">0</span>
+                <span class="metric-subtext">Najlepszy dzień: <span id="metric-best-day">—</span></span>
+            </div>
+            <div class="metric-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4>Plan vs realizacja</h4>
+                </div>
+                <span class="metric-value" id="metric-completion-rate">0%</span>
+                <span class="metric-subtext">Zaplanowane: <span id="metric-planned">0</span> · W trakcie: <span id="metric-in-progress">0</span></span>
+            </div>
+            <div class="metric-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4>Zaległe</h4>
+                    <span id="metric-overdue-trend" class="metric-delta neutral">0</span>
+                </div>
+                <span class="metric-value" id="metric-overdue">0</span>
+                <span class="metric-subtext">Priorytet wysoki: <span id="metric-overdue-critical">0</span></span>
+            </div>
+            <div class="metric-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4>Fokus</h4>
+                </div>
+                <span class="metric-value" id="metric-focus">—</span>
+                <span class="metric-subtext">Udział: <span id="metric-focus-share">—</span></span>
+            </div>
+        </div>
+        <div class="analytics-grid">
+            <div class="chart-panel">
+                <div class="chart-panel-header">
+                    <div>
+                        <p class="chart-panel-title">Trend realizacji</p>
+                        <p class="chart-panel-description">Porównaj zadania zaplanowane z ukończonymi w wybranym okresie.</p>
+                    </div>
+                </div>
+                <canvas id="productivity-trend-chart"></canvas>
+            </div>
+            <div class="chart-panel">
+                <div class="chart-panel-header">
+                    <div>
+                        <p class="chart-panel-title">Struktura priorytetów</p>
+                        <p class="chart-panel-description">Wgląd w obciążenie zespołów według priorytetów.</p>
+                    </div>
+                </div>
+                <canvas id="category-priority-chart"></canvas>
+            </div>
+            <div class="chart-panel">
+                <div class="chart-panel-header">
+                    <div>
+                        <p class="chart-panel-title">Status realizacji</p>
+                        <p class="chart-panel-description">Podział zadań na wykonane i oczekujące.</p>
+                    </div>
+                </div>
+                <canvas id="completion-ratio-chart"></canvas>
+            </div>
+            <div class="chart-panel">
+                <div class="chart-panel-header">
+                    <div>
+                        <p class="chart-panel-title">Powtarzalność</p>
+                        <p class="chart-panel-description">Jak często zadania wymagają cyklicznych działań.</p>
+                    </div>
+                </div>
+                <canvas id="recurrence-chart"></canvas>
+            </div>
         </div>
     </div>
   </div>
@@ -228,6 +347,10 @@ let charts = {};
 let tempSubtasks = [];
 let currentCalendarDate = new Date();
 let expandedTasks = new Set(); // Przechowuje ID rozwiniętych zadań
+let collapsedGroups = new Set();
+const CATEGORY_LABELS = { work: 'Praca', private: 'Prywatne' };
+const PRIORITY_LABELS = { high: 'Wysoki', medium: 'Średni', low: 'Niski' };
+let statsState = { range: 7, categories: new Set(['work', 'private']) };
 
 // --- STAN APLIKACJI ---
 function loadState() {
@@ -249,9 +372,19 @@ const hideCompletedFilter = getEl('hide-completed-filter'), tagFilterInput = get
 const priorityFilter = getEl('task-priority-filter'), categoryFilter = getEl('category-filter'), dateFilter = getEl('date-filter');
 const sortBySelect = getEl('sort-by'), sortDirectionBtn = getEl('sort-direction');
 const modalOverlay = getEl('modal-overlay'), modalText = getEl('modal-text'), modalActions = getEl('modal-actions');
+const statsRangeControl = getEl('stats-range-control'), statsCategoryChips = getEl('stats-category-chips');
 
 // --- GŁÓWNE FUNKCJE ---
-function render() { renderTaskList(); }
+function render() {
+    renderTaskList();
+    const activeTab = document.querySelector('.tab.active');
+    if (activeTab?.dataset.tab === 'calendar') {
+        renderCalendar();
+    }
+    if (activeTab?.dataset.tab === 'stats') {
+        renderStats();
+    }
+}
 
 function parseDate(dateString) {
     if (!dateString) return null;
@@ -264,6 +397,47 @@ function toYYYYMMDD(date) {
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const day = String(date.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+}
+
+function getUTCToday() {
+    const now = new Date();
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+}
+
+function getRangeDateStrings(range, offset = 0) {
+    const today = getUTCToday();
+    const dates = [];
+    for (let i = range - 1; i >= 0; i--) {
+        const date = new Date(today);
+        date.setUTCDate(date.getUTCDate() - i - offset);
+        dates.push(toYYYYMMDD(date));
+    }
+    return dates;
+}
+
+function formatShortDateLabel(dateStr) {
+    const date = parseDate(dateStr);
+    if (!date) return dateStr;
+    return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+}
+
+function formatFullDateLabel(dateStr) {
+    const date = parseDate(dateStr);
+    if (!date) return '—';
+    return date.toLocaleDateString('pl-PL', { weekday: 'short', day: '2-digit', month: '2-digit' });
+}
+
+function updateDelta(elementId, value, suffix = '') {
+    const el = getEl(elementId);
+    if (!el) return;
+    el.classList.remove('positive', 'negative', 'neutral');
+    let cls = 'neutral';
+    if (value > 0) cls = 'positive';
+    else if (value < 0) cls = 'negative';
+    el.classList.add(cls);
+    const prefix = value > 0 ? '+' : '';
+    const suffixText = suffix ? ` ${suffix}` : '';
+    el.textContent = `${prefix}${value}${suffixText}`.trim();
 }
 
 function renderTaskList() {
@@ -379,26 +553,83 @@ function renderTaskList() {
          return;
     }
 
-    const createHeaderRow = (title, className = '') => `<tr class="task-group-header ${className}"><td colspan="8">${title}</td></tr>`;
-    
-    if (overdue.length > 0) {
-        taskTableBody.innerHTML += createHeaderRow('Zaległe', 'overdue-header');
-        overdue.forEach(t => appendTaskRow(t));
-    }
-    if (todayTasks.length > 0) {
-         taskTableBody.innerHTML += createHeaderRow('Dzisiaj');
-         todayTasks.forEach(t => appendTaskRow(t));
-    }
-    if (upcoming.length > 0) {
-        taskTableBody.innerHTML += createHeaderRow('Nadchodzące');
-        upcoming.forEach(t => appendTaskRow(t));
-    }
-    if (completedOverdue.length > 0) {
-        taskTableBody.innerHTML += createHeaderRow('Ukończone (Zaległe)', 'completed-header');
-        completedOverdue.forEach(t => appendTaskRow(t));
-    }
-    
+    const groups = [
+        { key: 'overdue', title: 'Zaległe', className: 'overdue-header', tasks: overdue },
+        { key: 'today', title: 'Dzisiaj', className: '', tasks: todayTasks },
+        { key: 'upcoming', title: 'Nadchodzące', className: '', tasks: upcoming },
+        { key: 'completed_overdue', title: 'Ukończone (Zaległe)', className: 'completed-header', tasks: completedOverdue }
+    ];
+
+    groups.forEach(group => {
+        if (group.tasks.length === 0) return;
+        appendGroupHeader(group);
+        group.tasks.forEach(task => appendTaskRow(task, group.key));
+    });
+
     addEventListenersToRows();
+    applyGroupCollapsedState();
+}
+
+function formatTaskWord(count) {
+    if (count === 1) return 'zadanie';
+    if (count >= 2 && count <= 4) return 'zadania';
+    return 'zadań';
+}
+
+function appendGroupHeader({ key, title, className = '', tasks }) {
+    const total = tasks.length;
+    const workCount = tasks.filter(t => t.category === 'work').length;
+    const privateCount = total - workCount;
+    const isCollapsed = collapsedGroups.has(key);
+    const headerRow = document.createElement('tr');
+    headerRow.className = `task-group-header ${className}`.trim();
+    headerRow.dataset.group = key;
+    headerRow.dataset.collapsed = isCollapsed ? 'true' : 'false';
+    headerRow.innerHTML = `
+        <td colspan="8">
+            <div class="group-header-content">
+                <div class="group-header-left">
+                    <span class="group-toggle-icon">${isCollapsed ? '▶' : '▼'}</span>
+                    <span>${title}</span>
+                </div>
+                <span class="group-summary">${total} ${formatTaskWord(total)} · Praca: ${workCount} · Prywatne: ${privateCount}</span>
+            </div>
+        </td>
+    `;
+    headerRow.addEventListener('click', () => toggleGroupCollapse(key));
+    taskTableBody.appendChild(headerRow);
+}
+
+function toggleGroupCollapse(groupKey) {
+    if (collapsedGroups.has(groupKey)) collapsedGroups.delete(groupKey);
+    else collapsedGroups.add(groupKey);
+    applyGroupCollapsedState();
+}
+
+function applyGroupCollapsedState() {
+    taskTableBody.querySelectorAll('.task-group-header').forEach(header => {
+        const groupKey = header.dataset.group;
+        const isCollapsed = collapsedGroups.has(groupKey);
+        header.dataset.collapsed = isCollapsed ? 'true' : 'false';
+        const icon = header.querySelector('.group-toggle-icon');
+        if (icon) icon.textContent = isCollapsed ? '▶' : '▼';
+        let row = header.nextElementSibling;
+        while (row && !row.classList.contains('task-group-header')) {
+            if (row.dataset.group === groupKey) {
+                if (isCollapsed) {
+                    row.style.display = 'none';
+                } else {
+                    if (row.classList.contains('subtasks-row')) {
+                        const taskId = row.dataset.taskId;
+                        row.style.display = expandedTasks.has(taskId) ? 'table-row' : 'none';
+                    } else {
+                        row.style.display = '';
+                    }
+                }
+            }
+            row = row.nextElementSibling;
+        }
+    });
 }
 
 
@@ -421,7 +652,7 @@ function addEventListenersToRows() {
     }));
 }
 
-function appendTaskRow(task) {
+function appendTaskRow(task, groupKey) {
     const today = new Date(); today.setUTCHours(0, 0, 0, 0);
     const dueDate = parseDate(task.dueDate);
     const daysDiff = dueDate ? Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24)) : null;
@@ -438,13 +669,18 @@ function appendTaskRow(task) {
 
     const row = document.createElement('tr');
     row.className = 'task-enter';
+    row.dataset.group = groupKey;
+    row.dataset.taskId = task.id;
+    const priorityKey = task.priority || 'low';
+    const priorityLabel = PRIORITY_LABELS[priorityKey] || PRIORITY_LABELS.low;
+    const categoryLabel = CATEGORY_LABELS[task.category] || task.category;
     row.innerHTML = `
         <td><input type="checkbox" data-id="${task.id}" ${task.status === 'done' ? 'checked' : ''}/></td>
         <td class="task-title-cell">
             <span class="task-title ${task.status === 'done' ? 'task-done' : ''}">${task.title}</span>
         </td>
-        <td><span class="pill cat-${task.category}">${task.category === 'work' ? 'Praca' : 'Prywatne'}</span></td>
-        <td><span class="pill prio-${task.priority}">${task.priority === 'high' ? 'Wysoki' : (task.priority === 'medium' ? 'Średni' : 'Niski')}</span></td>
+        <td><span class="pill cat-${task.category}">${categoryLabel}</span></td>
+        <td><span class="pill prio-${priorityKey}">${priorityLabel}</span></td>
         <td>${tagsHtml}</td>
         <td>${task.dueDate ? `${task.dueDate} <br><span class="muted" style="font-size:10px">${dueDateInfo}</span>` : '—'}</td>
         <td>
@@ -459,6 +695,8 @@ function appendTaskRow(task) {
     `;
     const subtaskRow = document.createElement('tr');
     subtaskRow.className = 'subtasks-row';
+    subtaskRow.dataset.group = groupKey;
+    subtaskRow.dataset.taskId = task.id;
     if (expandedTasks.has(task.id)) subtaskRow.style.display = 'table-row';
     subtaskRow.innerHTML = `<td colspan="8" class="subtasks-content">
         <p class="muted" style="font-weight: 600; margin: 0 0 8px 0;">Podzadania:</p>
@@ -575,8 +813,16 @@ function renderCalendar() {
         const tasksForDay = state.tasks.filter(t => t.dueDate === dateStr);
         tasksForDay.sort((a,b) => (a.status === 'done' ? 1 : -1) - (b.status === 'done' ? 1 : -1));
         
-        let tasksHtml = tasksForDay.map(t => `<div class="calendar-task-pill ${t.category} prio-${t.priority || 'low'} ${t.status === 'done' ? 'task-done' : ''}" title="${t.title}">${t.title}</div>`).join('');
-        
+        let tasksHtml = tasksForDay.map(t => {
+            const priorityKey = t.priority || 'low';
+            const statusDone = t.status === 'done';
+            const statusClass = statusDone ? 'status-done' : 'status-pending';
+            const statusIcon = statusDone ? '✓' : '•';
+            const statusLabel = statusDone ? 'Ukończone' : 'Do zrobienia';
+            const priorityLabel = PRIORITY_LABELS[priorityKey] || PRIORITY_LABELS.low;
+            return `<div class="calendar-task-pill ${t.category} prio-${priorityKey} ${statusClass}" title="${statusLabel} · Priorytet: ${priorityLabel}"><span class="status-icon">${statusIcon}</span><div class="calendar-task-text"><span class="calendar-task-title">${t.title}</span><span class="calendar-task-meta">${statusLabel}</span></div></div>`;
+        }).join('');
+
         html += `<div class="calendar-day"><div class="day-number">${day}</div><div class="calendar-tasks">${tasksHtml}</div></div>`;
     }
     getEl('calendar-container').innerHTML = html + `</div>`;
@@ -585,16 +831,150 @@ function renderCalendar() {
 // --- STATYSTYKI ---
 function renderStats() {
     Object.values(charts).forEach(chart => chart.destroy());
-    const last7Days = Array(7).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return toYYYYMMDD(d); }).reverse();
-    const completedCounts = last7Days.map(day => state.tasks.filter(t => t.status === 'done' && t.dueDate === day).length);
-    charts.completed = new Chart(getEl('completed-tasks-chart'), { type: 'bar', data: { labels: last7Days.map(d => d.slice(5)), datasets: [{ label: 'Ukończone zadania', data: completedCounts, backgroundColor: 'var(--accent-weak)', borderColor: 'var(--accent)', borderWidth: 1 }] }, options: { responsive: true, plugins: { legend: { display: false }, title: { display: true, text: 'Aktywność w ostatnim tygodniu' } } } });
-    const activeTasks = state.tasks.filter(t => t.status !== 'done');
-    const prioCounts = { high: 0, medium: 0, low: 0 };
-    activeTasks.forEach(t => prioCounts[t.priority]++);
-    charts.prio = new Chart(getEl('tasks-by-prio-chart'), { type: 'doughnut', data: { labels: ['Wysoki', 'Średni', 'Niski'], datasets: [{ data: Object.values(prioCounts), backgroundColor: ['#b91c1c', '#c2410c', '#475569'] }] }, options: { responsive: true, plugins: { title: { display: true, text: 'Aktywne zadania wg priorytetu' } } } });
-    const tagCounts = {};
-    activeTasks.forEach(t => t.tags.forEach(tag => tagCounts[tag] = (tagCounts[tag] || 0) + 1));
-    charts.tags = new Chart(getEl('tasks-by-tag-chart'), { type: 'pie', data: { labels: Object.keys(tagCounts), datasets: [{ data: Object.values(tagCounts), backgroundColor: ['#3b82f6', '#84cc16', '#f97316', '#a855f7', '#ec4899', '#10b981', '#f59e0b'] }] }, options: { responsive: true, plugins: { title: { display: true, text: 'Aktywne zadania wg tagów' } } } });
+    charts = {};
+
+    const trendCanvas = getEl('productivity-trend-chart');
+    if (!trendCanvas) return;
+
+    const selectedCategories = statsState.categories.size ? Array.from(statsState.categories) : ['work', 'private'];
+    const filteredTasks = state.tasks.filter(t => selectedCategories.includes(t.category));
+
+    const rangeDates = getRangeDateStrings(statsState.range, 0);
+    const previousRangeDates = getRangeDateStrings(statsState.range, statsState.range);
+    const rangeLabels = rangeDates.map(formatShortDateLabel);
+
+    const plannedCounts = rangeDates.map(dateStr => filteredTasks.filter(t => t.dueDate === dateStr).length);
+    const completedCounts = rangeDates.map(dateStr => filteredTasks.filter(t => t.status === 'done' && t.dueDate === dateStr).length);
+    const plannedTotal = plannedCounts.reduce((sum, val) => sum + val, 0);
+    const completedTotal = completedCounts.reduce((sum, val) => sum + val, 0);
+    const inProgressTotal = Math.max(plannedTotal - completedTotal, 0);
+    const previousCompletedTotal = previousRangeDates.reduce((sum, dateStr) => sum + filteredTasks.filter(t => t.status === 'done' && t.dueDate === dateStr).length, 0);
+
+    getEl('metric-completed').textContent = completedTotal;
+    updateDelta('metric-completed-delta', completedTotal - previousCompletedTotal, 'vs poprzedni okres');
+
+    const bestDay = completedCounts.reduce((acc, value, index) => value > acc.value ? { value, index } : acc, { value: 0, index: -1 });
+    getEl('metric-best-day').textContent = bestDay.value > 0 ? `${formatFullDateLabel(rangeDates[bestDay.index])} (${bestDay.value})` : '—';
+
+    const completionRate = plannedTotal > 0 ? Math.round((completedTotal / plannedTotal) * 100) : 0;
+    getEl('metric-completion-rate').textContent = `${completionRate}%`;
+    getEl('metric-planned').textContent = plannedTotal;
+    getEl('metric-in-progress').textContent = inProgressTotal;
+
+    const today = getUTCToday();
+    const yesterday = new Date(today); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+    const overdueTasks = filteredTasks.filter(t => t.status !== 'done' && t.dueDate && parseDate(t.dueDate) < today);
+    const overdueNow = overdueTasks.length;
+    const overdueYesterday = filteredTasks.filter(t => t.status !== 'done' && t.dueDate && parseDate(t.dueDate) < yesterday).length;
+    const overdueCritical = overdueTasks.filter(t => (t.priority || 'low') === 'high').length;
+    getEl('metric-overdue').textContent = overdueNow;
+    updateDelta('metric-overdue-trend', overdueNow - overdueYesterday, 'od wczoraj');
+    getEl('metric-overdue-critical').textContent = overdueCritical;
+
+    const focusCounts = {};
+    selectedCategories.forEach(cat => focusCounts[cat] = 0);
+    filteredTasks.forEach(t => {
+        if (t.status !== 'done' && focusCounts.hasOwnProperty(t.category)) {
+            focusCounts[t.category] += 1;
+        }
+    });
+    const totalActive = Object.values(focusCounts).reduce((sum, val) => sum + val, 0);
+    let focusCategory = null;
+    let focusValue = 0;
+    Object.entries(focusCounts).forEach(([category, value]) => {
+        if (value > focusValue) { focusValue = value; focusCategory = category; }
+    });
+    if (!focusCategory || totalActive === 0) {
+        getEl('metric-focus').textContent = '—';
+        getEl('metric-focus-share').textContent = '—';
+    } else {
+        const focusShare = Math.round((focusValue / totalActive) * 100);
+        getEl('metric-focus').textContent = CATEGORY_LABELS[focusCategory] || focusCategory;
+        getEl('metric-focus-share').textContent = `${focusShare}% (${focusValue} z ${totalActive})`;
+    }
+
+    charts.productivityTrend = new Chart(trendCanvas, {
+        type: 'line',
+        data: {
+            labels: rangeLabels,
+            datasets: [
+                { label: 'Zaplanowane', data: plannedCounts, borderColor: '#94a3b8', backgroundColor: 'rgba(148, 163, 184, 0.25)', tension: 0.35, fill: true, borderWidth: 2 },
+                { label: 'Ukończone', data: completedCounts, borderColor: 'var(--accent)', backgroundColor: 'rgba(37, 99, 235, 0.25)', tension: 0.35, fill: true, borderWidth: 3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+            },
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { mode: 'index', intersect: false }
+            }
+        }
+    });
+
+    const pendingTasks = filteredTasks.filter(t => t.status !== 'done');
+    const categoriesForChart = selectedCategories;
+    const categoryLabels = categoriesForChart.map(cat => CATEGORY_LABELS[cat] || cat);
+    const priorityLevels = ['high', 'medium', 'low'];
+    const priorityColors = { high: '#ef4444', medium: '#f97316', low: '#38bdf8' };
+    const priorityDatasets = priorityLevels.map(level => ({
+        label: PRIORITY_LABELS[level],
+        data: categoriesForChart.map(cat => pendingTasks.filter(t => t.category === cat && (t.priority || 'low') === level).length),
+        backgroundColor: priorityColors[level],
+        stack: 'stack1',
+        borderRadius: 4
+    }));
+    charts.categoryPriority = new Chart(getEl('category-priority-chart'), {
+        type: 'bar',
+        data: { labels: categoryLabels, datasets: priorityDatasets },
+        options: {
+            responsive: true,
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
+            },
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    const doneCount = filteredTasks.filter(t => t.status === 'done').length;
+    const todoCount = Math.max(filteredTasks.length - doneCount, 0);
+    charts.completionRatio = new Chart(getEl('completion-ratio-chart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Ukończone', 'Do zrobienia'],
+            datasets: [{ data: [doneCount, todoCount], backgroundColor: ['#22c55e', '#f97316'], borderWidth: 0 }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    const recurrenceCounts = { none: 0, daily: 0, weekly: 0, monthly: 0 };
+    filteredTasks.forEach(t => {
+        const key = recurrenceCounts.hasOwnProperty(t.recurrence) ? t.recurrence : 'none';
+        recurrenceCounts[key] += 1;
+    });
+    charts.recurrence = new Chart(getEl('recurrence-chart'), {
+        type: 'radar',
+        data: {
+            labels: ['Jednorazowe', 'Codziennie', 'Co tydzień', 'Co miesiąc'],
+            datasets: [{
+                label: 'Zadania',
+                data: [recurrenceCounts.none, recurrenceCounts.daily, recurrenceCounts.weekly, recurrenceCounts.monthly],
+                backgroundColor: 'rgba(14, 165, 233, 0.25)',
+                borderColor: '#0ea5e9',
+                pointBackgroundColor: '#0284c7',
+                pointBorderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { r: { beginAtZero: true, ticks: { precision: 0, stepSize: 1 } } }
+        }
+    });
 }
 
 // --- MODALE ---
@@ -638,6 +1018,31 @@ function init() {
     subtaskInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTempSubtask(); }});
     cancelEditBtn.addEventListener('click', resetForm);
     clearAllBtn.addEventListener('click', () => showConfirm('Na pewno usunąć WSZYSTKIE zadania?', () => { state.tasks = []; saveState(); render(); showAlert('Wszystkie zadania zostały usunięte.'); }));
+    if (statsRangeControl) {
+        statsRangeControl.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('segment')) return;
+            statsRangeControl.querySelectorAll('.segment').forEach(seg => seg.classList.remove('active'));
+            e.target.classList.add('active');
+            statsState.range = Number(e.target.dataset.range);
+            renderStats();
+        });
+    }
+    if (statsCategoryChips) {
+        statsCategoryChips.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('chip')) return;
+            const category = e.target.dataset.category;
+            const isActive = statsState.categories.has(category);
+            if (isActive && statsState.categories.size === 1) return;
+            if (isActive) {
+                statsState.categories.delete(category);
+                e.target.classList.remove('active');
+            } else {
+                statsState.categories.add(category);
+                e.target.classList.add('active');
+            }
+            renderStats();
+        });
+    }
     document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (e) => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
